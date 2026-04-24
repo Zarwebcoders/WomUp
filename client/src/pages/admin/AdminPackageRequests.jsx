@@ -3,6 +3,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { Check, X, Eye, Clock, Search, ExternalLink } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { API_URL, BASE_URL } from '../../api/config';
 
 const AdminPackageRequests = () => {
     const { user } = useAuth();
@@ -29,7 +30,7 @@ const AdminPackageRequests = () => {
             const config = {
                 headers: { Authorization: `Bearer ${user.token}` }
             };
-            const { data } = await axios.get('http://localhost:5001/api/packages/requests', config);
+            const { data } = await axios.get(`${API_URL}/packages/requests`, config);
             setRequests(data);
             setLoading(false);
         } catch (err) {
@@ -46,7 +47,7 @@ const AdminPackageRequests = () => {
             const config = {
                 headers: { Authorization: `Bearer ${user.token}` }
             };
-            await axios.put(`http://localhost:5001/api/packages/requests/${id}`, { status }, config);
+            await axios.put(`${API_URL}/packages/requests/${id}`, { status }, config);
             setMessage({ type: 'success', text: `Request ${status} successfully` });
             fetchRequests();
         } catch (err) {
@@ -129,7 +130,7 @@ const AdminPackageRequests = () => {
                                         <div className="flex flex-col space-y-1">
                                             <span className="text-gray-300 text-xs font-mono">{req.transactionId}</span>
                                             <a 
-                                                href={`http://localhost:5001/${req.transactionSlip}`} 
+                                                href={`${BASE_URL}/${req.transactionSlip}`} 
                                                 target="_blank" 
                                                 rel="noopener noreferrer"
                                                 className="text-primary-light hover:underline text-[10px] flex items-center"

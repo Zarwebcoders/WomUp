@@ -3,6 +3,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { TrendingUp, ArrowDownLeft, Clock, User } from 'lucide-react';
+import { API_URL } from '../api/config';
 
 const IncomePage = ({ type, title, description }) => {
     const { user } = useAuth();
@@ -16,7 +17,7 @@ const IncomePage = ({ type, title, description }) => {
                 const config = {
                     headers: { Authorization: `Bearer ${user.token}` }
                 };
-                const { data } = await axios.get(`http://localhost:5001/api/income/${type}?search=${searchTerm}`, config);
+                const { data } = await axios.get(`${API_URL}/income/${type}?search=${searchTerm}`, config);
                 setLogs(data);
                 setLoading(false);
             } catch (err) {

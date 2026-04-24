@@ -11,6 +11,7 @@ import {
     ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { API_URL } from '../api/config';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -51,7 +52,7 @@ const Dashboard = () => {
                     headers: { Authorization: `Bearer ${user.token}` },
                     params: { period }
                 };
-                const { data } = await axios.get('http://localhost:5001/api/dashboard', config);
+                const { data } = await axios.get(`${API_URL}/dashboard`, config);
                 setStats(data);
                 setLoading(false);
             } catch (err) {
