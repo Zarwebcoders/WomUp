@@ -43,7 +43,9 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
     const adminMenuItems = [
         { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+        { name: 'User Management', icon: Users, path: '/admin/users' },
         { name: 'Package Requests', icon: ShieldCheck, path: '/admin/package-requests' },
+        { name: 'Package History', icon: History, path: '/admin/package-history' },
     ];
 
     const menuItems = user?.role === 'admin' ? adminMenuItems : userMenuItems;

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../config/api';
 import { motion } from 'framer-motion';
 import {
     Users,
@@ -8,10 +9,11 @@ import {
     ArrowUpRight,
     TrendingUp,
     Clock,
-    ShieldCheck
+    ShieldCheck,
+    HandCoins,
+    CircleDollarSign
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { API_URL } from '../api/config';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -52,7 +54,7 @@ const Dashboard = () => {
                     headers: { Authorization: `Bearer ${user.token}` },
                     params: { period }
                 };
-                const { data } = await axios.get(`${API_URL}/dashboard`, config);
+                const { data } = await axios.get(`${API_URL}/api/dashboard`, config);
                 setStats(data);
                 setLoading(false);
             } catch (err) {
@@ -76,6 +78,8 @@ const Dashboard = () => {
         { title: 'Total Team', value: stats?.user?.teamCount || 0, icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/10' },
         { title: 'Direct Referrals', value: stats?.directReferrals || 0, icon: UserCheck, color: 'text-purple-400', bg: 'bg-purple-500/10' },
         { title: 'Total Income', value: `₹${stats?.user?.totalIncome || 0}`, icon: Wallet, color: 'text-success', bg: 'bg-success/10' },
+        { title: 'ROI Income', value: `₹${stats?.user?.roiIncome || 0}`, icon: CircleDollarSign, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
+        { title: 'Referral Income', value: `₹${stats?.user?.referralIncome || 0}`, icon: HandCoins, color: 'text-pink-400', bg: 'bg-pink-500/10' },
         { title: 'Level Income', value: `₹${stats?.user?.levelIncome || 0}`, icon: TrendingUp, color: 'text-orange-400', bg: 'bg-orange-500/10' },
     ];
 
@@ -131,7 +135,7 @@ const Dashboard = () => {
             )}
 
             {/* Summary Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className={`grid grid-cols-1 md:grid-cols-2 ${isAdmin ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-6`}>
                 {summaryCards.map((card, index) => (
                     <div
                         key={index}

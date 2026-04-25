@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../config/api';
 import { motion } from 'framer-motion';
 import { Users, Search, Filter, Calendar, Package as PackageIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -17,7 +18,7 @@ const TeamDetails = () => {
                 const config = {
                     headers: { Authorization: `Bearer ${user.token}` }
                 };
-                const { data } = await axios.get(`http://localhost:5001/api/referral/team/${activeLevel}?search=${searchTerm}`, config);
+                const { data } = await axios.get(`${API_URL}/api/referral/team/${activeLevel}?search=${searchTerm}`, config);
                 setTeam(data);
                 setLoading(false);
             } catch (err) {
@@ -89,6 +90,7 @@ const TeamDetails = () => {
                             <tr className="text-left text-gray-400 text-xs md:text-sm border-b border-white/5 uppercase tracking-wider">
                                 <th className="px-4 md:px-8 py-4 font-medium">User Details</th>
                                 <th className="px-4 md:px-8 py-4 font-medium">Join Date</th>
+                                <th className="px-4 md:px-8 py-4 font-medium">Level</th>
                                 <th className="px-4 md:px-8 py-4 font-medium">Package</th>
                                 <th className="px-4 md:px-8 py-4 font-medium">Income</th>
                                 <th className="px-4 md:px-8 py-4 font-medium text-center">Status</th>
@@ -96,7 +98,7 @@ const TeamDetails = () => {
                         </thead>
                         <tbody className="text-sm">
                             {loading ? (
-                                <tr><td colSpan="5" className="px-8 py-10 text-center text-gray-500">Loading team members...</td></tr>
+                                <tr><td colSpan="6" className="px-8 py-10 text-center text-gray-500">Loading team members...</td></tr>
                             ) : team.length > 0 ? team.map((member, i) => (
                                 <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                                     <td className="px-4 md:px-8 py-4 flex items-center space-x-3">
@@ -112,6 +114,11 @@ const TeamDetails = () => {
                                         {new Date(member.createdAt).toLocaleDateString()}
                                     </td>
                                     <td className="px-4 md:px-8 py-4">
+                                        <span className="px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-xs font-bold text-gray-300">
+                                            Level {member.level}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 md:px-8 py-4">
                                         {member.packageId ? (
                                             <div className="flex items-center space-x-2 text-white text-xs md:text-sm">
                                                 <PackageIcon size={14} className="text-primary shrink-0" />
@@ -122,7 +129,7 @@ const TeamDetails = () => {
                                         )}
                                     </td>
                                     <td className="px-4 md:px-8 py-4">
-                                        <p className="font-bold text-success font-space text-xs md:text-base">₹{member.totalIncome || 0}</p>
+                                        <p className="font-bold text-success font-space text-xs md:text-base">₹{member.incomeFromMember || 0}</p>
                                     </td>
                                     <td className="px-4 md:px-8 py-4 text-center">
                                         <span className={`px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-wider ${member.packageId ? 'bg-success/10 text-success' : 'bg-red-500/10 text-red-400'
@@ -133,7 +140,7 @@ const TeamDetails = () => {
                                 </tr>
                             )) : (
                                 <tr>
-                                    <td colSpan="5" className="px-8 py-10 text-center text-gray-500">
+                                    <td colSpan="6" className="px-8 py-10 text-center text-gray-500">
                                         No team members found.
                                     </td>
                                 </tr>

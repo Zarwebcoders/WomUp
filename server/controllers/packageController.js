@@ -22,17 +22,6 @@ const buyPackage = async (req, res) => {
         return res.status(400).json({ message: 'Transaction ID and Slip are required' });
     }
 
-    const user = await User.findById(req.user._id);
-    if (user.packageId) {
-        return res.status(400).json({ message: 'User already has an active package' });
-    }
-
-    // Check if there is already a pending request
-    const pendingRequest = await PackageRequest.findOne({ userId: req.user._id, status: 'pending' });
-    if (pendingRequest) {
-        return res.status(400).json({ message: 'You already have a pending request' });
-    }
-
     const request = await PackageRequest.create({
         userId: req.user._id,
         packageId,
@@ -93,35 +82,30 @@ const updateRequestStatus = async (req, res) => {
         user.packagePurchaseDate = new Date();
         await user.save();
 
-        // 1. Distribute Referral Income (up the Sponsor Chain)
-        if (user.sponsorId) {
-            await distributeReferralIncomes(user.sponsorId, user._id, pkg, 1);
-        }
-
-        // 2. Distribute Level Income (up the Placement Chain)
+        // Distribute Incomes up to 10 levels
         if (user.referredBy) {
-            await distributeLevelIncomes(user.referredBy, user._id, pkg, 1);
+            await distributeIncomes(user.referredBy, user._id, pkg, 1);
         }
     }
 
     res.json({ message: `Request ${status} successfully` });
 };
 
-// Helper to distribute fixed referral income up the sponsor chain
-const distributeReferralIncomes = async (sponsorId, fromUserId, pkg, level) => {
+// Helper function to distribute fixed referral and percentage level income
+const distributeIncomes = async (sponsorId, fromUserId, pkg, level) => {
     if (level > 10) return;
 
     const sponsor = await User.findById(sponsorId);
     if (!sponsor) return;
 
+    // 1. Referral Income (Fixed Amount)
     const refAmount = pkg.referralAmounts[level - 1] || 0;
     if (refAmount > 0) {
         sponsor.referralIncome += refAmount;
         sponsor.totalIncome += refAmount;
-        await sponsor.save();
         
         await Income.create({
-            userId: sponsor._id,
+            userId: sponsorId,
             incomeType: 'referral',
             amount: refAmount,
             fromUser: fromUserId,
@@ -129,27 +113,15 @@ const distributeReferralIncomes = async (sponsorId, fromUserId, pkg, level) => {
         });
     }
 
-    if (sponsor.sponsorId) {
-        await distributeReferralIncomes(sponsor.sponsorId, fromUserId, pkg, level + 1);
-    }
-};
-
-// Helper to distribute percentage level income up the placement chain
-const distributeLevelIncomes = async (parentId, fromUserId, pkg, level) => {
-    if (level > 10) return;
-
-    const parent = await User.findById(parentId);
-    if (!parent) return;
-
+    // 2. Level Income (Percentage of Package Price)
     const levelPercentage = pkg.levelPercentages[level - 1] || 0;
     if (levelPercentage > 0) {
         const levelAmount = (pkg.price * levelPercentage) / 100;
-        parent.levelIncome += levelAmount;
-        parent.totalIncome += levelAmount;
-        await parent.save();
+        sponsor.levelIncome += levelAmount;
+        sponsor.totalIncome += levelAmount;
 
         await Income.create({
-            userId: parent._id,
+            userId: sponsorId,
             incomeType: 'level',
             amount: levelAmount,
             fromUser: fromUserId,
@@ -157,8 +129,11 @@ const distributeLevelIncomes = async (parentId, fromUserId, pkg, level) => {
         });
     }
 
-    if (parent.referredBy) {
-        await distributeLevelIncomes(parent.referredBy, fromUserId, pkg, level + 1);
+    await sponsor.save();
+
+    // Move to next level sponsor
+    if (sponsor.referredBy) {
+        await distributeIncomes(sponsor.referredBy, fromUserId, pkg, level + 1);
     }
 };
 

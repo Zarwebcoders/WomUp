@@ -1,28 +1,11 @@
-# Dependencies
 node_modules/
-client/node_modules/
-server/node_modules/
-
-# Environment Variables
 .env
-client/.env
-server/.env
-
-# Uploads and User Content
-uploads/
-server/uploads/
-
-# Build outputs
 dist/
 build/
-client/dist/
-
-# OS Files
 .DS_Store
-Thumbs.db
-
-# IDE Files
-.vscode/
-.idea/
-*.swp
-*.swo
+uploads/
+package-lock.json
+client/node_modules/
+server/node_modules/
+client/dist/
+server/uploads/

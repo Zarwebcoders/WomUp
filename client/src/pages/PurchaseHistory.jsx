@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../config/api';
 import { motion } from 'framer-motion';
 import { Package, Clock, CheckCircle, XCircle, Search, Calendar, CreditCard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { API_URL, BASE_URL } from '../api/config';
 
 const PurchaseHistory = () => {
     const { user } = useAuth();
@@ -17,7 +17,7 @@ const PurchaseHistory = () => {
                 const config = {
                     headers: { Authorization: `Bearer ${user.token}` }
                 };
-                const { data } = await axios.get(`${API_URL}/packages/my-requests`, config);
+                const { data } = await axios.get(`${API_URL}/api/packages/my-requests`, config);
                 setRequests(data);
                 setLoading(false);
             } catch (err) {
@@ -110,7 +110,7 @@ const PurchaseHistory = () => {
                                             </div>
                                             {req.transactionSlip && (
                                                 <a 
-                                                    href={`${BASE_URL}/${req.transactionSlip}`} 
+                                                    href={`${API_URL}/${req.transactionSlip}`} 
                                                     target="_blank" 
                                                     rel="noopener noreferrer"
                                                     className="text-[10px] text-primary hover:underline flex items-center space-x-1"

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../config/api';
 import { motion } from 'framer-motion';
 import { Copy, MessageCircle, Send, Check, Search } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { QRCodeSVG } from 'qrcode.react';
-import { API_URL } from '../api/config';
 
 const ReferralLink = () => {
     const { user: authUser } = useAuth();
@@ -17,7 +17,7 @@ const ReferralLink = () => {
                 const config = {
                     headers: { Authorization: `Bearer ${authUser.token}` }
                 };
-                const { data } = await axios.get(`${API_URL}/auth/profile`, config);
+                const { data } = await axios.get(`${API_URL}/api/auth/profile`, config);
                 setUser(data);
             } catch (err) {
                 console.error('Error fetching profile:', err);

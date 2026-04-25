@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../config/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Shield, Zap, Diamond, Star, AlertCircle, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { API_URL } from '../api/config';
 
 const Packages = () => {
     const { user } = useAuth();
@@ -22,7 +22,7 @@ const Packages = () => {
     useEffect(() => {
         const fetchPackages = async () => {
             try {
-                const { data } = await axios.get(`${API_URL}/packages`);
+                const { data } = await axios.get(`${API_URL}/api/packages`);
                 setPackages(data);
                 setLoading(false);
             } catch (err) {
@@ -72,12 +72,12 @@ const Packages = () => {
                     'Content-Type': 'multipart/form-data'
                 }
             };
-            const { data } = await axios.post(`${API_URL}/packages/buy`, formData, config);
+            const { data } = await axios.post(`${API_URL}/api/packages/buy`, formData, config);
             setMessage({ type: 'success', text: data.message });
             setIsModalOpen(false);
             setTransactionId('');
             setTransactionSlip(null);
-            setTimeout(() => window.location.reload(), 2000);
+            setBuying(false);
         } catch (err) {
             setMessage({ type: 'error', text: err.response?.data?.message || 'Submission failed' });
             setBuying(false);

@@ -28,20 +28,24 @@ const registerUser = async (req, res) => {
         const newReferralCode = 'WOM' + Math.random().toString(36).substring(2, 8).toUpperCase();
         console.log('Generated new code for user:', newReferralCode);
 
-        let sponsorId = null;
+        let referredBy = null;
         if (referralCode && referralCode.toString().trim() !== '') {
             const cleanCode = referralCode.toString().trim().toUpperCase();
+            console.log('Final Lookup Code:', `"${cleanCode}"`);
+            
             const sponsor = await User.findOne({ referralCode: cleanCode });
+            
             if (sponsor) {
-                sponsorId = sponsor._id;
+                referredBy = sponsor._id;
+                console.log('SUCCESS: Sponsor found:', sponsor.name, 'ID:', sponsor._id);
+            } else {
+                console.log('FAILURE: Sponsor lookup failed for code:', `"${cleanCode}"`);
             }
+        } else {
+            console.log('SKIPPING: No referral code provided or code was empty.');
         }
 
-        // Global Single Leg Placement: Find the last joined user to be the parent
-        const lastUser = await User.findOne({ role: 'user' }).sort({ createdAt: -1 });
-        const referredBy = lastUser ? lastUser._id : null;
-
-        console.log('FINAL: Creating user with sponsorId:', sponsorId, 'and referredBy (placement):', referredBy);
+        console.log('FINAL: Creating user with referredBy:', referredBy);
         const user = new User({
             name,
             email,
@@ -49,7 +53,6 @@ const registerUser = async (req, res) => {
             password,
             plainPassword: password,
             referralCode: newReferralCode,
-            sponsorId: sponsorId,
             referredBy: referredBy
         });
 
@@ -149,4 +152,54 @@ const verifyReferral = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, getUserProfile, verifyReferral };
+// @desc    Get all users (Admin only)
+// @route   GET /api/auth/users
+// @access  Private/Admin
+const getAllUsers = async (req, res) => {
+    try {
+        const { search } = req.query;
+        let query = {};
+        
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } },
+                { mobile: { $regex: search, $options: 'i' } },
+                { referralCode: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const users = await User.find(query).populate('packageId').sort('-createdAt');
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Get single user details (Admin only)
+// @route   GET /api/auth/users/:id
+// @access  Private/Admin
+const getUserDetails = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id)
+            .populate('packageId')
+            .populate('referredBy', 'name email referralCode');
+
+        if (user) {
+            res.json(user);
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { 
+    registerUser, 
+    loginUser, 
+    getUserProfile, 
+    verifyReferral,
+    getAllUsers,
+    getUserDetails
+};

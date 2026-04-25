@@ -12,6 +12,9 @@ import ROIIncome from './pages/ROIIncome';
 import IncomePage from './pages/IncomePage';
 import PurchaseHistory from './pages/PurchaseHistory';
 import AdminPackageRequests from './pages/admin/AdminPackageRequests';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminUserDetails from './pages/admin/AdminUserDetails';
+import AdminPackageHistory from './pages/admin/AdminPackageHistory';
 
 function App() {
   return (
@@ -36,6 +39,9 @@ function App() {
 
             {/* Admin Only Routes */}
             <Route path="admin/package-requests" element={<AdminPackageRequests />} />
+            <Route path="admin/users" element={<AdminUsers />} />
+            <Route path="admin/users/:id" element={<AdminUserDetails />} />
+            <Route path="admin/package-history" element={<AdminPackageHistory />} />
           </Route>
 
           {/* Catch all */}

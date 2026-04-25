@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { User, Mail, Phone, Lock, UserPlus, CheckCircle, XCircle } from 'lucide-react';
 import { useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../config/api';
 
 const Register = () => {
     const [searchParams] = useSearchParams();
@@ -30,7 +31,7 @@ const Register = () => {
             if (formData.referralCode && formData.referralCode.length >= 3) {
                 setVerifyingCode(true);
                 try {
-                    const { data } = await axios.get(`http://localhost:5001/api/auth/verify-referral/${formData.referralCode}`);
+                    const { data } = await axios.get(`${API_URL}/api/auth/verify-referral/${formData.referralCode}`);
                     if (data.valid) {
                         setSponsorName(data.name);
                     } else {

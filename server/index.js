@@ -16,33 +16,17 @@ const app = express();
 // Body parser
 app.use(express.json());
 
-// Enable CORS with dynamic origin support
-const allowedOrigins = [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    process.env.CLIENT_URL,
-    'https://womup-backend.vercel.app',
-    'https://womup-frontend.vercel.app'
-].filter(Boolean);
-
+// Enable CORS - Allow all for production or specify your frontend URL
 app.use(cors({
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl)
-        if (!origin) return callback(null, true);
-        
-        const isAllowed = allowedOrigins.some(o => origin.startsWith(o)) || origin.endsWith('.vercel.app');
-        
-        if (isAllowed) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true
+    origin: '*', 
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Serve Static Files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve static from public root if needed for Vercel
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.get('/', (req, res) => {

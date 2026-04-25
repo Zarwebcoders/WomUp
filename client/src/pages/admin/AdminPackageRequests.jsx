@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { motion } from 'framer-motion';
-import { Check, X, Eye, Clock, Search, ExternalLink } from 'lucide-react';
+import API_URL from '../../config/api';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Check, X, Eye, Clock, Search, ExternalLink, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { API_URL, BASE_URL } from '../../api/config';
 
 const AdminPackageRequests = () => {
     const { user } = useAuth();
@@ -16,6 +16,15 @@ const AdminPackageRequests = () => {
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
+
+    // Confirmation Modal State
+    const [confirmModal, setConfirmModal] = useState({
+        isOpen: false,
+        id: null,
+        status: '',
+        userName: '',
+        packageName: ''
+    });
 
     useEffect(() => {
         setCurrentPage(1);
@@ -30,7 +39,7 @@ const AdminPackageRequests = () => {
             const config = {
                 headers: { Authorization: `Bearer ${user.token}` }
             };
-            const { data } = await axios.get(`${API_URL}/packages/requests`, config);
+            const { data } = await axios.get(`${API_URL}/api/packages/requests`, config);
             setRequests(data);
             setLoading(false);
         } catch (err) {
@@ -39,15 +48,26 @@ const AdminPackageRequests = () => {
         }
     };
 
-    const handleStatusUpdate = async (id, status) => {
-        if (!window.confirm(`Are you sure you want to ${status} this request?`)) return;
+    const triggerConfirm = (req, status) => {
+        setConfirmModal({
+            isOpen: true,
+            id: req._id,
+            status: status,
+            userName: req.userId?.name,
+            packageName: req.packageId?.packageName
+        });
+    };
 
+    const handleStatusUpdate = async () => {
+        const { id, status } = confirmModal;
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
         setProcessingId(id);
+        
         try {
             const config = {
                 headers: { Authorization: `Bearer ${user.token}` }
             };
-            await axios.put(`${API_URL}/packages/requests/${id}`, { status }, config);
+            await axios.put(`${API_URL}/api/packages/requests/${id}`, { status }, config);
             setMessage({ type: 'success', text: `Request ${status} successfully` });
             fetchRequests();
         } catch (err) {
@@ -57,10 +77,12 @@ const AdminPackageRequests = () => {
     };
 
     const filteredRequests = requests.filter(req => 
-        req.userId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        req.userId?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        req.transactionId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        req.packageId?.packageName?.toLowerCase().includes(searchTerm.toLowerCase())
+        req.status === 'pending' && (
+            req.userId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            req.userId?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            req.transactionId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            req.packageId?.packageName?.toLowerCase().includes(searchTerm.toLowerCase())
+        )
     );
 
     // Get current items
@@ -130,7 +152,7 @@ const AdminPackageRequests = () => {
                                         <div className="flex flex-col space-y-1">
                                             <span className="text-gray-300 text-xs font-mono">{req.transactionId}</span>
                                             <a 
-                                                href={`${BASE_URL}/${req.transactionSlip}`} 
+                                                href={`${API_URL}/${req.transactionSlip}`} 
                                                 target="_blank" 
                                                 rel="noopener noreferrer"
                                                 className="text-primary-light hover:underline text-[10px] flex items-center"
@@ -152,7 +174,7 @@ const AdminPackageRequests = () => {
                                         {req.status === 'pending' ? (
                                             <div className="flex items-center justify-center space-x-2">
                                                 <button 
-                                                    onClick={() => handleStatusUpdate(req._id, 'approved')}
+                                                    onClick={() => triggerConfirm(req, 'approved')}
                                                     disabled={processingId === req._id}
                                                     className="p-2 bg-success/10 text-success rounded-lg hover:bg-success/20 transition-all"
                                                     title="Approve"
@@ -160,7 +182,7 @@ const AdminPackageRequests = () => {
                                                     <Check size={18} />
                                                 </button>
                                                 <button 
-                                                    onClick={() => handleStatusUpdate(req._id, 'rejected')}
+                                                    onClick={() => triggerConfirm(req, 'rejected')}
                                                     disabled={processingId === req._id}
                                                     className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 transition-all"
                                                     title="Reject"
@@ -224,6 +246,59 @@ const AdminPackageRequests = () => {
                     </div>
                 )}
             </div>
+
+            {/* Confirmation Modal */}
+            <AnimatePresence>
+                {confirmModal.isOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                        />
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="relative bg-card border border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+                        >
+                            <div className="flex flex-col items-center text-center space-y-4">
+                                <div className={`p-4 rounded-full ${confirmModal.status === 'approved' ? 'bg-success/10 text-success' : 'bg-red-500/10 text-red-500'}`}>
+                                    <AlertCircle size={40} />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-white capitalize">
+                                        Confirm {confirmModal.status}
+                                    </h3>
+                                    <p className="text-gray-400 mt-2">
+                                        Are you sure you want to <span className="text-white font-bold">{confirmModal.status}</span> the <span className="text-primary font-bold">{confirmModal.packageName}</span> package request for <span className="text-white font-bold">{confirmModal.userName}</span>?
+                                    </p>
+                                </div>
+                                <div className="flex items-center space-x-4 w-full pt-4">
+                                    <button 
+                                        onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                                        className="flex-1 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 font-bold hover:bg-white/10 transition-all"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button 
+                                        onClick={handleStatusUpdate}
+                                        className={`flex-1 px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-all ${
+                                            confirmModal.status === 'approved' 
+                                            ? 'bg-success hover:bg-success/80 shadow-success/20' 
+                                            : 'bg-red-500 hover:bg-red-600 shadow-red-500/20'
+                                        }`}
+                                    >
+                                        Yes, {confirmModal.status}
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

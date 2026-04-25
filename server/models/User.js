@@ -8,8 +8,7 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     plainPassword: { type: String },
     referralCode: { type: String, unique: true },
-    referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Placement Parent (for levels)
-    sponsorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Direct Sponsor (for referral income)
+    referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     packageId: { type: mongoose.Schema.Types.ObjectId, ref: 'Package' },
     totalIncome: { type: Number, default: 0 },
     referralIncome: { type: Number, default: 0 },
