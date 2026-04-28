@@ -1,48 +1,118 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Sora:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply bg-background text-white font-poppins antialiased;
-  }
+body {
+  background-color: #020617;
+  color: #ffffff;
+  font-family: 'Sora', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Cormorant Garamond', serif;
-  }
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Cormorant Garamond', serif;
 }
 
 @layer components {
   .glass-card {
-    @apply bg-card/60 backdrop-blur-lg border border-white/10 rounded-[24px] shadow-xl;
+    background-color: var(--tw-bg-opacity, #ffffff08);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 32px;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .gradient-btn {
-    @apply bg-primary-gradient text-white font-semibold py-3 px-8 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-primary-dark/20;
+  .glass-card:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
   }
 
-  .glow-border {
-    @apply border border-white/10 relative;
+  .text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-image: linear-gradient(to right, #3B82F6, #10B981, #F59E0B);
   }
 
-  .glow-border::after {
-    content: '';
-    @apply absolute inset-0 rounded-[20px] pointer-events-none;
-    box-shadow: 0 0 15px rgba(173, 73, 225, 0.2);
+  .btn-premium {
+    position: relative;
+    overflow: hidden;
+    padding: 1rem 2rem;
+    border-radius: 1rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .btn-premium:active {
+    transform: scale(0.95);
+  }
+
+  .btn-primary {
+    background-color: #3B82F6;
+    color: white;
+    box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2);
+  }
+
+  .btn-primary:hover {
+    background-color: #1D4ED8;
+  }
+
+  .btn-secondary {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .mesh-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -10;
+    background-image: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0, transparent 50%), radial-gradient(at 50% 0%, rgba(16, 185, 129, 0.1) 0, transparent 50%), radial-gradient(at 100% 0%, rgba(245, 158, 11, 0.1) 0, transparent 50%);
+    opacity: 0.5;
   }
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-background;
+  background: #020617;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-primary/30 rounded-full hover:bg-primary/50;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection */
+::selection {
+  background: rgba(59, 130, 246, 0.3);
+  color: white;
+}
+
+/* Utilities */
+.mask-radial {
+  -webkit-mask-image: radial-gradient(circle, black, transparent 70%);
+  mask-image: radial-gradient(circle, black, transparent 70%);
 }

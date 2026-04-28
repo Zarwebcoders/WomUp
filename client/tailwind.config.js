@@ -8,14 +8,30 @@ export default {
     extend: {
       colors: {
         primary: {
-          light: '#FF7BCB',
-          DEFAULT: '#AD49E1',
-          dark: '#4C4CFF',
+          light: '#60A5FA',
+          DEFAULT: '#3B82F6',
+          dark: '#1D4ED8',
         },
-        background: '#0B0F1D',
-        card: '#151A2F',
-        accent: '#F6F2FF',
-        success: '#00D98B',
+        secondary: {
+          light: '#34D399',
+          DEFAULT: '#10B981',
+          dark: '#059669',
+        },
+        accent: {
+          light: '#FBBF24',
+          DEFAULT: '#F59E0B',
+          dark: '#D97706',
+        },
+        dark: {
+          DEFAULT: '#020617',
+          light: '#0F172A',
+          lighter: '#1E293B',
+        },
+        surface: {
+          DEFAULT: '#ffffff08',
+          hover: '#ffffff10',
+          border: '#ffffff1a',
+        }
       },
       fontFamily: {
         sora: ['Sora', 'sans-serif'],
@@ -24,8 +40,20 @@ export default {
         cormorant: ['Cormorant Garamond', 'serif'],
       },
       backgroundImage: {
-        'primary-gradient': 'linear-gradient(to right, #FF7BCB, #AD49E1, #4C4CFF)',
+        'mesh-gradient': 'radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0, transparent 50%), radial-gradient(at 50% 0%, rgba(16, 185, 129, 0.1) 0, transparent 50%), radial-gradient(at 100% 0%, rgba(245, 158, 11, 0.1) 0, transparent 50%)',
+        'glass-gradient': 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%)',
       },
+      animation: {
+        'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'float': 'float 6s ease-in-out infinite',
+        'spin-slow': 'spin 12s linear infinite',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-20px)' },
+        }
+      }
     },
   },
   plugins: [],
