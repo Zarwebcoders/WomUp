@@ -1,0 +1,62 @@
+/* ─── WOMUP Light Theme Core Styles ─────────────────────────────── */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --purple: #7A3FF2;
+  --purple-light: #9B6FF5;
+  --lavender: #F5EDFF;
+  --gold: #F6C453;
+  --green: #2FBF71;
+  --blue: #3B82F6;
+  --bg: #FFFFFF;
+  --bg-alt: #FAF7FF;
+  --text: #1F2937;
+  --muted: #6B7280;
+  --border: #E5E7EB;
+}
+
+/* Base styles for the Landing Page */
+.lp-root {
+  @apply bg-white text-[#1F2937] overflow-x-hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+.lp-root h1, .lp-root h2, .lp-root h3, .lp-root h4 {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Custom Animations */
+@keyframes fillBar {
+  from { width: 0; }
+  to { width: var(--target-w); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmerNav {
+  0% { background-position: 0 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* Scrollbar */
+.lp-root::-webkit-scrollbar {
+  @apply w-[7px];
+}
+
+.lp-root::-webkit-scrollbar-track {
+  @apply bg-[#F5EDFF];
+}
+
+.lp-root::-webkit-scrollbar-thumb {
+  @apply bg-[#C4A7F5] rounded-full;
+}
+
+.lp-root::-webkit-scrollbar-thumb:hover {
+  @apply bg-[#7A3FF2];
+}
