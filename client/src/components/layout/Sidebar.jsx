@@ -13,15 +13,24 @@ import {
     LogOut,
     ShieldCheck,
     X,
-    History
+    History,
+    Copy,
+    Check
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/logo.png';
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [copied, setCopied] = useState(false);
     const { logout, user } = useAuth();
     const location = useLocation();
+
+    const handleCopyId = () => {
+        navigator.clipboard.writeText(user.referralCode);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     // Close sidebar on mobile when route changes
     useEffect(() => {
@@ -142,6 +151,27 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 </nav>
 
                 <div className="p-4 border-t border-white/5">
+                    <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} mb-4 p-2`}>
+                        <div className="w-10 h-10 rounded-full bg-primary-gradient flex items-center justify-center font-bold text-white shrink-0">
+                            {user?.name?.charAt(0)}
+                        </div>
+                        {!isCollapsed && (
+                            <div className="overflow-hidden">
+                                <p className="text-white font-medium truncate">{user?.name}</p>
+                                <button 
+                                    onClick={handleCopyId}
+                                    className="flex items-center text-primary-light text-[10px] font-bold tracking-wider hover:text-white transition-colors group"
+                                >
+                                    <span className="truncate">ID: {user?.referralCode}</span>
+                                    {copied ? (
+                                        <Check size={10} className="ml-1 text-success" />
+                                    ) : (
+                                        <Copy size={10} className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    )}
+                                </button>
+                            </div>
+                        )}
+                    </div>
                     <button 
                         onClick={logout}
                         className="w-full flex items-center p-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all group"

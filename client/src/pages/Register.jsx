@@ -63,8 +63,15 @@ const Register = () => {
             return setError('Passwords do not match');
         }
         try {
-            await register(formData);
-            navigate('/dashboard');
+            const data = await register(formData);
+            // Navigate to login with user details to show them
+            navigate('/login', { 
+                state: { 
+                    registered: true, 
+                    referralCode: data.referralCode, 
+                    password: data.password 
+                } 
+            });
         } catch (err) {
             setError(err.response?.data?.message || 'Registration failed');
         }

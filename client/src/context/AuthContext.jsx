@@ -16,8 +16,8 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     }, []);
 
-    const login = async (email, password) => {
-        const { data } = await axios.post(`${API_URL}/api/auth/login`, { email, password });
+    const login = async (referralId, password) => {
+        const { data } = await axios.post(`${API_URL}/api/auth/login`, { referralId, password });
         setUser(data);
         localStorage.setItem('userInfo', JSON.stringify(data));
         return data;
@@ -25,8 +25,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (userData) => {
         const { data } = await axios.post(`${API_URL}/api/auth/register`, userData);
-        setUser(data);
-        localStorage.setItem('userInfo', JSON.stringify(data));
+        // Don't auto-login here
         return data;
     };
 

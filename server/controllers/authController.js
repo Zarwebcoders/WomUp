@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
+const sendEmail = require('../utils/sendEmail');
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -25,8 +26,13 @@ const registerUser = async (req, res) => {
         }
 
         // Generate unique referral code for new user
-        const newReferralCode = 'WOM' + Math.random().toString(36).substring(2, 8).toUpperCase();
-        console.log('Generated new code for user:', newReferralCode);
+        const newReferralCode = 'REF' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        
+        // Generate unique userId for new user (e.g. WOM123456)
+        const userId = 'WOM' + Math.floor(100000 + Math.random() * 900000);
+        
+        console.log('Generated new referral code:', newReferralCode);
+        console.log('Generated new userId:', userId);
 
         let referredBy = null;
         if (referralCode && referralCode.toString().trim() !== '') {
@@ -49,6 +55,7 @@ const registerUser = async (req, res) => {
         const user = new User({
             name,
             email,
+            userId,
             mobile,
             password,
             plainPassword: password,
@@ -58,6 +65,33 @@ const registerUser = async (req, res) => {
 
         await user.save();
         console.log('User saved successfully with ID:', user._id);
+
+        // Send Welcome Email
+        const message = `Welcome to WOMUP, ${user.name}!\n\nYour account has been created successfully.\n\nReferral ID: ${user.referralCode}\nPassword: ${password}\n\nPlease login at: ${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`;
+        
+        const html = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 10px; padding: 20px;">
+                <h2 style="color: #7A3FF2; text-align: center;">Welcome to WOMUP!</h2>
+                <p>Hello <strong>${user.name}</strong>,</p>
+                <p>Your account has been created successfully. Here are your login credentials:</p>
+                <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #7A3FF2;">
+                    <p style="margin: 5px 0;"><strong>Referral ID:</strong> <span style="color: #7A3FF2; font-weight: bold;">${user.referralCode}</span></p>
+                    <p style="margin: 5px 0;"><strong>Password:</strong> <span style="color: #7A3FF2; font-weight: bold;">${password}</span></p>
+                </div>
+                <p>Please use these credentials to login to your dashboard.</p>
+                <div style="text-align: center; margin-top: 30px;">
+                    <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login" style="background-color: #7A3FF2; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Login Now</a>
+                </div>
+                <p style="margin-top: 30px; font-size: 12px; color: #888;">If you did not register for this account, please ignore this email.</p>
+            </div>
+        `;
+
+        await sendEmail({
+            email: user.email,
+            subject: 'Welcome to WOMUP - Your Login Credentials',
+            message,
+            html
+        });
 
         if (user) {
             // Update team counts for sponsors up to 3 levels
@@ -70,7 +104,8 @@ const registerUser = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 referralCode: user.referralCode,
-                token: generateToken(user._id)
+                password: password, // Returning plain password for one-time display
+                message: 'Registration successful. Please login with your Referral ID.'
             });
         } else {
             res.status(400).json({ message: 'Invalid user data' });
@@ -108,21 +143,28 @@ const updateTeamCounts = async (userId, level) => {
 // @route   POST /api/auth/login
 // @access  Public
 const loginUser = async (req, res) => {
-    const { email, password } = req.body;
+    const { referralId, password } = req.body;
 
-    const user = await User.findOne({ email });
+    // Support both referralCode and email for login
+    const user = await User.findOne({ 
+        $or: [
+            { referralCode: referralId.toUpperCase() },
+            { email: referralId }
+        ]
+    });
 
     if (user && (await user.matchPassword(password))) {
         res.json({
             _id: user._id,
             name: user.name,
             email: user.email,
+            userId: user.userId,
             referralCode: user.referralCode,
             role: user.role,
             token: generateToken(user._id)
         });
     } else {
-        res.status(401).json({ message: 'Invalid email or password' });
+        res.status(401).json({ message: 'Invalid Referral ID or password' });
     }
 };
 
@@ -164,6 +206,7 @@ const getAllUsers = async (req, res) => {
             query.$or = [
                 { name: { $regex: search, $options: 'i' } },
                 { email: { $regex: search, $options: 'i' } },
+                { userId: { $regex: search, $options: 'i' } },
                 { mobile: { $regex: search, $options: 'i' } },
                 { referralCode: { $regex: search, $options: 'i' } }
             ];

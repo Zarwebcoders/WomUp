@@ -2,18 +2,24 @@ import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import { useAuth } from '../../context/AuthContext';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Menu, Wallet, User as UserIcon } from 'lucide-react';
+import { Menu, Wallet, User as UserIcon, Copy, Check } from 'lucide-react';
 
 const Layout = () => {
     const { user, loading } = useAuth();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [copied, setCopied] = useState(false);
+
+    const handleCopyId = () => {
+        navigator.clipboard.writeText(user.referralCode);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     if (loading) return <div className="h-screen flex items-center justify-center bg-background text-white">Loading...</div>;
 
     if (!user) return <Navigate to="/login" />;
 
     const location = useLocation();
-
     const getPageInfo = () => {
         const path = location.pathname;
         if (path.includes('/dashboard')) return { title: `Welcome, ${user.name}`, desc: "Manage your team and track your earnings." };
@@ -61,7 +67,21 @@ const Layout = () => {
                             but we'll rely on page-specific headers for better layout */}
                         <header className="hidden lg:flex mb-10 justify-between items-center">
                             <div>
-                                <h2 className="text-3xl font-bold text-white font-cormorant">{title}</h2>
+                                <div className="flex items-center space-x-3">
+                                    <h2 className="text-3xl font-bold text-white font-cormorant">{title}</h2>
+                                    <button 
+                                        onClick={handleCopyId}
+                                        className="bg-primary/10 text-primary-light border border-primary/20 px-3 py-1 rounded-full text-xs font-bold tracking-widest flex items-center group hover:bg-primary/20 transition-all"
+                                        title="Copy Referral ID"
+                                    >
+                                        ID: {user.referralCode}
+                                        {copied ? (
+                                            <Check size={12} className="ml-2 text-success" />
+                                        ) : (
+                                            <Copy size={12} className="ml-2 opacity-50 group-hover:opacity-100 transition-opacity" />
+                                        )}
+                                    </button>
+                                </div>
                                 <p className="text-gray-400 mt-1">{desc}</p>
                             </div>
                             <div className="flex items-center space-x-6 bg-card/50 border border-white/5 p-4 rounded-2xl backdrop-blur-md">

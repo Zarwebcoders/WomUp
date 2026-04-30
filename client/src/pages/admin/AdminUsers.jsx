@@ -81,7 +81,7 @@ const AdminUsers = () => {
                                                     {u.name}
                                                     {u.role === 'admin' && <Shield size={12} className="ml-1 text-yellow-500" />}
                                                 </p>
-                                                <p className="text-gray-500 text-xs">ID: {u._id.substring(18).toUpperCase()}</p>
+                                                <p className="text-gray-500 text-xs">ID: {u.userId || u._id.substring(18).toUpperCase()}</p>
                                             </div>
                                         </div>
                                     </td>

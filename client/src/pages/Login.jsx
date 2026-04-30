@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, LogIn } from 'lucide-react';
+import { User, Lock, LogIn, CheckCircle } from 'lucide-react';
 
 const Login = () => {
+    const location = useLocation();
+    const registrationData = location.state;
+
     const [formData, setFormData] = useState({
-        email: '',
-        password: ''
+        referralId: registrationData?.referralCode || '',
+        password: registrationData?.password || ''
     });
     const [error, setError] = useState('');
     const { login } = useAuth();
@@ -16,7 +19,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await login(formData.email, formData.password);
+            await login(formData.referralId, formData.password);
             navigate('/dashboard');
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed');
@@ -39,6 +42,30 @@ const Login = () => {
                         <p className="text-gray-400">Login to manage your WOMUP account.</p>
                     </div>
 
+                    {registrationData?.registered && (
+                        <motion.div 
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="bg-success/10 border border-success/20 text-success p-6 rounded-2xl mb-8 space-y-3"
+                        >
+                            <div className="flex items-center space-x-2 font-bold">
+                                <CheckCircle size={20} />
+                                <span>Registration Successful!</span>
+                            </div>
+                            <div className="bg-white/5 p-4 rounded-xl space-y-2 text-sm border border-white/5">
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Referral ID:</span>
+                                    <span className="text-white font-mono font-bold">{registrationData.referralCode}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Password:</span>
+                                    <span className="text-white font-mono font-bold">{registrationData.password}</span>
+                                </div>
+                            </div>
+                            <p className="text-xs opacity-70 italic text-center">Please save these credentials for future login.</p>
+                        </motion.div>
+                    )}
+
                     {error && (
                         <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl mb-6 text-center text-sm">
                             {error}
@@ -47,14 +74,14 @@ const Login = () => {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="relative">
-                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                             <input 
-                                type="email"
-                                placeholder="Email Address"
+                                type="text"
+                                placeholder="Referral ID / Email"
                                 required
                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white focus:border-primary transition-all outline-none"
-                                value={formData.email}
-                                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                value={formData.referralId}
+                                onChange={(e) => setFormData({...formData, referralId: e.target.value})}
                             />
                         </div>
 

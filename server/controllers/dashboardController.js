@@ -12,6 +12,10 @@ const getDashboardSummary = async (req, res) => {
         const { period } = req.query;
         const monthsCount = period === 'year' ? 12 : 6;
 
+        if (!req.user) {
+            return res.status(401).json({ message: 'User not found' });
+        }
+
         if (req.user.role === 'admin') {
             const totalUsers = await User.countDocuments({ role: 'user' });
             const pendingRequests = await PackageRequest.countDocuments({ status: 'pending' });
