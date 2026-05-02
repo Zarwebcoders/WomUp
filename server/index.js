@@ -20,15 +20,15 @@ connectDB();
 
 const app = express();
 
-// Body parser
-app.use(express.json());
-
-// Enable CORS - Allow all for production or specify your frontend URL
+// Enable CORS - Place at the very top
 app.use(cors({
     origin: '*', 
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Body parser
+app.use(express.json());
 
 // Serve Static Files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
