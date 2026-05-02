@@ -15,21 +15,26 @@ const getPackages = async (req, res) => {
 // @route   POST /api/packages/buy
 // @access  Private
 const buyPackage = async (req, res) => {
-    const { packageId, transactionId } = req.body;
-    const transactionSlip = req.file ? req.file.path : null;
+    try {
+        const { packageId, transactionId } = req.body;
+        const transactionSlip = req.file ? req.file.path : null;
 
-    if (!transactionId || !transactionSlip) {
-        return res.status(400).json({ message: 'Transaction ID and Slip are required' });
+        if (!transactionId || !transactionSlip) {
+            return res.status(400).json({ message: 'Transaction ID and Slip are required' });
+        }
+
+        const request = await PackageRequest.create({
+            userId: req.user._id,
+            packageId,
+            transactionId,
+            transactionSlip
+        });
+
+        res.status(201).json({ message: 'Purchase request submitted successfully', request });
+    } catch (error) {
+        console.error('Purchase Request Error:', error);
+        res.status(500).json({ message: error.message || 'Error submitting purchase request' });
     }
-
-    const request = await PackageRequest.create({
-        userId: req.user._id,
-        packageId,
-        transactionId,
-        transactionSlip
-    });
-
-    res.status(201).json({ message: 'Purchase request submitted successfully', request });
 };
 
 // @desc    Get all package requests (Admin)

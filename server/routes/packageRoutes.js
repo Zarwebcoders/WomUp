@@ -4,11 +4,16 @@ const { getPackages, buyPackage, getPackageRequests, getMyPackageRequests, updat
 const { protect, admin } = require('../middleware/authMiddleware');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
 // Multer Config
 const storage = multer.diskStorage({
     destination(req, file, cb) {
-        cb(null, 'uploads/slips/');
+        const dir = 'uploads/slips/';
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        cb(null, dir);
     },
     filename(req, file, cb) {
         cb(null, `${req.user._id}-${Date.now()}${path.extname(file.originalname)}`);
