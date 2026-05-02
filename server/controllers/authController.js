@@ -143,28 +143,37 @@ const updateTeamCounts = async (userId, level) => {
 // @route   POST /api/auth/login
 // @access  Public
 const loginUser = async (req, res) => {
-    const { referralId, password } = req.body;
+    try {
+        const { referralId, password } = req.body;
 
-    // Support both referralCode and email for login
-    const user = await User.findOne({ 
-        $or: [
-            { referralCode: referralId.toUpperCase() },
-            { email: referralId }
-        ]
-    });
+        if (!referralId || !password) {
+            return res.status(400).json({ message: 'Referral ID and Password are required' });
+        }
 
-    if (user && (await user.matchPassword(password))) {
-        res.json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            userId: user.userId,
-            referralCode: user.referralCode,
-            role: user.role,
-            token: generateToken(user._id)
+        // Support both referralCode and email for login
+        const user = await User.findOne({ 
+            $or: [
+                { referralCode: referralId.toString().toUpperCase() },
+                { email: referralId }
+            ]
         });
-    } else {
-        res.status(401).json({ message: 'Invalid Referral ID or password' });
+
+        if (user && (await user.matchPassword(password))) {
+            res.json({
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                userId: user.userId,
+                referralCode: user.referralCode,
+                role: user.role,
+                token: generateToken(user._id)
+            });
+        } else {
+            res.status(401).json({ message: 'Invalid Referral ID or password' });
+        }
+    } catch (error) {
+        console.error('Login Error:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 };
 
