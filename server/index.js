@@ -6,10 +6,16 @@ const connectDB = require('./config/db');
 const path = require('path');
 const fs = require('fs');
 
-// Ensure upload directories exist
-const uploadDir = path.join(__dirname, 'uploads/slips');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+// Ensure upload directories exist (Only locally, skip on Vercel to avoid crashes)
+if (process.env.NODE_ENV !== 'production') {
+    try {
+        const uploadDir = path.join(__dirname, 'uploads/slips');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+    } catch (err) {
+        console.log('Upload directory creation skipped or failed:', err.message);
+    }
 }
 
 // Load env vars
