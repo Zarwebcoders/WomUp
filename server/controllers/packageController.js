@@ -17,17 +17,20 @@ const getPackages = async (req, res) => {
 const buyPackage = async (req, res) => {
     try {
         const { packageId, transactionId } = req.body;
-        const transactionSlip = req.file ? req.file.path : null;
 
-        if (!transactionId || !transactionSlip) {
+        if (!transactionId || !req.file) {
             return res.status(400).json({ message: 'Transaction ID and Slip are required' });
         }
+
+        // Convert image buffer to Base64 string (no filesystem needed)
+        const mimeType = req.file.mimetype;
+        const base64Image = `data:${mimeType};base64,${req.file.buffer.toString('base64')}`;
 
         const request = await PackageRequest.create({
             userId: req.user._id,
             packageId,
             transactionId,
-            transactionSlip
+            transactionSlip: base64Image
         });
 
         res.status(201).json({ message: 'Purchase request submitted successfully', request });

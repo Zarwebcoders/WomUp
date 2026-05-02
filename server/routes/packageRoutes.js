@@ -3,28 +3,20 @@ const router = express.Router();
 const { getPackages, buyPackage, getPackageRequests, getMyPackageRequests, updateRequestStatus } = require('../controllers/packageController');
 const { protect, admin } = require('../middleware/authMiddleware');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 
-// Multer Config
-const storage = multer.diskStorage({
-    destination(req, file, cb) {
-        const dir = 'uploads/slips/';
-        try {
-            if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir, { recursive: true });
-            }
-        } catch (err) {
-            console.log('Multer dir creation failed:', err.message);
+// Use memory storage - no filesystem needed (works on Vercel)
+const storage = multer.memoryStorage();
+
+const upload = multer({ 
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    fileFilter(req, file, cb) {
+        if (!file.mimetype.startsWith('image/')) {
+            return cb(new Error('Only image files are allowed'));
         }
-        cb(null, dir);
-    },
-    filename(req, file, cb) {
-        cb(null, `${req.user._id}-${Date.now()}${path.extname(file.originalname)}`);
-    },
+        cb(null, true);
+    }
 });
-
-const upload = multer({ storage });
 
 router.get('/', getPackages);
 router.get('/my-requests', protect, getMyPackageRequests);
