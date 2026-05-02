@@ -60,6 +60,17 @@ const roiRoutes = express.Router();
 roiRoutes.post('/distribute', require('./middleware/authMiddleware').protect, require('./middleware/authMiddleware').admin, require('./controllers/roiController').distributeMonthlyROI);
 app.use('/api/roi', roiRoutes);
 
+// Error Handling Middleware
+app.use((err, req, res, next) => {
+    console.error('SERVER ERROR:', err);
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    res.status(500).json({ 
+        message: err.message || 'Internal Server Error',
+        stack: process.env.NODE_ENV === 'production' ? null : err.stack
+    });
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
