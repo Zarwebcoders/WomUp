@@ -99,14 +99,14 @@ const updateRequestStatus = async (req, res) => {
     res.json({ message: `Request ${status} successfully` });
 };
 
-// Helper function to distribute fixed referral and percentage level income
+// Helper function to distribute fixed referral income only
 const distributeIncomes = async (sponsorId, fromUserId, pkg, level) => {
     if (level > 10) return;
 
     const sponsor = await User.findById(sponsorId);
     if (!sponsor) return;
 
-    // 1. Referral Income (Fixed Amount)
+    // Referral Income (Fixed Amount) only
     const refAmount = pkg.referralAmounts[level - 1] || 0;
     if (refAmount > 0) {
         sponsor.referralIncome += refAmount;
@@ -119,25 +119,9 @@ const distributeIncomes = async (sponsorId, fromUserId, pkg, level) => {
             fromUser: fromUserId,
             level: level
         });
+
+        await sponsor.save();
     }
-
-    // 2. Level Income (Percentage of Package Price)
-    const levelPercentage = pkg.levelPercentages[level - 1] || 0;
-    if (levelPercentage > 0) {
-        const levelAmount = (pkg.price * levelPercentage) / 100;
-        sponsor.levelIncome += levelAmount;
-        sponsor.totalIncome += levelAmount;
-
-        await Income.create({
-            userId: sponsorId,
-            incomeType: 'level',
-            amount: levelAmount,
-            fromUser: fromUserId,
-            level: level
-        });
-    }
-
-    await sponsor.save();
 
     // Move to next level sponsor
     if (sponsor.referredBy) {
