@@ -10,12 +10,13 @@ const AdminPackageRequests = () => {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const [message, setMessage] = useState('');
     const [processingId, setProcessingId] = useState(null);
     
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(10);
+    const [itemsPerPage] = useState(25);
 
     // Confirmation Modal State
     const [confirmModal, setConfirmModal] = useState({
@@ -26,20 +27,26 @@ const AdminPackageRequests = () => {
         packageName: ''
     });
 
+    // Debounce Logic
     useEffect(() => {
-        setCurrentPage(1);
-        const timeoutId = setTimeout(() => {
-            fetchRequests();
-        }, 500);
-        return () => clearTimeout(timeoutId);
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchTerm);
+            setCurrentPage(1); 
+        }, 1000);
+        return () => clearTimeout(timer);
     }, [searchTerm]);
 
+    useEffect(() => {
+        fetchRequests();
+    }, [debouncedSearch, user.token]);
+
     const fetchRequests = async () => {
+        setLoading(true);
         try {
             const config = {
                 headers: { Authorization: `Bearer ${user.token}` }
             };
-            const { data } = await axios.get(`${API_URL}/api/packages/requests`, config);
+            const { data } = await axios.get(`${API_URL}/api/packages/requests?search=${debouncedSearch}`, config);
             setRequests(data);
             setLoading(false);
         } catch (err) {
@@ -76,37 +83,38 @@ const AdminPackageRequests = () => {
         setProcessingId(null);
     };
 
-    const filteredRequests = requests.filter(req => 
-        req.status === 'pending' && (
-            req.userId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            req.userId?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            req.transactionId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            req.packageId?.packageName?.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-    );
+    const viewImage = (slip) => {
+        if (!slip) return;
+        const imageUrl = slip.startsWith('data:') ? slip : `${API_URL}/${slip}`;
+        const newWindow = window.open();
+        newWindow.document.write(`
+            <html>
+                <head><title>Transaction Slip</title></head>
+                <body style="margin:0; background: #000; display: flex; align-items: center; justify-content: center;">
+                    <img src="${imageUrl}" style="max-width: 100%; max-height: 100vh;">
+                </body>
+            </html>
+        `);
+    };
 
-    // Get current items
+    // Filter pending requests for this specific page view
+    const pendingRequests = requests.filter(req => req.status === 'pending');
+
+    // Pagination Logic
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredRequests.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
-
-    if (loading) return <div className="text-white p-8 text-center">Loading requests...</div>;
+    const currentItems = pendingRequests.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(pendingRequests.length / itemsPerPage);
 
     return (
         <div className="space-y-8 pb-10">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-cormorant">Package Requests</h1>
-                    <p className="text-gray-400 text-sm">Manage user package purchase requests and verification.</p>
-                </div>
-
+            <div className="flex flex-col md:flex-row md:items-center justify-end gap-4">
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                     <input 
                         type="text"
                         placeholder="Search user, email or TXID..."
-                        className="bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white outline-none focus:border-primary min-w-[300px]"
+                        className="bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white outline-none focus:border-primary min-w-[300px] transition-all"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -134,7 +142,9 @@ const AdminPackageRequests = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
-                            {currentItems.map((req) => (
+                            {loading ? (
+                                <tr><td colSpan="5" className="px-8 py-20 text-center text-gray-500">Loading requests...</td></tr>
+                            ) : currentItems.length > 0 ? currentItems.map((req) => (
                                 <tr key={req._id} className="hover:bg-white/[0.02] transition-colors">
                                     <td className="px-6 py-4">
                                         <div className="flex flex-col">
@@ -151,14 +161,12 @@ const AdminPackageRequests = () => {
                                     <td className="px-6 py-4">
                                         <div className="flex flex-col space-y-1">
                                             <span className="text-gray-300 text-xs font-mono">{req.transactionId}</span>
-                                            <a 
-                                                href={`${API_URL}/${req.transactionSlip}`} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer"
+                                            <button 
+                                                onClick={() => viewImage(req.transactionSlip)}
                                                 className="text-primary-light hover:underline text-[10px] flex items-center"
                                             >
                                                 View Slip <ExternalLink size={10} className="ml-1" />
-                                            </a>
+                                            </button>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
@@ -197,28 +205,24 @@ const AdminPackageRequests = () => {
                                         )}
                                     </td>
                                 </tr>
-                            ))}
+                            )) : (
+                                <tr><td colSpan="5" className="px-8 py-20 text-center text-gray-500">No pending purchase requests.</td></tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
 
-                {filteredRequests.length === 0 && (
-                    <div className="p-20 text-center text-gray-500">
-                        No purchase requests found.
-                    </div>
-                )}
-
                 {/* Pagination Controls */}
-                {filteredRequests.length > itemsPerPage && (
+                {pendingRequests.length > itemsPerPage && (
                     <div className="p-4 border-t border-white/10 flex items-center justify-between">
-                        <p className="text-xs text-gray-500">
-                            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredRequests.length)} of {filteredRequests.length} requests
+                        <p className="text-[10px] text-gray-500">
+                            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, pendingRequests.length)} of {pendingRequests.length} requests
                         </p>
                         <div className="flex items-center space-x-2">
                             <button
                                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                 disabled={currentPage === 1}
-                                className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[10px] text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                             >
                                 Previous
                             </button>
@@ -226,9 +230,9 @@ const AdminPackageRequests = () => {
                                 <button
                                     key={i + 1}
                                     onClick={() => setCurrentPage(i + 1)}
-                                    className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                                    className={`w-8 h-8 rounded-lg text-[10px] font-bold transition-all ${
                                         currentPage === i + 1 
-                                        ? 'bg-primary-gradient text-white shadow-lg' 
+                                        ? 'bg-primary text-white shadow-lg shadow-primary/20' 
                                         : 'bg-white/5 border border-white/10 text-gray-400 hover:text-white'
                                     }`}
                                 >
@@ -238,7 +242,7 @@ const AdminPackageRequests = () => {
                             <button
                                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                 disabled={currentPage === totalPages}
-                                className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[10px] text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                             >
                                 Next
                             </button>
@@ -272,20 +276,20 @@ const AdminPackageRequests = () => {
                                     <h3 className="text-xl font-bold text-white capitalize">
                                         Confirm {confirmModal.status}
                                     </h3>
-                                    <p className="text-gray-400 mt-2">
+                                    <p className="text-gray-400 mt-2 text-sm">
                                         Are you sure you want to <span className="text-white font-bold">{confirmModal.status}</span> the <span className="text-primary font-bold">{confirmModal.packageName}</span> package request for <span className="text-white font-bold">{confirmModal.userName}</span>?
                                     </p>
                                 </div>
                                 <div className="flex items-center space-x-4 w-full pt-4">
                                     <button 
                                         onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
-                                        className="flex-1 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 font-bold hover:bg-white/10 transition-all"
+                                        className="flex-1 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 font-bold hover:bg-white/10 transition-all text-sm"
                                     >
                                         Cancel
                                     </button>
                                     <button 
                                         onClick={handleStatusUpdate}
-                                        className={`flex-1 px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-all ${
+                                        className={`flex-1 px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-all text-sm ${
                                             confirmModal.status === 'approved' 
                                             ? 'bg-success hover:bg-success/80 shadow-success/20' 
                                             : 'bg-red-500 hover:bg-red-600 shadow-red-500/20'

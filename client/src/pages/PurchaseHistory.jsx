@@ -49,6 +49,20 @@ const PurchaseHistory = () => {
         }
     };
 
+    const viewImage = (slip) => {
+        if (!slip) return;
+        const imageUrl = slip.startsWith('data:') ? slip : `${API_URL}/${slip}`;
+        const newWindow = window.open();
+        newWindow.document.write(`
+            <html>
+                <head><title>Receipt Preview</title></head>
+                <body style="margin:0; background: #000; display: flex; align-items: center; justify-content: center;">
+                    <img src="${imageUrl}" style="max-width: 100%; max-height: 100vh;">
+                </body>
+            </html>
+        `);
+    };
+
     return (
         <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -109,14 +123,12 @@ const PurchaseHistory = () => {
                                                 <span className="font-mono text-xs">{req.transactionId}</span>
                                             </div>
                                             {req.transactionSlip && (
-                                                <a 
-                                                    href={`${API_URL}/${req.transactionSlip}`} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer"
+                                                <button 
+                                                    onClick={() => viewImage(req.transactionSlip)}
                                                     className="text-[10px] text-primary hover:underline flex items-center space-x-1"
                                                 >
                                                     View Receipt
-                                                </a>
+                                                </button>
                                             )}
                                         </div>
                                     </td>

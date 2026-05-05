@@ -30,7 +30,10 @@ const Layout = () => {
         if (path.includes('/packages')) return { title: "Investment Packages", desc: "Choose the perfect plan to accelerate your earnings." };
         if (path.includes('/purchase-history')) return { title: "Purchase History", desc: "Track your package purchase requests and their current status." };
         if (path.includes('/roi-income')) return { title: "ROI Earnings", desc: "Track your monthly return on investment from active packages." };
-        if (path.includes('/admin/package-requests')) return { title: "Admin Overview", desc: "Monitor platform health and manage package purchase requests." };
+        if (path.includes('/admin/roi-management')) return { title: "ROI Control Center", desc: "Distribute monthly ROI and decide custom incomes for investors." };
+        if (path.includes('/admin/package-requests')) return { title: "Package Requests", desc: "Monitor and manage user package purchase requests." };
+        if (path.includes('/admin/users')) return { title: "User Management", desc: "Manage and monitor platform members." };
+        if (path.includes('/admin/package-history')) return { title: "Package History", desc: "Track and manage all package purchases and cancellations." };
         
         return { title: `Welcome, ${user.name}`, desc: "Manage your platform activity." };
     };

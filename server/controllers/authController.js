@@ -224,7 +224,10 @@ const getAllUsers = async (req, res) => {
             ];
         }
 
-        const users = await User.find(query).populate('packageId').sort('-createdAt');
+        const users = await User.find(query)
+            .populate('packageId')
+            .populate('referredBy', 'name referralCode')
+            .sort('-createdAt');
         res.json(users);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -238,7 +241,7 @@ const getUserDetails = async (req, res) => {
     try {
         const user = await User.findById(req.params.id)
             .populate('packageId')
-            .populate('referredBy', 'name email referralCode');
+            .populate('referredBy', 'name email referralCode userId');
 
         if (user) {
             res.json(user);

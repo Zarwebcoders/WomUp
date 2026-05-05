@@ -6,6 +6,14 @@ const Income = require('../models/Income');
 // @access  Internal/Admin
 const distributeMonthlyROI = async (req, res) => {
     try {
+        // Security check: Only allow Vercel Cron or Admin
+        const isVercelCron = req.headers['x-vercel-cron'] === '1';
+        const isAdmin = req.user && req.user.role === 'admin';
+
+        if (!isVercelCron && !isAdmin && process.env.NODE_ENV === 'production') {
+            return res.status(401).json({ message: 'Unauthorized access' });
+        }
+
         const users = await User.find({ packageId: { $exists: true } }).populate('packageId');
         let processedCount = 0;
         let totalDistributed = 0;
@@ -21,7 +29,7 @@ const distributeMonthlyROI = async (req, res) => {
             let monthsPassed = (now.getFullYear() - purchaseDate.getFullYear()) * 12;
             monthsPassed += now.getMonth() - purchaseDate.getMonth();
 
-            // ROI starts from 3rd month (Month 0: purchase, Month 1: skip, Month 2: skip, Month 3: start)
+            // ROI starts from 3rd month
             if (monthsPassed < 3) continue;
 
             const pkg = user.packageId;
@@ -30,14 +38,15 @@ const distributeMonthlyROI = async (req, res) => {
             // Determine ROI amount
             let roiAmount = 0;
             if (monthsPassed >= 8) {
-                roiAmount = roiSchedule.get("8");
+                // Use Admin decided amount
+                roiAmount = user.monthlyRoiAmount || 0;
             } else {
+                // Use fixed schedule
                 roiAmount = roiSchedule.get(monthsPassed.toString()) || 0;
             }
 
             if (roiAmount > 0) {
-                // Check if already paid for this specific month (simplified check for demo)
-                // In production, we'd check if an ROI Income record exists for this user in this calendar month
+                // Check if already paid for this calendar month
                 const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
                 const alreadyPaid = await Income.findOne({
                     userId: user._id,
@@ -54,8 +63,13 @@ const distributeMonthlyROI = async (req, res) => {
                         userId: user._id,
                         incomeType: 'roi',
                         amount: roiAmount,
-                        level: 0 // Personal ROI
+                        level: 0 
                     });
+
+                    // Distribute Level Income to upline
+                    if (user.referredBy) {
+                        await distributeLevelIncomeFromROI(user.referredBy, user._id, roiAmount, 1, pkg);
+                    }
 
                     processedCount++;
                     totalDistributed += roiAmount;
@@ -63,15 +77,78 @@ const distributeMonthlyROI = async (req, res) => {
             }
         }
 
-        res.json({
-            message: 'ROI distributed successfully',
-            processedCount,
-            totalDistributed
-        });
+        // Response is optional if called by cron, but good for manual API pings
+        if (res) {
+            res.json({
+                message: 'ROI distributed successfully',
+                processedCount,
+                totalDistributed
+            });
+        }
     } catch (error) {
         console.error('ROI Error:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        if (res) res.status(500).json({ message: 'Internal Server Error' });
     }
 };
 
-module.exports = { distributeMonthlyROI };
+// @desc    Admin sets custom ROI for user (8th month onwards)
+// @route   POST /api/roi/set-custom-roi
+// @access  Admin
+const setCustomROI = async (req, res) => {
+    try {
+        const { userId, amount } = req.body;
+
+        const user = await User.findById(userId).populate('packageId');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Validate minimums
+        const minAmount = user.packageId.price === 111000 ? 10000 : 4000;
+        if (amount < minAmount) {
+            return res.status(400).json({ message: `Minimum ROI for this package is ₹${minAmount}` });
+        }
+
+        user.monthlyRoiAmount = amount;
+        await user.save();
+
+        res.json({ message: `Monthly ROI for ${user.name} set to ₹${amount}`, user });
+    } catch (error) {
+        console.error('Set ROI Error:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// Helper function to distribute level income based on ROI received by downline
+const distributeLevelIncomeFromROI = async (sponsorId, fromUserId, roiAmount, level, pkg) => {
+    if (level > 10) return;
+
+    const sponsor = await User.findById(sponsorId);
+    if (!sponsor) return;
+
+    // Get percentage for this level from the package
+    const levelPercentage = pkg.levelPercentages[level - 1] || 0;
+    
+    if (levelPercentage > 0) {
+        const levelIncomeAmount = (roiAmount * levelPercentage) / 100;
+        
+        sponsor.levelIncome += levelIncomeAmount;
+        sponsor.totalIncome += levelIncomeAmount;
+        await sponsor.save();
+
+        await Income.create({
+            userId: sponsor._id,
+            incomeType: 'level',
+            amount: levelIncomeAmount,
+            fromUser: fromUserId,
+            level: level
+        });
+    }
+
+    // Move to next level sponsor
+    if (sponsor.referredBy) {
+        await distributeLevelIncomeFromROI(sponsor.referredBy, fromUserId, roiAmount, level + 1, pkg);
+    }
+};
+
+module.exports = { distributeMonthlyROI, setCustomROI };

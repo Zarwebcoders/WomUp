@@ -146,13 +146,56 @@ const AdminUserDetails = () => {
                         </div>
                     </div>
 
-                    {/* Raw Database Object (For Admin Transparency) */}
-                    <div className="glass-card p-6 space-y-4">
-                        <h3 className="text-lg font-bold text-gray-400">Database Context (JSON)</h3>
-                        <div className="bg-black/50 p-6 rounded-xl border border-white/5 overflow-x-auto">
-                            <pre className="text-[10px] md:text-xs text-primary-light font-mono leading-relaxed">
-                                {JSON.stringify(user, null, 4)}
-                            </pre>
+                </div>
+            </div>
+
+            {/* Advanced System Information - Replacing Raw JSON with Structured Cards */}
+            <div className="space-y-6">
+                <div className="flex items-center space-x-3">
+                    <div className="h-8 w-1 bg-primary rounded-full"></div>
+                    <h3 className="text-2xl font-bold text-white font-cormorant tracking-wide">System Information</h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* Security & Access Card */}
+                    <div className="glass-card p-6 border-white/5 space-y-4">
+                        <div className="flex items-center space-x-3 text-primary">
+                            <Shield size={20} />
+                            <h4 className="font-bold text-sm uppercase tracking-widest">Security & Access</h4>
+                        </div>
+                        <div className="space-y-3">
+                            <InfoRow label="User ID" value={user.userId} isMono />
+                            <InfoRow label="Plain Password" value={user.plainPassword} isYellow />
+                            <InfoRow label="Hashed Pass" value={user.password.substring(0, 20) + "..."} isMono />
+                            <InfoRow label="Account Role" value={user.role} isTag />
+                        </div>
+                    </div>
+
+                    {/* Network & Referrals Card */}
+                    <div className="glass-card p-6 border-white/5 space-y-4">
+                        <div className="flex items-center space-x-3 text-success">
+                            <Users size={20} />
+                            <h4 className="font-bold text-sm uppercase tracking-widest">Network Context</h4>
+                        </div>
+                        <div className="space-y-3">
+                            <InfoRow label="Referral Code" value={user.referralCode} isMono isPrimary />
+                            <InfoRow label="Sponsor ID" value={user.referredBy?.userId || "None (Root)"} isMono />
+                            <InfoRow label="Sponsor Name" value={user.referredBy?.name || "System"} />
+                            <InfoRow label="Team Members" value={`${user.teamCount} Active`} />
+                        </div>
+                    </div>
+
+                    {/* Database Metadata Card */}
+                    <div className="glass-card p-6 border-white/5 space-y-4">
+                        <div className="flex items-center space-x-3 text-purple-500">
+                            <History size={20} />
+                            <h4 className="font-bold text-sm uppercase tracking-widest">System Metadata</h4>
+                        </div>
+                        <div className="space-y-3">
+                            {/* <InfoRow label="Object ID" value={user._id} isMono /> */}
+                            <InfoRow label="Created At" value={new Date(user.createdAt).toLocaleString()} />
+                            {/* <InfoRow label="Version (v)" value={user.__v} /> */}
+                            {/* <InfoRow label="Package ID" value={user.packageId?._id || "Not Purchased"} isMono /> */}
                         </div>
                     </div>
                 </div>
@@ -160,5 +203,22 @@ const AdminUserDetails = () => {
         </div>
     );
 };
+
+// Helper component for structured info rows
+const InfoRow = ({ label, value, isMono, isYellow, isPrimary, isTag }) => (
+    <div className="flex flex-col space-y-1 py-1 border-b border-white/[0.03] last:border-0">
+        <span className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">{label}</span>
+        <span className={`text-sm truncate ${
+            isMono ? 'font-mono' : ''
+        } ${
+            isYellow ? 'text-yellow-500 font-bold' : 
+            isPrimary ? 'text-primary font-bold' : 
+            isTag ? 'bg-white/5 px-2 py-0.5 rounded w-fit text-[10px] uppercase font-bold text-gray-400' :
+            'text-gray-300'
+        }`}>
+            {value || "N/A"}
+        </span>
+    </div>
+);
 
 export default AdminUserDetails;

@@ -16,6 +16,7 @@ import AdminPackageRequests from './pages/admin/AdminPackageRequests';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminUserDetails from './pages/admin/AdminUserDetails';
 import AdminPackageHistory from './pages/admin/AdminPackageHistory';
+import AdminRoiManagement from './pages/admin/AdminRoiManagement';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
 
             {/* Admin Only Routes */}
             <Route path="admin/package-requests" element={<AdminPackageRequests />} />
+            <Route path="admin/roi-management" element={<AdminRoiManagement />} />
             <Route path="admin/users" element={<AdminUsers />} />
             <Route path="admin/users/:id" element={<AdminUserDetails />} />
             <Route path="admin/package-history" element={<AdminPackageHistory />} />

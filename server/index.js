@@ -63,7 +63,10 @@ incomeRoutes.get('/:type', require('./middleware/authMiddleware').protect, requi
 app.use('/api/income', incomeRoutes);
 
 const roiRoutes = express.Router();
-roiRoutes.post('/distribute', require('./middleware/authMiddleware').protect, require('./middleware/authMiddleware').admin, require('./controllers/roiController').distributeMonthlyROI);
+// Allow GET for Vercel Cron, and remove auth for this specific endpoint (will check inside controller)
+roiRoutes.get('/distribute', require('./controllers/roiController').distributeMonthlyROI);
+roiRoutes.post('/distribute', require('./controllers/roiController').distributeMonthlyROI);
+roiRoutes.post('/set-custom-roi', require('./middleware/authMiddleware').protect, require('./middleware/authMiddleware').admin, require('./controllers/roiController').setCustomROI);
 app.use('/api/roi', roiRoutes);
 
 // Error Handling Middleware

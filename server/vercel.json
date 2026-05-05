@@ -8,8 +8,14 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/api/(.*)",
       "dest": "index.js"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/roi/distribute",
+      "schedule": "0 0 * * *"
     }
   ]
 }
