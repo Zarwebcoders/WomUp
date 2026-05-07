@@ -120,10 +120,16 @@ const setCustomROI = async (req, res) => {
 };
 
 // Helper function to distribute level income based on ROI received by downline
-const distributeLevelIncomeFromROI = async (sponsorId, fromUserId, roiAmount, level, pkg) => {
+const distributeLevelIncomeFromROI = async (sponsorIdOrCode, fromUserId, roiAmount, level, pkg) => {
     if (level > 10) return;
 
-    const sponsor = await User.findById(sponsorId);
+    // Search by referralCode or by _id (to support old data)
+    const query = { $or: [{ referralCode: sponsorIdOrCode }] };
+    if (require('mongoose').isValidObjectId(sponsorIdOrCode)) {
+        query.$or.push({ _id: sponsorIdOrCode });
+    }
+
+    const sponsor = await User.findOne(query);
     if (!sponsor) return;
 
     // Get percentage for this level from the package

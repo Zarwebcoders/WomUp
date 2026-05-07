@@ -9,37 +9,37 @@ const getTeamByLevel = async (req, res) => {
         const levelParam = req.params.level;
         const { search } = req.query;
 
-        let levelMap = {}; // To store userId -> level
+        let levelMap = {}; // To store referralCode -> level
         
         if (levelParam === 'all') {
-            let tempIds = [req.user._id];
+            let tempCodes = [req.user.referralCode];
             for (let i = 1; i <= 10; i++) {
-                const users = await User.find({ referredBy: { $in: tempIds } }).select('_id');
-                tempIds = users.map(u => u._id);
-                if (tempIds.length === 0) break;
+                const users = await User.find({ referredBy: { $in: tempCodes } }).select('referralCode');
+                tempCodes = users.map(u => u.referralCode);
+                if (tempCodes.length === 0) break;
                 
-                tempIds.forEach(id => {
-                    levelMap[id.toString()] = i;
+                tempCodes.forEach(code => {
+                    levelMap[code] = i;
                 });
             }
         } else {
             const level = parseInt(levelParam) || 1;
-            let tempIds = [req.user._id];
+            let tempCodes = [req.user.referralCode];
             for (let i = 1; i <= level; i++) {
-                const users = await User.find({ referredBy: { $in: tempIds } }).select('_id');
-                tempIds = users.map(u => u._id);
-                if (tempIds.length === 0) break;
+                const users = await User.find({ referredBy: { $in: tempCodes } }).select('referralCode');
+                tempCodes = users.map(u => u.referralCode);
+                if (tempCodes.length === 0) break;
                 
                 if (i === level) {
-                    tempIds.forEach(id => {
-                        levelMap[id.toString()] = i;
+                    tempCodes.forEach(code => {
+                        levelMap[code] = i;
                     });
                 }
             }
         }
 
-        const allLevelIds = Object.keys(levelMap);
-        let query = { _id: { $in: allLevelIds } };
+        const allLevelCodes = Object.keys(levelMap);
+        let query = { referralCode: { $in: allLevelCodes } };
 
         if (search) {
             query.$or = [
@@ -64,7 +64,7 @@ const getTeamByLevel = async (req, res) => {
 
             return {
                 ...u,
-                level: levelMap[u._id.toString()],
+                level: levelMap[u.referralCode],
                 incomeFromMember: totalFromMember
             };
         }));

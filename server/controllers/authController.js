@@ -25,14 +25,13 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        // Generate unique referral code for new user
-        const newReferralCode = 'REF' + Math.random().toString(36).substring(2, 8).toUpperCase();
-        
         // Generate unique userId for new user (e.g. WOM123456)
         const userId = 'WOM' + Math.floor(100000 + Math.random() * 900000);
         
-        console.log('Generated new referral code:', newReferralCode);
-        console.log('Generated new userId:', userId);
+        // Referral code is now the same as userId
+        const newReferralCode = userId;
+        
+        console.log('User ID and Referral Code:', userId);
 
         let referredBy = null;
         if (referralCode && referralCode.toString().trim() !== '') {
@@ -42,8 +41,9 @@ const registerUser = async (req, res) => {
             const sponsor = await User.findOne({ referralCode: cleanCode });
             
             if (sponsor) {
-                referredBy = sponsor._id;
-                console.log('SUCCESS: Sponsor found:', sponsor.name, 'ID:', sponsor._id);
+                // Store the sponsor's referralCode (userId) as a string
+                referredBy = sponsor.referralCode;
+                console.log('SUCCESS: Sponsor found:', sponsor.name, 'Referral ID:', sponsor.referralCode);
             } else {
                 console.log('FAILURE: Sponsor lookup failed for code:', `"${cleanCode}"`);
             }
@@ -51,7 +51,7 @@ const registerUser = async (req, res) => {
             console.log('SKIPPING: No referral code provided or code was empty.');
         }
 
-        console.log('FINAL: Creating user with referredBy:', referredBy);
+        console.log('FINAL: Creating user with referredBy (string):', referredBy);
         const user = new User({
             name,
             email,
@@ -125,10 +125,16 @@ const registerUser = async (req, res) => {
 };
 
 // Helper function to update team counts recursively
-const updateTeamCounts = async (userId, level) => {
+const updateTeamCounts = async (sponsorIdOrCode, level) => {
     if (level > 10) return; // Limit depth to prevent infinite loops
 
-    const user = await User.findById(userId);
+    // Search by referralCode or by _id (to support old data)
+    const query = { $or: [{ referralCode: sponsorIdOrCode }] };
+    if (require('mongoose').isValidObjectId(sponsorIdOrCode)) {
+        query.$or.push({ _id: sponsorIdOrCode });
+    }
+
+    const user = await User.findOne(query);
     if (user) {
         user.teamCount += 1;
         await user.save();
@@ -224,10 +230,25 @@ const getAllUsers = async (req, res) => {
             ];
         }
 
-        const users = await User.find(query)
+        let users = await User.find(query)
             .populate('packageId')
-            .populate('referredBy', 'name referralCode')
-            .sort('-createdAt');
+            .sort('-createdAt')
+            .lean();
+
+        // Manually "populate" referredBy since it's a string now
+        for (let user of users) {
+            if (user.referredBy) {
+                const sponsorQuery = { $or: [{ referralCode: user.referredBy }] };
+                if (require('mongoose').isValidObjectId(user.referredBy)) {
+                    sponsorQuery.$or.push({ _id: user.referredBy });
+                }
+                const sponsor = await User.findOne(sponsorQuery).select('name referralCode');
+                user.referredBy = sponsor || { name: 'Root/System', referralCode: user.referredBy };
+            } else {
+                user.referredBy = { name: 'Root', referralCode: 'SYSTEM' };
+            }
+        }
+
         res.json(users);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -239,11 +260,22 @@ const getAllUsers = async (req, res) => {
 // @access  Private/Admin
 const getUserDetails = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id)
+        let user = await User.findById(req.params.id)
             .populate('packageId')
-            .populate('referredBy', 'name email referralCode userId');
+            .lean();
 
         if (user) {
+            // Manually populate referredBy
+            if (user.referredBy) {
+                const sponsorQuery = { $or: [{ referralCode: user.referredBy }] };
+                if (require('mongoose').isValidObjectId(user.referredBy)) {
+                    sponsorQuery.$or.push({ _id: user.referredBy });
+                }
+                const sponsor = await User.findOne(sponsorQuery).select('name email referralCode userId');
+                user.referredBy = sponsor || { name: 'Root/System', referralCode: user.referredBy };
+            } else {
+                user.referredBy = { name: 'Root', referralCode: 'SYSTEM' };
+            }
             res.json(user);
         } else {
             res.status(404).json({ message: 'User not found' });
