@@ -100,10 +100,16 @@ const updateRequestStatus = async (req, res) => {
 };
 
 // Helper function to distribute fixed referral income only
-const distributeIncomes = async (sponsorId, fromUserId, pkg, level) => {
+const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level) => {
     if (level > 10) return;
 
-    const sponsor = await User.findById(sponsorId);
+    // Search by referralCode or by _id (to support old data)
+    const query = { $or: [{ referralCode: sponsorIdOrCode }] };
+    if (require('mongoose').isValidObjectId(sponsorIdOrCode)) {
+        query.$or.push({ _id: sponsorIdOrCode });
+    }
+
+    const sponsor = await User.findOne(query);
     if (!sponsor) return;
 
     // Referral Income (Fixed Amount) only
@@ -113,7 +119,7 @@ const distributeIncomes = async (sponsorId, fromUserId, pkg, level) => {
         sponsor.totalIncome += refAmount;
         
         await Income.create({
-            userId: sponsorId,
+            userId: sponsor._id, // Must be the sponsor's ObjectId!
             incomeType: 'referral',
             amount: refAmount,
             fromUser: fromUserId,

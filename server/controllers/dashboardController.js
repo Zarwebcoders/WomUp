@@ -99,7 +99,12 @@ const getDashboardSummary = async (req, res) => {
         }
 
         const user = await User.findById(req.user._id).populate('packageId');
-        const directReferrals = await User.countDocuments({ referredBy: req.user._id });
+        const directReferrals = await User.countDocuments({ 
+            $or: [
+                { referredBy: req.user._id },
+                { referredBy: req.user.referralCode }
+            ]
+        });
         
         const recentActivities = await Income.find({ userId: req.user._id })
             .sort({ createdAt: -1 })
