@@ -1,6 +1,30 @@
 const User = require('../models/User');
 const Income = require('../models/Income');
 
+// Helper to recursively construct level map skipping inactive users
+const buildLevelMap = async (currentUser, currentLevel, levelMap, maxLevel = 10) => {
+    if (currentLevel > maxLevel) return;
+
+    // Find direct referrals of this user
+    const query = {
+        $or: [
+            { referredBy: currentUser.referralCode },
+            { referredBy: currentUser._id }
+        ]
+    };
+    const referrals = await User.find(query).select('referralCode _id isActive');
+
+    for (const ref of referrals) {
+        if (ref.isActive) {
+            levelMap[ref.referralCode] = currentLevel;
+            await buildLevelMap(ref, currentLevel + 1, levelMap, maxLevel);
+        } else {
+            // Skip level count for inactive user, continue traversing their downline with same level
+            await buildLevelMap(ref, currentLevel, levelMap, maxLevel);
+        }
+    }
+};
+
 // @desc    Get team details by level
 // @route   GET /api/referral/team/:level
 // @access  Private
@@ -11,54 +35,18 @@ const getTeamByLevel = async (req, res) => {
 
         let levelMap = {}; // To store referralCode -> level
         
-        if (levelParam === 'all') {
-            let tempIdentifiers = [{ referralCode: req.user.referralCode, _id: req.user._id }];
-            for (let i = 1; i <= 10; i++) {
-                const currentCodes = tempIdentifiers.map(ti => ti.referralCode).filter(Boolean);
-                const currentIds = tempIdentifiers.map(ti => ti._id).filter(Boolean);
+        await buildLevelMap(req.user, 1, levelMap, 10);
 
-                const users = await User.find({ 
-                    $or: [
-                        { referredBy: { $in: currentCodes } },
-                        { referredBy: { $in: currentIds } }
-                    ]
-                }).select('referralCode _id');
-
-                if (users.length === 0) break;
-                
-                tempIdentifiers = users.map(u => ({ referralCode: u.referralCode, _id: u._id }));
-                
-                users.forEach(u => {
-                    levelMap[u.referralCode] = i;
-                });
-            }
-        } else {
-            const level = parseInt(levelParam) || 1;
-            let tempIdentifiers = [{ referralCode: req.user.referralCode, _id: req.user._id }];
-            for (let i = 1; i <= level; i++) {
-                const currentCodes = tempIdentifiers.map(ti => ti.referralCode).filter(Boolean);
-                const currentIds = tempIdentifiers.map(ti => ti._id).filter(Boolean);
-
-                const users = await User.find({ 
-                    $or: [
-                        { referredBy: { $in: currentCodes } },
-                        { referredBy: { $in: currentIds } }
-                    ]
-                }).select('referralCode _id');
-
-                if (users.length === 0) break;
-                
-                tempIdentifiers = users.map(u => ({ referralCode: u.referralCode, _id: u._id }));
-                
-                if (i === level) {
-                    users.forEach(u => {
-                        levelMap[u.referralCode] = i;
-                    });
-                }
-            }
+        let allLevelCodes = Object.keys(levelMap);
+        if (levelParam !== 'all') {
+            const targetLevel = parseInt(levelParam) || 1;
+            allLevelCodes = allLevelCodes.filter(code => levelMap[code] === targetLevel);
         }
 
-        const allLevelCodes = Object.keys(levelMap);
+        if (allLevelCodes.length === 0) {
+            return res.json([]);
+        }
+
         let query = { referralCode: { $in: allLevelCodes } };
 
         if (search) {

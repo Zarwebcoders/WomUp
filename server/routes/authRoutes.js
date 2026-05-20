@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, getUserProfile, verifyReferral, getAllUsers, getUserDetails } = require('../controllers/authController');
+const { registerUser, loginUser, getUserProfile, verifyReferral, getAllUsers, getUserDetails, updateUserStatus } = require('../controllers/authController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
 router.post('/register', registerUser);
@@ -11,5 +11,6 @@ router.get('/verify-referral/:code', verifyReferral);
 // Admin Routes
 router.get('/users', protect, admin, getAllUsers);
 router.get('/users/:id', protect, admin, getUserDetails);
+router.put('/users/:id/status', protect, admin, updateUserStatus);
 
 module.exports = router;

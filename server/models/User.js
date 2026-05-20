@@ -19,6 +19,9 @@ const userSchema = new mongoose.Schema({
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     packagePurchaseDate: { type: Date },
     monthlyRoiAmount: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: false },
+    activatedAt: { type: Date },
+    expiresAt: { type: Date },
     createdAt: { type: Date, default: Date.now }
 });
 

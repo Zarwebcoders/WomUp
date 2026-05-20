@@ -88,6 +88,9 @@ const updateRequestStatus = async (req, res) => {
 
         user.packageId = request.packageId;
         user.packagePurchaseDate = new Date();
+        user.isActive = true;
+        user.activatedAt = new Date();
+        user.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
         await user.save();
 
         // Distribute Incomes up to 10 levels
@@ -99,7 +102,7 @@ const updateRequestStatus = async (req, res) => {
     res.json({ message: `Request ${status} successfully` });
 };
 
-// Helper function to distribute fixed referral income only
+// Helper function to distribute fixed referral income only (Skips Inactive Users)
 const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level) => {
     if (level > 10) return;
 
@@ -112,26 +115,34 @@ const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level) => {
     const sponsor = await User.findOne(query);
     if (!sponsor) return;
 
-    // Referral Income (Fixed Amount) only
-    const refAmount = pkg.referralAmounts[level - 1] || 0;
-    if (refAmount > 0) {
-        sponsor.referralIncome += refAmount;
-        sponsor.totalIncome += refAmount;
-        
-        await Income.create({
-            userId: sponsor._id, // Must be the sponsor's ObjectId!
-            incomeType: 'referral',
-            amount: refAmount,
-            fromUser: fromUserId,
-            level: level
-        });
+    let nextLevel = level;
 
-        await sponsor.save();
+    if (sponsor.isActive) {
+        // Referral Income (Fixed Amount) only
+        const refAmount = pkg.referralAmounts[level - 1] || 0;
+        if (refAmount > 0) {
+            sponsor.referralIncome += refAmount;
+            sponsor.totalIncome += refAmount;
+            
+            await Income.create({
+                userId: sponsor._id, // Must be the sponsor's ObjectId!
+                incomeType: 'referral',
+                amount: refAmount,
+                fromUser: fromUserId,
+                level: level
+            });
+
+            await sponsor.save();
+        }
+        // Increment MLM level count only for active sponsors
+        nextLevel = level + 1;
+    } else {
+        console.log(`Skipping inactive sponsor ${sponsor.userId || sponsor.name} at level ${level}`);
     }
 
     // Move to next level sponsor
     if (sponsor.referredBy) {
-        await distributeIncomes(sponsor.referredBy, fromUserId, pkg, level + 1);
+        await distributeIncomes(sponsor.referredBy, fromUserId, pkg, nextLevel);
     }
 };
 

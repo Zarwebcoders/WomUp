@@ -184,13 +184,33 @@ const Dashboard = () => {
 
                 {!isAdmin && (
                     <div className="glass-card p-8 bg-gradient-to-br from-card to-primary-dark/20 relative overflow-hidden flex flex-col justify-center">
-                        <div className="relative z-10 text-center">
-                            <ShieldCheck className="text-primary-light mx-auto mb-4" size={40} />
-                            <h3 className="text-gray-400 text-sm mb-1">Active Package</h3>
-                            <h2 className="text-3xl font-bold mb-6 font-cormorant">{stats?.user?.packageId?.packageName || 'No Package'}</h2>
+                        <div className="relative z-10 text-center space-y-4">
+                            <ShieldCheck className="text-primary-light mx-auto" size={40} />
+                            <div>
+                                <h3 className="text-gray-400 text-sm mb-1">Active Package</h3>
+                                <h2 className="text-3xl font-bold font-cormorant">{stats?.user?.packageId?.packageName || 'No Package'}</h2>
+                            </div>
+                            
+                            <div className="py-2 border-t border-b border-white/5 space-y-2">
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="text-gray-400">Account Status</span>
+                                    <span className={`font-bold px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider ${
+                                        stats?.user?.isActive ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
+                                    }`}>
+                                        {stats?.user?.isActive ? 'Active' : 'Inactive'}
+                                    </span>
+                                </div>
+                                {stats?.user?.isActive && stats?.user?.expiresAt && (
+                                    <div className="flex justify-between items-center text-xs">
+                                        <span className="text-gray-400">Expiry Date</span>
+                                        <span className="text-white font-medium">{new Date(stats?.user?.expiresAt).toLocaleDateString()}</span>
+                                    </div>
+                                )}
+                            </div>
+
                             <button
                                 onClick={() => window.location.href = '/packages'}
-                                className="w-full py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold transition-all"
+                                className="w-full py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold transition-all text-sm"
                             >
                                 {stats?.user?.packageId ? 'Upgrade Package' : 'View Packages'}
                             </button>

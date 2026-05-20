@@ -40,6 +40,23 @@ const AdminUsers = () => {
         }
     };
 
+    const toggleUserStatus = async (userId, currentStatus) => {
+        if (!window.confirm(`Are you sure you want to ${currentStatus ? 'deactivate' : 'activate'} this user?`)) {
+            return;
+        }
+
+        try {
+            const config = {
+                headers: { Authorization: `Bearer ${adminUser.token}` }
+            };
+            await axios.put(`${API_URL}/api/auth/users/${userId}/status`, { isActive: !currentStatus }, config);
+            fetchUsers();
+        } catch (err) {
+            console.error(err);
+            alert(err.response?.data?.message || 'Error updating user status');
+        }
+    };
+
     useEffect(() => {
         fetchUsers();
     }, [debouncedSearch, adminUser.token]);
@@ -106,11 +123,18 @@ const AdminUsers = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="flex items-center space-x-1.5">
-                                            <div className={`w-1.5 h-1.5 rounded-full ${u.packageId ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                                            <span className={`text-[10px] font-bold uppercase tracking-widest ${u.packageId ? 'text-green-500' : 'text-red-500'}`}>
-                                                {u.packageId ? 'Active' : 'Inactive'}
-                                            </span>
+                                        <div className="flex flex-col space-y-1">
+                                            <div className="flex items-center space-x-1.5">
+                                                <div className={`w-1.5 h-1.5 rounded-full ${u.isActive ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                                                <span className={`text-[10px] font-bold uppercase tracking-widest ${u.isActive ? 'text-green-500' : 'text-red-500'}`}>
+                                                    {u.isActive ? 'Active' : 'Inactive'}
+                                                </span>
+                                            </div>
+                                            {u.expiresAt && u.isActive && (
+                                                <span className="text-[9px] text-gray-500">
+                                                    Exp: {new Date(u.expiresAt).toLocaleDateString()}
+                                                </span>
+                                            )}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
@@ -123,12 +147,23 @@ const AdminUsers = () => {
                                                 <Eye size={16} />
                                             </Link>
                                             {u.role !== 'admin' && (
-                                                <button 
-                                                    className="p-2 bg-white/5 text-gray-400 rounded-lg hover:bg-red-500/20 hover:text-red-500 transition-all"
-                                                    title="Deactivate"
-                                                >
-                                                    <UserX size={16} />
-                                                </button>
+                                                u.isActive ? (
+                                                    <button 
+                                                        onClick={() => toggleUserStatus(u._id, true)}
+                                                        className="p-2 bg-white/5 text-red-500 rounded-lg hover:bg-red-500/20 transition-all"
+                                                        title="Deactivate User"
+                                                    >
+                                                        <UserX size={16} />
+                                                    </button>
+                                                ) : (
+                                                    <button 
+                                                        onClick={() => toggleUserStatus(u._id, false)}
+                                                        className="p-2 bg-white/5 text-green-500 rounded-lg hover:bg-green-500/20 transition-all"
+                                                        title="Activate User"
+                                                    >
+                                                        <ShieldCheck size={16} />
+                                                    </button>
+                                                )
                                             )}
                                         </div>
                                     </td>

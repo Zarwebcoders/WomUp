@@ -14,11 +14,16 @@ const distributeMonthlyROI = async (req, res) => {
             return res.status(401).json({ message: 'Unauthorized access' });
         }
 
-        const users = await User.find({ packageId: { $exists: true } }).populate('packageId');
+        // Auto-expire users whose expiresAt has passed
+        const now = new Date();
+        await User.updateMany(
+            { isActive: true, expiresAt: { $lt: now } },
+            { $set: { isActive: false } }
+        );
+
+        const users = await User.find({ packageId: { $exists: true }, isActive: true }).populate('packageId');
         let processedCount = 0;
         let totalDistributed = 0;
-
-        const now = new Date();
 
         for (const user of users) {
             if (!user.packagePurchaseDate) continue;
@@ -119,7 +124,7 @@ const setCustomROI = async (req, res) => {
     }
 };
 
-// Helper function to distribute level income based on ROI received by downline
+// Helper function to distribute level income based on ROI received by downline (Skips Inactive Users)
 const distributeLevelIncomeFromROI = async (sponsorIdOrCode, fromUserId, roiAmount, level, pkg) => {
     if (level > 10) return;
 
@@ -132,28 +137,36 @@ const distributeLevelIncomeFromROI = async (sponsorIdOrCode, fromUserId, roiAmou
     const sponsor = await User.findOne(query);
     if (!sponsor) return;
 
-    // Get percentage for this level from the package
-    const levelPercentage = pkg.levelPercentages[level - 1] || 0;
-    
-    if (levelPercentage > 0) {
-        const levelIncomeAmount = (roiAmount * levelPercentage) / 100;
-        
-        sponsor.levelIncome += levelIncomeAmount;
-        sponsor.totalIncome += levelIncomeAmount;
-        await sponsor.save();
+    let nextLevel = level;
 
-        await Income.create({
-            userId: sponsor._id,
-            incomeType: 'level',
-            amount: levelIncomeAmount,
-            fromUser: fromUserId,
-            level: level
-        });
+    if (sponsor.isActive) {
+        // Get percentage for this level from the package
+        const levelPercentage = pkg.levelPercentages[level - 1] || 0;
+        
+        if (levelPercentage > 0) {
+            const levelIncomeAmount = (roiAmount * levelPercentage) / 100;
+            
+            sponsor.levelIncome += levelIncomeAmount;
+            sponsor.totalIncome += levelIncomeAmount;
+            await sponsor.save();
+
+            await Income.create({
+                userId: sponsor._id,
+                incomeType: 'level',
+                amount: levelIncomeAmount,
+                fromUser: fromUserId,
+                level: level
+            });
+        }
+        // Increment MLM level count only for active sponsors
+        nextLevel = level + 1;
+    } else {
+        console.log(`Skipping inactive sponsor for ROI level: ${sponsor.userId || sponsor.name} at level ${level}`);
     }
 
     // Move to next level sponsor
     if (sponsor.referredBy) {
-        await distributeLevelIncomeFromROI(sponsor.referredBy, fromUserId, roiAmount, level + 1, pkg);
+        await distributeLevelIncomeFromROI(sponsor.referredBy, fromUserId, roiAmount, nextLevel, pkg);
     }
 };
 

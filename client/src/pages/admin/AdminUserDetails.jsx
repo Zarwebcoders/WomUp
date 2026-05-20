@@ -34,6 +34,26 @@ const AdminUserDetails = () => {
         fetchUserDetails();
     }, [id, adminUser.token]);
 
+    const toggleUserStatus = async () => {
+        if (!window.confirm(`Are you sure you want to ${user.isActive ? 'deactivate' : 'activate'} this user?`)) {
+            return;
+        }
+
+        try {
+            const config = {
+                headers: { Authorization: `Bearer ${adminUser.token}` }
+            };
+            await axios.put(`${API_URL}/api/auth/users/${id}/status`, { isActive: !user.isActive }, config);
+            
+            // Re-fetch user details to get populated fields correctly
+            const { data } = await axios.get(`${API_URL}/api/auth/users/${id}`, config);
+            setUser(data);
+        } catch (err) {
+            console.error(err);
+            alert(err.response?.data?.message || 'Error updating user status');
+        }
+    };
+
     if (loading) return <div className="p-20 text-center text-white">Loading detailed profile...</div>;
     if (!user) return <div className="p-20 text-center text-red-500">User not found!</div>;
 
@@ -60,12 +80,21 @@ const AdminUserDetails = () => {
                     <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center font-bold text-4xl text-primary border-4 border-primary/10">
                         {user.name.charAt(0)}
                     </div>
-                    <div className="text-center">
+                    <div className="text-center flex flex-col items-center space-y-2">
                         <h2 className="text-2xl font-bold text-white">{user.name}</h2>
                         <p className="text-gray-500 text-sm">Joined on {new Date(user.createdAt).toLocaleDateString()}</p>
-                        <div className="mt-2 inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider">
-                            <Shield size={12} />
-                            <span>{user.role}</span>
+                        
+                        <div className="flex items-center space-x-2">
+                            <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider">
+                                <Shield size={12} />
+                                <span>{user.role}</span>
+                            </div>
+                            <div className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                user.isActive ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
+                            }`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                                <span>{user.isActive ? 'Active' : 'Inactive'}</span>
+                            </div>
                         </div>
                     </div>
 
@@ -82,7 +111,42 @@ const AdminUserDetails = () => {
                             <span className="text-gray-500">Mobile</span>
                             <span className="text-white">{user.mobile}</span>
                         </div>
+                        {user.isActive && user.activatedAt && (
+                            <div className="flex items-center justify-between text-sm">
+                                <span className="text-gray-500">Activated At</span>
+                                <span className="text-white">{new Date(user.activatedAt).toLocaleDateString()}</span>
+                            </div>
+                        )}
+                        {user.isActive && user.expiresAt && (
+                            <div className="flex items-center justify-between text-sm">
+                                <span className="text-gray-500">Expires At</span>
+                                <span className="text-white text-red-400 font-bold">{new Date(user.expiresAt).toLocaleDateString()}</span>
+                            </div>
+                        )}
                     </div>
+
+                    {user.role !== 'admin' && (
+                        <button
+                            onClick={toggleUserStatus}
+                            className={`w-full py-2.5 px-4 rounded-xl text-sm font-bold flex items-center justify-center space-x-2 transition-all ${
+                                user.isActive
+                                ? 'bg-red-500/15 text-red-500 hover:bg-red-500/25 border border-red-500/10'
+                                : 'bg-green-500/15 text-green-500 hover:bg-green-500/25 border border-green-500/10'
+                            }`}
+                        >
+                            {user.isActive ? (
+                                <>
+                                    <UserMinus size={16} />
+                                    <span>Deactivate Account</span>
+                                </>
+                            ) : (
+                                <>
+                                    <UserCheck size={16} />
+                                    <span>Activate Account</span>
+                                </>
+                            )}
+                        </button>
+                    )}
                 </div>
 
                 {/* Main Details */}

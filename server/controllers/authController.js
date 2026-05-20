@@ -164,6 +164,14 @@ const loginUser = async (req, res) => {
             ]
         });
 
+        if (user) {
+            // Expiry check: if active and expiresAt has passed, auto-deactivate
+            if (user.isActive && user.expiresAt && new Date() > new Date(user.expiresAt)) {
+                user.isActive = false;
+                await user.save();
+            }
+        }
+
         if (user && (await user.matchPassword(password))) {
             res.json({
                 _id: user._id,
@@ -203,12 +211,17 @@ const getUserProfile = async (req, res) => {
 // @route   GET /api/auth/verify-referral/:code
 // @access  Public
 const verifyReferral = async (req, res) => {
-    const { code } = req.params;
-    const user = await User.findOne({ referralCode: code.toUpperCase() }).select('name');
-    if (user) {
-        res.json({ valid: true, name: user.name });
-    } else {
-        res.json({ valid: false });
+    try {
+        const { code } = req.params;
+        const user = await User.findOne({ referralCode: code.toUpperCase() }).select('name');
+        if (user) {
+            res.json({ valid: true, name: user.name });
+        } else {
+            res.json({ valid: false });
+        }
+    } catch (error) {
+        console.error('Error verifying referral code:', error);
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -285,11 +298,40 @@ const getUserDetails = async (req, res) => {
     }
 };
 
+// @desc    Update user active status (Admin only)
+// @route   PUT /api/auth/users/:id/status
+// @access  Private/Admin
+const updateUserStatus = async (req, res) => {
+    try {
+        const { isActive } = req.body;
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.isActive = isActive;
+        if (isActive) {
+            user.activatedAt = new Date();
+            user.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+        } else {
+            // If manual deactivate, we set expiresAt to now or past, and isActive to false
+            user.expiresAt = new Date();
+        }
+
+        await user.save();
+        res.json({ message: `User status updated to ${isActive ? 'Active' : 'Inactive'}`, user });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = { 
     registerUser, 
     loginUser, 
     getUserProfile, 
     verifyReferral,
     getAllUsers,
-    getUserDetails
+    getUserDetails,
+    updateUserStatus
 };
