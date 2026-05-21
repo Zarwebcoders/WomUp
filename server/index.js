@@ -28,7 +28,7 @@ const app = express();
 
 // Enable CORS - Place at the very top
 app.use(cors({
-    origin: '*', 
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -74,7 +74,7 @@ app.use((err, req, res, next) => {
     console.error('SERVER ERROR:', err);
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-    res.status(500).json({ 
+    res.status(500).json({
         message: err.message || 'Internal Server Error',
         stack: process.env.NODE_ENV === 'production' ? null : err.stack
     });

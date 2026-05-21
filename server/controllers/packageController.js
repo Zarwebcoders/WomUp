@@ -117,9 +117,6 @@ const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level) => {
 
     let nextLevel = level;
 
-    /* ===================================================
-       ORIGINAL CODE (Commented Out for Testing)
-       ===================================================
     if (sponsor.isActive) {
         // Referral Income (Fixed Amount) only
         const refAmount = pkg.referralAmounts[level - 1] || 0;
@@ -142,28 +139,6 @@ const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level) => {
     } else {
         console.log(`Skipping inactive sponsor ${sponsor.userId || sponsor.name} at level ${level}`);
     }
-    =================================================== */
-
-    /* ===================================================
-       TESTING CODE: Bypass isActive check to payout inactive sponsors
-       =================================================== */
-    const refAmount = pkg.referralAmounts[level - 1] || 0;
-    if (refAmount > 0) {
-        sponsor.referralIncome += refAmount;
-        sponsor.totalIncome += refAmount;
-        
-        await Income.create({
-            userId: sponsor._id,
-            incomeType: 'referral',
-            amount: refAmount,
-            fromUser: fromUserId,
-            level: level
-        });
-
-        await sponsor.save();
-    }
-    nextLevel = level + 1;
-    /* =================================================== */
 
     // Move to next level sponsor
     if (sponsor.referredBy) {

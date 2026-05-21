@@ -36,6 +36,11 @@ const IncomePage = ({ type, title, description }) => {
 
     const totalIncome = logs.reduce((sum, log) => sum + log.amount, 0);
 
+    // Sort a copy of logs by level ascending (L1 first) — only when displaying referral income
+    const sortedLogs = type === 'referral'
+        ? [...logs].sort((a, b) => (a.level ?? 999) - (b.level ?? 999))
+        : logs;
+
     return (
         <motion.div 
             initial={{ opacity: 0 }}
@@ -76,7 +81,7 @@ const IncomePage = ({ type, title, description }) => {
                         <tbody className="text-sm">
                             {loading ? (
                                 <tr><td colSpan="5" className="px-8 py-10 text-center">Loading logs...</td></tr>
-                            ) : logs.length > 0 ? logs.map((log, i) => (
+                            ) : sortedLogs.length > 0 ? sortedLogs.map((log, i) => (
                                 <tr key={log._id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                                     <td className="px-8 py-4">
                                         <code className="text-primary-light bg-primary/10 px-2 py-1 rounded text-xs">
@@ -85,9 +90,15 @@ const IncomePage = ({ type, title, description }) => {
                                     </td>
                                     <td className="px-8 py-4 flex items-center space-x-3">
                                         <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center"><User size={14} className="text-gray-400" /></div>
-                                        <div>
-                                            <p className="font-medium text-white">{log.fromUser?.name || 'System'}</p>
-                                            <p className="text-[10px] text-gray-500 uppercase tracking-tighter">Level {log.level || 'Direct'}</p>
+                                        <div className="flex items-center space-x-2">
+                                            <p className="font-medium text-white">
+                                                {log.fromUser?.name || 'System'}
+                                                {log.level && (
+                                                    <span className="ml-2 text-[10px] font-bold text-primary-light bg-primary/10 px-1.5 py-0.5 rounded">
+                                                        L{log.level}
+                                                    </span>
+                                                )}
+                                            </p>
                                         </div>
                                     </td>
                                     <td className="px-8 py-4">

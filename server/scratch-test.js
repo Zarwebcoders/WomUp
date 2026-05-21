@@ -24,26 +24,29 @@ const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level) => {
     }
 
     let nextLevel = level;
-    const refAmount = pkg.referralAmounts[level - 1] || 0;
-    
-    console.log(`[Referral Payout] Processing sponsor ${sponsor.name} (${sponsor.referralCode}) at level ${level}. Amount: ₹${refAmount}`);
+    if (sponsor.isActive) {
+        const refAmount = pkg.referralAmounts[level - 1] || 0;
+        console.log(`[Referral Payout] Processing sponsor ${sponsor.name} (${sponsor.referralCode}) at level ${level}. Amount: ₹${refAmount}`);
 
-    if (refAmount > 0) {
-        sponsor.referralIncome += refAmount;
-        sponsor.totalIncome += refAmount;
-        
-        await Income.create({
-            userId: sponsor._id,
-            incomeType: 'referral',
-            amount: refAmount,
-            fromUser: fromUserId,
-            level: level
-        });
+        if (refAmount > 0) {
+            sponsor.referralIncome += refAmount;
+            sponsor.totalIncome += refAmount;
+            
+            await Income.create({
+                userId: sponsor._id,
+                incomeType: 'referral',
+                amount: refAmount,
+                fromUser: fromUserId,
+                level: level
+            });
 
-        await sponsor.save();
-        console.log(`[Referral Payout] Paid ₹${refAmount} to ${sponsor.name} (${sponsor.referralCode})`);
+            await sponsor.save();
+            console.log(`[Referral Payout] Paid ₹${refAmount} to ${sponsor.name} (${sponsor.referralCode})`);
+        }
+        nextLevel = level + 1;
+    } else {
+        console.log(`[Referral Payout] Skipping inactive sponsor ${sponsor.name} (${sponsor.referralCode}) at level ${level}`);
     }
-    nextLevel = level + 1;
 
     if (sponsor.referredBy) {
         await distributeIncomes(sponsor.referredBy, fromUserId, pkg, nextLevel);
@@ -75,6 +78,12 @@ const run = async () => {
             console.error('Error: One of the test users (Sponsor A, Sponsor B, or Buyer C) is missing from the database.');
             process.exit(1);
         }
+
+        // Activate them for the test to ensure they are evaluated as active
+        sponsorA.isActive = true;
+        await sponsorA.save();
+        sponsorB.isActive = true;
+        await sponsorB.save();
 
         const startA = {
             referralIncome: sponsorA.referralIncome,

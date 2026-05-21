@@ -128,10 +128,10 @@ const ReferralLink = () => {
                                         { level: 'L4', ref: '₹700 / ₹1,500', pct: '4.8%', color: 'text-orange-400' },
                                         { level: 'L5', ref: '₹700 / ₹1,500', pct: '3%', color: 'text-yellow-400' },
                                         { level: 'L6', ref: '₹700 / ₹1,500', pct: '3%', color: 'text-green-400' },
-                                        { level: 'L7', ref: '₹700 / ₹1,500', pct: '1.2%', color: 'text-teal-400' },
-                                        { level: 'L8', ref: '₹500 / ₹1,000', pct: '1.2%', color: 'text-blue-500' },
-                                        { level: 'L9', ref: '₹500 / ₹1,000', pct: '1.2%', color: 'text-indigo-400' },
-                                        { level: 'L10', ref: '₹500 / ₹1,000', pct: '1.2%', color: 'text-violet-400' },
+                                        { level: 'L7', ref: '₹700 / ₹1,500', pct: '1.8%', color: 'text-teal-400' },
+                                        { level: 'L8', ref: '₹500 / ₹1,000', pct: '1.8%', color: 'text-blue-500' },
+                                        { level: 'L9', ref: '₹500 / ₹1,000', pct: '1.8%', color: 'text-indigo-400' },
+                                        { level: 'L10', ref: '₹500 / ₹1,000', pct: '0.8%', color: 'text-violet-400' },
                                     ].map((row, i) => (
                                         <tr key={i} className="hover:bg-white/5 transition-colors group">
                                             <td className={`py-4 font-bold ${row.color}`}>{row.level}</td>

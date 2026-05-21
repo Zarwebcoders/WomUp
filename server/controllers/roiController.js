@@ -174,9 +174,6 @@ const distributeLevelIncomeFromROI = async (sponsorIdOrCode, fromUserId, roiAmou
 
     let nextLevel = level;
 
-    /* ===================================================
-       ORIGINAL CODE (Commented Out for Testing)
-       ===================================================
     if (sponsor.isActive) {
         // Get percentage for this level from the package
         const levelPercentage = pkg.levelPercentages[level - 1] || 0;
@@ -201,29 +198,6 @@ const distributeLevelIncomeFromROI = async (sponsorIdOrCode, fromUserId, roiAmou
     } else {
         console.log(`Skipping inactive sponsor for ROI level: ${sponsor.userId || sponsor.name} at level ${level}`);
     }
-    =================================================== */
-
-    /* ===================================================
-       TESTING CODE: Bypass isActive check for Level Income
-       =================================================== */
-    const levelPercentage = pkg.levelPercentages[level - 1] || 0;
-    if (levelPercentage > 0) {
-        const levelIncomeAmount = (roiAmount * levelPercentage) / 100;
-        
-        sponsor.levelIncome += levelIncomeAmount;
-        sponsor.totalIncome += levelIncomeAmount;
-        await sponsor.save();
-
-        await Income.create({
-            userId: sponsor._id,
-            incomeType: 'level',
-            amount: levelIncomeAmount,
-            fromUser: fromUserId,
-            level: level
-        });
-    }
-    nextLevel = level + 1;
-    /* =================================================== */
 
     // Move to next level sponsor
     if (sponsor.referredBy) {

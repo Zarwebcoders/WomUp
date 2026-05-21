@@ -27,9 +27,19 @@ const run = async () => {
 
         // Record starting balances before Month 8 distribution
         const startC = { roiIncome: buyerC.roiIncome, totalIncome: buyerC.totalIncome };
-        
         const sponsorB = await User.findOne({ referralCode: 'WOM265213' });
         const sponsorA = await User.findOne({ referralCode: 'WOM308244' });
+
+        if (!sponsorA || !sponsorB) {
+            console.error('Error: Sponsor A or B not found');
+            process.exit(1);
+        }
+
+        // Activate them for the test to ensure they are evaluated as active
+        sponsorA.isActive = true;
+        await sponsorA.save();
+        sponsorB.isActive = true;
+        await sponsorB.save();
         
         const startB = { levelIncome: sponsorB.levelIncome, totalIncome: sponsorB.totalIncome };
         const startA = { levelIncome: sponsorA.levelIncome, totalIncome: sponsorA.totalIncome };
