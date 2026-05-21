@@ -16,10 +16,14 @@ const distributeMonthlyROI = async (req, res) => {
 
         // Auto-expire users whose expiresAt has passed
         const now = new Date();
+        /* ===================================================
+           TESTING CODE: Disable auto-expiration during tests
+           ===================================================
         await User.updateMany(
             { isActive: true, expiresAt: { $lt: now } },
             { $set: { isActive: false } }
         );
+        =================================================== */
 
         const users = await User.find({ packageId: { $exists: true }, isActive: true }).populate('packageId');
         let processedCount = 0;
@@ -29,13 +33,27 @@ const distributeMonthlyROI = async (req, res) => {
             if (!user.packagePurchaseDate) continue;
 
             const purchaseDate = new Date(user.packagePurchaseDate);
-            
-            // Calculate months difference
+
+            /* ===================================================
+               ORIGINAL CODE (Commented Out for Testing)
+               ===================================================
             let monthsPassed = (now.getFullYear() - purchaseDate.getFullYear()) * 12;
             monthsPassed += now.getMonth() - purchaseDate.getMonth();
 
             // ROI starts from 3rd month
             if (monthsPassed < 3) continue;
+            =================================================== */
+
+            /* ===================================================
+               TESTING CODE: 20 seconds = 1 Month (with query param override)
+               =================================================== */
+            const secondsPassed = Math.floor((now - purchaseDate) / 1000);
+            let monthsPassed = Math.floor(secondsPassed / 20); // 20s per month
+            if (req.query.testMonth) {
+                monthsPassed = Number(req.query.testMonth);
+            }
+            if (monthsPassed < 3) continue;
+            /* =================================================== */
 
             const pkg = user.packageId;
             const roiSchedule = pkg.roiSchedule;
@@ -51,13 +69,30 @@ const distributeMonthlyROI = async (req, res) => {
             }
 
             if (roiAmount > 0) {
-                // Check if already paid for this calendar month
+                /* ===================================================
+                   ORIGINAL CODE (Commented Out for Testing)
+                   ===================================================
                 const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
                 const alreadyPaid = await Income.findOne({
                     userId: user._id,
                     incomeType: 'roi',
                     createdAt: { $gte: startOfMonth }
                 });
+                =================================================== */
+
+                /* ===================================================
+                   TESTING CODE: Check if paid in the last 20 seconds (bypassed with testMonth query)
+                   =================================================== */
+                const latestRoi = await Income.findOne({
+                    userId: user._id,
+                    incomeType: 'roi'
+                }).sort({ createdAt: -1 });
+
+                let alreadyPaid = latestRoi && (now - new Date(latestRoi.createdAt)) < 20000;
+                if (req.query.testMonth) {
+                    alreadyPaid = false;
+                }
+                /* =================================================== */
 
                 if (!alreadyPaid) {
                     user.roiIncome += roiAmount;
@@ -68,7 +103,7 @@ const distributeMonthlyROI = async (req, res) => {
                         userId: user._id,
                         incomeType: 'roi',
                         amount: roiAmount,
-                        level: 0 
+                        level: 0
                     });
 
                     // Distribute Level Income to upline
@@ -139,13 +174,16 @@ const distributeLevelIncomeFromROI = async (sponsorIdOrCode, fromUserId, roiAmou
 
     let nextLevel = level;
 
+    /* ===================================================
+       ORIGINAL CODE (Commented Out for Testing)
+       ===================================================
     if (sponsor.isActive) {
         // Get percentage for this level from the package
         const levelPercentage = pkg.levelPercentages[level - 1] || 0;
-        
+
         if (levelPercentage > 0) {
             const levelIncomeAmount = (roiAmount * levelPercentage) / 100;
-            
+
             sponsor.levelIncome += levelIncomeAmount;
             sponsor.totalIncome += levelIncomeAmount;
             await sponsor.save();
@@ -163,6 +201,29 @@ const distributeLevelIncomeFromROI = async (sponsorIdOrCode, fromUserId, roiAmou
     } else {
         console.log(`Skipping inactive sponsor for ROI level: ${sponsor.userId || sponsor.name} at level ${level}`);
     }
+    =================================================== */
+
+    /* ===================================================
+       TESTING CODE: Bypass isActive check for Level Income
+       =================================================== */
+    const levelPercentage = pkg.levelPercentages[level - 1] || 0;
+    if (levelPercentage > 0) {
+        const levelIncomeAmount = (roiAmount * levelPercentage) / 100;
+        
+        sponsor.levelIncome += levelIncomeAmount;
+        sponsor.totalIncome += levelIncomeAmount;
+        await sponsor.save();
+
+        await Income.create({
+            userId: sponsor._id,
+            incomeType: 'level',
+            amount: levelIncomeAmount,
+            fromUser: fromUserId,
+            level: level
+        });
+    }
+    nextLevel = level + 1;
+    /* =================================================== */
 
     // Move to next level sponsor
     if (sponsor.referredBy) {

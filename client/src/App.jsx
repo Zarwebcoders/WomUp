@@ -12,6 +12,7 @@ import Packages from './pages/Packages';
 import ROIIncome from './pages/ROIIncome';
 import IncomePage from './pages/IncomePage';
 import PurchaseHistory from './pages/PurchaseHistory';
+import Profile from './pages/Profile';
 import AdminPackageRequests from './pages/admin/AdminPackageRequests';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminUserDetails from './pages/admin/AdminUserDetails';
@@ -31,6 +32,7 @@ function App() {
           {/* Protected Routes */}
           <Route element={<Layout />}>
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="profile" element={<Profile />} />
             <Route path="referral-link" element={<ReferralLink />} />
             <Route path="team" element={<TeamDetails />} />
             <Route path="packages" element={<Packages />} />

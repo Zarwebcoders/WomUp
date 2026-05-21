@@ -134,6 +134,10 @@ const AdminPackageHistory = () => {
                                     <td className="px-6 py-4">
                                         <div className="flex flex-col">
                                             <span className="text-white font-medium">{req.userId?.name}</span>
+                                            <span className="text-gray-500 text-xs">{req.userId?.email}</span>
+                                            {req.userId?.userId && (
+                                                <span className="text-[10px] text-primary-light font-semibold mt-0.5">ID: {req.userId.userId}</span>
+                                            )}
                                             <div className="flex items-center text-[10px] text-gray-500 mt-1">
                                                 <Calendar size={10} className="mr-1" />
                                                 {new Date(req.createdAt).toLocaleString()}

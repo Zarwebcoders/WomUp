@@ -15,7 +15,8 @@ import {
     X,
     History,
     Copy,
-    Check
+    Check,
+    User
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/logo.png';
@@ -41,6 +42,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
     const userMenuItems = [
         { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+        { name: 'My Profile', icon: User, path: '/profile' },
         { name: 'Referral Link', icon: LinkIcon, path: '/referral-link' },
         { name: 'Team Details', icon: Users, path: '/team' },
         { name: 'Level Income', icon: Layers, path: '/level-income' },
@@ -52,6 +54,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
     const adminMenuItems = [
         { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+        { name: 'My Profile', icon: User, path: '/profile' },
         { name: 'ROI Management', icon: CircleDollarSign, path: '/admin/roi-management' },
         { name: 'User Management', icon: Users, path: '/admin/users' },
         { name: 'Package Requests', icon: ShieldCheck, path: '/admin/package-requests' },

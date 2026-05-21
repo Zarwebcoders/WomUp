@@ -8,6 +8,7 @@ const Layout = () => {
     const { user, loading } = useAuth();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [copied, setCopied] = useState(false);
+    const location = useLocation();
 
     const handleCopyId = () => {
         navigator.clipboard.writeText(user.referralCode);
@@ -19,10 +20,10 @@ const Layout = () => {
 
     if (!user) return <Navigate to="/login" />;
 
-    const location = useLocation();
     const getPageInfo = () => {
         const path = location.pathname;
         if (path.includes('/dashboard')) return { title: `Welcome, ${user.name}`, desc: "Manage your team and track your earnings." };
+        if (path.includes('/profile')) return { title: "My Profile", desc: "View and manage your personal details, network summary, and active package." };
         if (path.includes('/referral-link')) return { title: "Invite & Earn", desc: "Share your referral link with friends and earn rewards across 10 levels." };
         if (path.includes('/team')) return { title: "My Network", desc: "View and manage your multi-level team structure." };
         if (path.includes('/level-income')) return { title: "Level Income", desc: "Earnings from your extended network (Level 2 & 3)." };
