@@ -63,7 +63,8 @@ const getIncomeLogs = async (req, res) => {
                     levelMap[ref.referralCode] = currentLevel;
                     await buildLevelMap(ref, currentLevel + 1, levelMap, maxLevel);
                 } else {
-                    // Skip level count for inactive user, continue traversing their downline with same level
+                    // Do not count/increment level for inactive user (No Package), but still display/map them at currentLevel
+                    levelMap[ref.referralCode] = currentLevel;
                     await buildLevelMap(ref, currentLevel, levelMap, maxLevel);
                 }
             }

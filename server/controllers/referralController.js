@@ -19,7 +19,8 @@ const buildLevelMap = async (currentUser, currentLevel, levelMap, maxLevel = 10)
             levelMap[ref.referralCode] = currentLevel;
             await buildLevelMap(ref, currentLevel + 1, levelMap, maxLevel);
         } else {
-            // Skip level count for inactive user, continue traversing their downline with same level
+            // Do not count/increment level for inactive user (No Package), but still display them at currentLevel
+            levelMap[ref.referralCode] = currentLevel;
             await buildLevelMap(ref, currentLevel, levelMap, maxLevel);
         }
     }
