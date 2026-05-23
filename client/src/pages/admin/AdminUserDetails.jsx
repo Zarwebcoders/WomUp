@@ -61,7 +61,7 @@ const AdminUserDetails = () => {
         { label: 'Total Income', value: `₹${user.totalIncome.toLocaleString()}`, icon: Wallet, color: 'text-success' },
         { label: 'ROI Income', value: `₹${user.roiIncome.toLocaleString()}`, icon: TrendingUp, color: 'text-primary' },
         { label: 'Referral Income', value: `₹${user.referralIncome.toLocaleString()}`, icon: Users, color: 'text-purple-500' },
-        { label: 'Level Income', value: `₹${user.levelIncome.toLocaleString()}`, icon: Zap, color: 'text-yellow-500' },
+        { label: 'Level Income', value: `₹${user.levelIncome.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 })}`, icon: Zap, color: 'text-yellow-500' },
     ];
 
     return (

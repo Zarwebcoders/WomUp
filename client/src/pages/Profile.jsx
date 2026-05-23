@@ -216,7 +216,7 @@ const Profile = () => {
                             <div className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors flex items-center justify-between">
                                 <div>
                                     <p className="text-gray-400 text-xs uppercase font-bold tracking-wider mb-1">Level Earnings</p>
-                                    <p className="text-2xl font-bold text-orange-400 font-space">₹{(profileData.levelIncome || 0).toLocaleString()}</p>
+                                    <p className="text-2xl font-bold text-orange-400 font-space">₹{Number(profileData.levelIncome || 0).toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</p>
                                 </div>
                                 <div className="p-3 bg-orange-500/15 rounded-xl text-orange-400"><Layers size={20} /></div>
                             </div>

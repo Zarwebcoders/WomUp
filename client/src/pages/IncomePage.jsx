@@ -50,7 +50,12 @@ const IncomePage = ({ type, title, description }) => {
             <div className="flex justify-end">
                 <div className="glass-card p-6 bg-gradient-to-br from-card to-success/10 border-success/20 min-w-[240px]">
                     <p className="text-gray-400 text-sm mb-1">Total {type === 'level' ? 'Level' : 'Referral'} Income</p>
-                    <h2 className="text-3xl font-bold text-success font-space">₹{totalIncome.toLocaleString()}</h2>
+                    <h2 className="text-3xl font-bold text-success font-space">
+                        ₹{type === 'level' 
+                            ? totalIncome.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 }) 
+                            : totalIncome.toLocaleString()
+                        }
+                    </h2>
                 </div>
             </div>
 
@@ -104,7 +109,12 @@ const IncomePage = ({ type, title, description }) => {
                                     <td className="px-8 py-4">
                                         <div className="flex items-center space-x-1 text-success font-bold font-space">
                                             <ArrowDownLeft size={14} />
-                                            <span>₹{log.amount}</span>
+                                            <span>
+                                                ₹{type === 'level' 
+                                                    ? Number(log.amount).toFixed(4) 
+                                                    : log.amount
+                                                }
+                                            </span>
                                         </div>
                                     </td>
                                     <td className="px-8 py-4 text-gray-400">
