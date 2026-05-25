@@ -12,6 +12,7 @@ const AdminUsers = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [activeTab, setActiveTab] = useState('all');
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
@@ -61,21 +62,68 @@ const AdminUsers = () => {
         fetchUsers();
     }, [debouncedSearch, adminUser.token]);
 
+    // Tab filter counts
+    const activeCount = users.filter(u => u.isActive).length;
+    const inactiveCount = users.filter(u => !u.isActive).length;
+
+    // Tab filtering
+    const filteredUsers = activeTab === 'active'
+        ? users.filter(u => u.isActive)
+        : activeTab === 'inactive'
+        ? users.filter(u => !u.isActive)
+        : users;
+
     // Pagination Logic
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = users.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(users.length / itemsPerPage);
+    const currentItems = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+
+    const tabs = [
+        { key: 'all',      label: 'All Users', count: users.length },
+        { key: 'active',   label: 'Active',    count: activeCount },
+        { key: 'inactive', label: 'Inactive',  count: inactiveCount },
+    ];
 
     return (
-        <div className="space-y-8 pb-10">
-            <div className="flex flex-col md:flex-row md:items-center justify-end gap-6">
+        <div className="space-y-6 pb-10">
+            {/* Tabs + Search row */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                {/* Tabs */}
+                <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-1">
+                    {tabs.map(tab => (
+                        <button
+                            key={tab.key}
+                            onClick={() => { setActiveTab(tab.key); setCurrentPage(1); }}
+                            className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                                activeTab === tab.key
+                                    ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                            }`}
+                        >
+                            {tab.label}
+                            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                                activeTab === tab.key
+                                    ? 'bg-white/20 text-white'
+                                    : tab.key === 'active'
+                                    ? 'bg-green-500/20 text-green-400'
+                                    : tab.key === 'inactive'
+                                    ? 'bg-red-500/20 text-red-400'
+                                    : 'bg-white/10 text-gray-400'
+                            }`}>
+                                {tab.count}
+                            </span>
+                        </button>
+                    ))}
+                </div>
+
+                {/* Search */}
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                     <input 
                         type="text"
                         placeholder="Search by name, email, mobile or code..."
-                        className="bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white outline-none focus:border-primary min-w-[320px] transition-all"
+                        className="bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white outline-none focus:border-primary min-w-[300px] transition-all"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -176,10 +224,10 @@ const AdminUsers = () => {
                 </div>
 
                 {/* Pagination Controls */}
-                {users.length > itemsPerPage && (
+                {filteredUsers.length > itemsPerPage && (
                     <div className="p-4 border-t border-white/10 flex items-center justify-between">
                         <p className="text-[10px] text-gray-500">
-                            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, users.length)} of {users.length} users
+                            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredUsers.length)} of {filteredUsers.length} users
                         </p>
                         <div className="flex items-center space-x-2">
                             <button
