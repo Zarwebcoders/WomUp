@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getPackages, buyPackage, getPackageRequests, getMyPackageRequests, updateRequestStatus } = require('../controllers/packageController');
+const { getPackages, buyPackage, getPackageRequests, getMyPackageRequests, updateRequestStatus, getNotifications } = require('../controllers/packageController');
 const { protect, admin } = require('../middleware/authMiddleware');
 const multer = require('multer');
 
@@ -25,5 +25,6 @@ router.post('/buy', protect, upload.single('transactionSlip'), buyPackage);
 // Admin Routes
 router.get('/requests', protect, admin, getPackageRequests);
 router.put('/requests/:id', protect, admin, updateRequestStatus);
+router.get('/notifications', protect, admin, getNotifications);
 
 module.exports = router;

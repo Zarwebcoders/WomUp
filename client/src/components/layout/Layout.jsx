@@ -3,6 +3,7 @@ import Sidebar from './Sidebar';
 import { useAuth } from '../../context/AuthContext';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Menu, Wallet, User as UserIcon, Copy, Check } from 'lucide-react';
+import NotificationBell from '../NotificationBell';
 
 const Layout = () => {
     const { user, loading } = useAuth();
@@ -88,13 +89,18 @@ const Layout = () => {
                                 </div>
                                 <p className="text-gray-400 mt-1">{desc}</p>
                             </div>
-                            <div className="flex items-center space-x-6 bg-card/50 border border-white/5 p-4 rounded-2xl backdrop-blur-md">
-                                <div className="text-right">
-                                    <p className="text-xs text-gray-500 uppercase font-bold tracking-widest">Available Balance</p>
-                                    <p className="text-2xl font-bold text-success font-space">₹{user.walletBalance || 0}</p>
-                                </div>
-                                <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary-light">
-                                    <Wallet size={24} />
+                            <div className="flex items-center gap-4">
+                                {/* Admin Notification Bell */}
+                                {user.role === 'admin' && <NotificationBell />}
+
+                                <div className="flex items-center space-x-6 bg-card/50 border border-white/5 p-4 rounded-2xl backdrop-blur-md">
+                                    <div className="text-right">
+                                        <p className="text-xs text-gray-500 uppercase font-bold tracking-widest">Available Balance</p>
+                                        <p className="text-2xl font-bold text-success font-space">₹{user.walletBalance || 0}</p>
+                                    </div>
+                                    <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary-light">
+                                        <Wallet size={24} />
+                                    </div>
                                 </div>
                             </div>
                         </header>

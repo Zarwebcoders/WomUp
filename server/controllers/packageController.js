@@ -146,4 +146,24 @@ const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level) => {
     }
 };
 
-module.exports = { getPackages, buyPackage, getPackageRequests, getMyPackageRequests, updateRequestStatus };
+// @desc    Get recent pending package requests as notifications (Admin)
+// @route   GET /api/packages/notifications
+// @access  Admin
+const getNotifications = async (req, res) => {
+    try {
+        // Return last 20 pending requests sorted newest first
+        const notifications = await PackageRequest.find({ status: 'pending' })
+            .populate('userId', 'name email referralCode mobile')
+            .populate('packageId', 'packageName price')
+            .sort({ createdAt: -1 })
+            .limit(20);
+
+        const count = await PackageRequest.countDocuments({ status: 'pending' });
+
+        res.json({ notifications, count });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { getPackages, buyPackage, getPackageRequests, getMyPackageRequests, updateRequestStatus, getNotifications };
