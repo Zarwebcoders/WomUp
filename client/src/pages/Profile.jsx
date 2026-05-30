@@ -45,7 +45,8 @@ const Profile = () => {
 
     const handleCopyCode = () => {
         if (!profileData?.referralCode) return;
-        navigator.clipboard.writeText(profileData.referralCode);
+        const referralUrl = `${window.location.origin}/register?ref=${profileData.referralCode}`;
+        navigator.clipboard.writeText(referralUrl);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -100,13 +101,13 @@ const Profile = () => {
                 </div>
 
                 <div className="flex flex-col items-center md:items-end gap-3 shrink-0">
-                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Share Referral Code</p>
+                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Share Referral Link</p>
                     <div className="flex items-center bg-white/5 border border-white/10 rounded-xl px-4 py-2 hover:border-white/20 transition-all max-w-[280px]">
                         <span className="text-white font-bold tracking-widest font-space text-sm truncate mr-4">{referralCode}</span>
                         <button
                             onClick={handleCopyCode}
                             className="text-primary-light hover:text-white transition-colors"
-                            title="Copy Code"
+                            title="Copy Link"
                         >
                             {copied ? <Check size={18} className="text-success" /> : <Copy size={18} />}
                         </button>

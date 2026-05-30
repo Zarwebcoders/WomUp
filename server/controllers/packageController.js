@@ -106,6 +106,15 @@ const updateRequestStatus = async (req, res) => {
 const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level) => {
     if (level > 10) return;
 
+    // If level is 1, check if the buyer (fromUserId) is an inactive distributer
+    if (level === 1) {
+        const buyer = await User.findById(fromUserId);
+        if (buyer && buyer.role === 'distributer' && !buyer.isActive) {
+            console.log(`Skipping income distribution: buyer ${buyer.userId} is an inactive distributer.`);
+            return;
+        }
+    }
+
     // Search by referralCode or by _id (to support old data)
     const query = { $or: [{ referralCode: sponsorIdOrCode }] };
     if (require('mongoose').isValidObjectId(sponsorIdOrCode)) {
@@ -140,9 +149,12 @@ const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level) => {
         console.log(`Skipping inactive sponsor ${sponsor.userId || sponsor.name} at level ${level}`);
     }
 
-    // Move to next level sponsor
-    if (sponsor.referredBy) {
+    // Move to next level sponsor, unless current sponsor is an inactive distributer
+    const shouldContinue = sponsor.referredBy && (sponsor.role !== 'distributer' || sponsor.isActive);
+    if (shouldContinue) {
         await distributeIncomes(sponsor.referredBy, fromUserId, pkg, nextLevel);
+    } else if (sponsor.role === 'distributer' && !sponsor.isActive) {
+        console.log(`Stopping income distribution: sponsor ${sponsor.userId} is an inactive distributer.`);
     }
 };
 

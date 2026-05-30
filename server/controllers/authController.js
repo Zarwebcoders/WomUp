@@ -25,13 +25,27 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        // Generate unique userId for new user (e.g. WOM123456)
-        const userId = 'WOM' + Math.floor(100000 + Math.random() * 900000);
+        // Generate unique userId based on role
+        let userId;
+        let isUnique = false;
+        const role = req.body.role === 'distributer' ? 'distributer' : 'user';
+
+        while (!isUnique) {
+            if (role === 'distributer') {
+                userId = 'DSB' + Math.floor(1000 + Math.random() * 9000);
+            } else {
+                userId = 'WOM' + Math.floor(100000 + Math.random() * 900000);
+            }
+            const existing = await User.findOne({ userId });
+            if (!existing) {
+                isUnique = true;
+            }
+        }
         
         // Referral code is now the same as userId
         const newReferralCode = userId;
         
-        console.log('User ID and Referral Code:', userId);
+        console.log('User ID and Referral Code:', userId, 'Role:', role);
 
         let referredBy = null;
         if (referralCode && referralCode.toString().trim() !== '') {
@@ -51,7 +65,7 @@ const registerUser = async (req, res) => {
             console.log('SKIPPING: No referral code provided or code was empty.');
         }
 
-        console.log('FINAL: Creating user with referredBy (string):', referredBy);
+        console.log('FINAL: Creating user with referredBy (string):', referredBy, 'Role:', role);
         const user = new User({
             name,
             email,
@@ -60,7 +74,8 @@ const registerUser = async (req, res) => {
             password,
             plainPassword: password,
             referralCode: newReferralCode,
-            referredBy: referredBy
+            referredBy: referredBy,
+            role: role
         });
 
         await user.save();

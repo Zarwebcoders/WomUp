@@ -12,7 +12,8 @@ const Layout = () => {
     const location = useLocation();
 
     const handleCopyId = () => {
-        navigator.clipboard.writeText(user.referralCode);
+        const referralUrl = `${window.location.origin}/register?ref=${user.referralCode}`;
+        navigator.clipboard.writeText(referralUrl);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -77,7 +78,7 @@ const Layout = () => {
                                     <button 
                                         onClick={handleCopyId}
                                         className="bg-primary/10 text-primary-light border border-primary/20 px-3 py-1 rounded-full text-xs font-bold tracking-widest flex items-center group hover:bg-primary/20 transition-all"
-                                        title="Copy Referral ID"
+                                        title="Copy Referral Link"
                                     >
                                         ID: {user.referralCode}
                                         {copied ? (

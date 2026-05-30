@@ -28,7 +28,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     const location = useLocation();
 
     const handleCopyId = () => {
-        navigator.clipboard.writeText(user.referralCode);
+        const referralUrl = `${window.location.origin}/register?ref=${user.referralCode}`;
+        navigator.clipboard.writeText(referralUrl);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -165,6 +166,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                                 <button 
                                     onClick={handleCopyId}
                                     className="flex items-center text-primary-light text-[10px] font-bold tracking-wider hover:text-white transition-colors group"
+                                    title="Copy Referral Link"
                                 >
                                     <span className="truncate">ID: {user?.referralCode}</span>
                                     {copied ? (

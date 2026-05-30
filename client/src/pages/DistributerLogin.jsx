@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { User, Lock, LogIn, CheckCircle } from 'lucide-react';
 
-const Login = () => {
+const DistributerLogin = () => {
     const location = useLocation();
     const registrationData = location.state;
 
@@ -38,8 +38,8 @@ const Login = () => {
                     className="w-full max-w-md glass-card p-8 glow-border"
                 >
                     <div className="text-center mb-10">
-                        <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
-                        <p className="text-gray-400">Login to manage your WOMUP account.</p>
+                        <h2 className="text-3xl font-bold text-white mb-2">Distributor Login</h2>
+                        <p className="text-gray-400">Login to manage your WOMUP Distributor account.</p>
                     </div>
 
                     {registrationData?.registered && (
@@ -50,11 +50,11 @@ const Login = () => {
                         >
                             <div className="flex items-center space-x-2 font-bold">
                                 <CheckCircle size={20} />
-                                <span>Registration Successful!</span>
+                                <span>Distributor Registration Successful!</span>
                             </div>
                             <div className="bg-white/5 p-4 rounded-xl space-y-2 text-sm border border-white/5">
                                 <div className="flex justify-between">
-                                    <span className="text-gray-400">Referral ID:</span>
+                                    <span className="text-gray-400">Distributor ID:</span>
                                     <span className="text-white font-mono font-bold">{registrationData.referralCode}</span>
                                 </div>
                                 <div className="flex justify-between">
@@ -77,7 +77,7 @@ const Login = () => {
                             <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                             <input 
                                 type="text"
-                                placeholder="Referral ID / Email"
+                                placeholder="Distributor ID (DSBxxxx) / Email"
                                 required
                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white focus:border-primary transition-all outline-none"
                                 value={formData.referralId}
@@ -106,17 +106,17 @@ const Login = () => {
                         </div>
 
                         <button type="submit" className="w-full gradient-btn mt-4">
-                            Login
+                            Login as Distributor
                         </button>
                     </form>
 
                     <p className="text-center mt-8 text-gray-400">
-                        Don't have an account? <Link to="/register" className="text-primary hover:underline">Register now</Link>
+                        Don't have a Distributor account? <Link to="/distributer/register" className="text-primary hover:underline">Register now</Link>
                     </p>
 
                     <div className="mt-6 pt-6 border-t border-white/5 text-center">
-                        <Link to="/distributer/login" className="text-sm text-primary-light hover:underline font-semibold">
-                            Are you a Distributor? Login here
+                        <Link to="/login" className="text-sm text-primary-light hover:underline font-semibold">
+                            Are you a Customer? Login here
                         </Link>
                     </div>
                 </motion.div>
@@ -131,7 +131,7 @@ const Login = () => {
                     className="z-10 text-center"
                 >
                     <h1 className="text-6xl font-bold mb-6 font-cormorant">WOMUP</h1>
-                    <p className="text-2xl font-light max-w-md">Empowerment • Shopping • Revolutions</p>
+                    <p className="text-2xl font-light max-w-md">Distributor Access</p>
                     <div className="mt-12">
                         <LogIn size={120} className="mx-auto opacity-20" />
                     </div>
@@ -143,4 +143,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default DistributerLogin;

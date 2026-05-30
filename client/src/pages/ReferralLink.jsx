@@ -26,7 +26,11 @@ const ReferralLink = () => {
         fetchProfile();
     }, [authUser.token]);
 
-    const referralUrl = `${window.location.origin}/register?ref=${user?.referralCode || ''}`;
+    const [activeTab, setActiveTab] = useState('user'); // 'user' or 'distributer'
+
+    const userReferralUrl = `${window.location.origin}/register?ref=${user?.referralCode || ''}`;
+    const distributorReferralUrl = `${window.location.origin}/distributer/register?ref=${user?.referralCode || ''}`;
+    const referralUrl = activeTab === 'user' ? userReferralUrl : distributorReferralUrl;
 
     const handleCopy = () => {
         navigator.clipboard.writeText(referralUrl);
@@ -59,7 +63,31 @@ const ReferralLink = () => {
                 {/* Left Side: Referral Tools */}
                 <div className="lg:col-span-5 space-y-6">
                     <div className="glass-card p-8 bg-gradient-to-br from-card to-primary/5">
-                        <h3 className="text-xl font-bold mb-6 font-cormorant">Your Referral Link</h3>
+                        <h3 className="text-xl font-bold mb-4 font-cormorant text-white">Your Referral Link</h3>
+
+                        {/* Tab Switcher */}
+                        <div className="flex bg-white/5 p-1 rounded-xl mb-6 border border-white/5">
+                            <button
+                                onClick={() => { setActiveTab('user'); setCopied(false); }}
+                                className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all ${
+                                    activeTab === 'user'
+                                        ? 'bg-primary-gradient text-white shadow-lg'
+                                        : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                Customer Link
+                            </button>
+                            <button
+                                onClick={() => { setActiveTab('distributer'); setCopied(false); }}
+                                className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all ${
+                                    activeTab === 'distributer'
+                                        ? 'bg-primary-gradient text-white shadow-lg'
+                                        : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                Distributor Link
+                            </button>
+                        </div>
                         
                         <div className="relative mb-8">
                             <input 

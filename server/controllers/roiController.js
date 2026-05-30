@@ -163,6 +163,15 @@ const setCustomROI = async (req, res) => {
 const distributeLevelIncomeFromROI = async (sponsorIdOrCode, fromUserId, roiAmount, level, pkg) => {
     if (level > 10) return;
 
+    // If level is 1, check if the receiver (fromUserId) is an inactive distributer
+    if (level === 1) {
+        const buyer = await User.findById(fromUserId);
+        if (buyer && buyer.role === 'distributer' && !buyer.isActive) {
+            console.log(`Skipping ROI level income distribution: buyer ${buyer.userId} is an inactive distributer.`);
+            return;
+        }
+    }
+
     // Search by referralCode or by _id (to support old data)
     const query = { $or: [{ referralCode: sponsorIdOrCode }] };
     if (require('mongoose').isValidObjectId(sponsorIdOrCode)) {
@@ -199,9 +208,12 @@ const distributeLevelIncomeFromROI = async (sponsorIdOrCode, fromUserId, roiAmou
         console.log(`Skipping inactive sponsor for ROI level: ${sponsor.userId || sponsor.name} at level ${level}`);
     }
 
-    // Move to next level sponsor
-    if (sponsor.referredBy) {
+    // Move to next level sponsor, unless current sponsor is an inactive distributer
+    const shouldContinue = sponsor.referredBy && (sponsor.role !== 'distributer' || sponsor.isActive);
+    if (shouldContinue) {
         await distributeLevelIncomeFromROI(sponsor.referredBy, fromUserId, roiAmount, nextLevel, pkg);
+    } else if (sponsor.role === 'distributer' && !sponsor.isActive) {
+        console.log(`Stopping ROI level income distribution: sponsor ${sponsor.userId} is an inactive distributer.`);
     }
 };
 

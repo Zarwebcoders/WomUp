@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
     levelIncome: { type: Number, default: 0 },
     roiIncome: { type: Number, default: 0 },
     teamCount: { type: Number, default: 0 },
-    role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    role: { type: String, enum: ['user', 'admin', 'distributer'], default: 'user' },
     packagePurchaseDate: { type: Date },
     monthlyRoiAmount: { type: Number, default: 0 },
     isActive: { type: Boolean, default: false },

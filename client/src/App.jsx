@@ -4,6 +4,8 @@ import { AuthProvider } from './context/AuthContext';
 import Layout from './components/layout/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import DistributerLogin from './pages/DistributerLogin';
+import DistributerRegister from './pages/DistributerRegister';
 import Dashboard from './pages/Dashboard';
 import Landing from './pages/Landing';
 import ReferralLink from './pages/ReferralLink';
@@ -29,6 +31,8 @@ function App() {
           <Route path="/landing" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/distributer/login" element={<DistributerLogin />} />
+          <Route path="/distributer/register" element={<DistributerRegister />} />
           
           {/* Protected Routes */}
           <Route element={<Layout />}>

@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import API_URL from '../config/api';
 
-const Register = () => {
+const DistributerRegister = () => {
     const [searchParams] = useSearchParams();
     const refCode = searchParams.get('ref') || '';
 
@@ -63,9 +63,11 @@ const Register = () => {
             return setError('Passwords do not match');
         }
         try {
-            const data = await register(formData);
+            // Pass the role: 'distributer' to backend
+            const data = await register({ ...formData, role: 'distributer' });
+            
             // Navigate to login with user details to show them
-            navigate('/login', { 
+            navigate('/distributer/login', { 
                 state: { 
                     registered: true, 
                     referralCode: data.referralCode, 
@@ -88,13 +90,14 @@ const Register = () => {
                     className="z-10 text-center"
                 >
                     <h1 className="text-6xl font-bold mb-6 font-cormorant">WOMUP</h1>
-                    <p className="text-2xl font-light max-w-md">Empowerment • Shopping • Revolutions</p>
+                    <p className="text-2xl font-light max-w-md">Distributor Network</p>
+                    <p className="text-sm opacity-80 mt-4 max-w-sm mx-auto">Register as a Distributor and build your team. Earn level incomes directly from your downline.</p>
                     <div className="mt-12 space-y-6">
                         <div className="flex items-center space-x-4 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20">
                             <div className="bg-white/20 p-3 rounded-xl"><UserPlus size={24} /></div>
                             <div className="text-left">
-                                <p className="font-cormorant">Join the Community</p>
-                                <p className="text-sm opacity-80">Be part of the financial revolution.</p>
+                                <p className="font-cormorant">Distributor Access</p>
+                                <p className="text-sm opacity-80">DSB-series ID will be generated.</p>
                             </div>
                         </div>
                     </div>
@@ -117,8 +120,8 @@ const Register = () => {
                     className="w-full max-w-3xl glass-card p-8 glow-border"
                 >
                     <div className="text-center mb-10">
-                        <h2 className="text-3xl font-bold text-white mb-2 font-cormorant">Create Account</h2>
-                        <p className="text-gray-400">Join WOMUP and start earning today.</p>
+                        <h2 className="text-3xl font-bold text-white mb-2 font-cormorant">Create Distributor Account</h2>
+                        <p className="text-gray-400">Your registration ID will start with DSB (e.g. DSBxxxx).</p>
                     </div>
 
                     {error && (
@@ -228,17 +231,17 @@ const Register = () => {
                         </div>
 
                         <button type="submit" className="w-full gradient-btn mt-4">
-                            Sign Up
+                            Register as Distributor
                         </button>
                     </form>
 
                     <p className="text-center mt-8 text-gray-400">
-                        Already have an account? <Link to="/login" className="text-primary hover:underline">Login here</Link>
+                        Already have an account? <Link to="/distributer/login" className="text-primary hover:underline">Login here</Link>
                     </p>
 
                     <div className="mt-6 pt-6 border-t border-white/5 text-center">
-                        <Link to="/distributer/register" className="text-sm text-primary-light hover:underline font-semibold">
-                            Want to register as a Distributor? Register here
+                        <Link to="/register" className="text-sm text-primary-light hover:underline font-semibold">
+                            Are you a Customer? Register here
                         </Link>
                     </div>
                 </motion.div>
@@ -247,4 +250,4 @@ const Register = () => {
     );
 };
 
-export default Register;
+export default DistributerRegister;
