@@ -211,12 +211,22 @@ const Packages = () => {
                                 Please pay <span className="text-white font-bold">₹{selectedPkg.price.toLocaleString()}</span> to the company account and upload your transaction details for verification.
                             </p>
 
+                            {message && (
+                                <div className={`mb-6 p-4 rounded-xl text-center flex items-center justify-center space-x-2 border ${
+                                    message.type === 'success' ? 'bg-success/10 border-success/20 text-success' : 'bg-red-500/10 border-red-500/20 text-red-400'
+                                }`}>
+                                    {message.type === 'error' && <AlertCircle size={20} />}
+                                    <span className="font-medium">{message.text}</span>
+                                </div>
+                            )}
+
                             <form onSubmit={handleSubmitRequest} className="space-y-6">
                                 <div>
-                                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Transaction ID / UTR</label>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
+                                        Transaction ID / UTR <span className="text-red-500">*</span>
+                                    </label>
                                     <input 
                                         type="text"
-                                        required
                                         placeholder="Enter your Transaction ID"
                                         className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-primary transition-all"
                                         value={transactionId}
@@ -225,11 +235,12 @@ const Packages = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Upload Transaction Slip</label>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
+                                        Upload Transaction Slip <span className="text-red-500">*</span>
+                                    </label>
                                     <div className="relative">
                                         <input 
                                             type="file"
-                                            required
                                             accept="image/*"
                                             className="hidden"
                                             id="slip-upload"
@@ -266,8 +277,12 @@ const Packages = () => {
 
                                 <button 
                                     type="submit"
-                                    disabled={buying}
-                                    className="w-full gradient-btn py-4 font-bold text-lg shadow-xl shadow-primary/20"
+                                    disabled={buying || !transactionId.trim() || !transactionSlip}
+                                    className={`w-full py-4 rounded-xl font-bold text-lg transition-all shadow-xl ${
+                                        (!transactionId.trim() || !transactionSlip)
+                                        ? 'bg-white/5 border border-white/10 text-gray-500 cursor-not-allowed shadow-none'
+                                        : 'bg-primary-gradient hover:shadow-lg hover:shadow-primary/20 text-white hover:scale-[1.02] cursor-pointer'
+                                    }`}
                                 >
                                     {buying ? (
                                         <div className="flex items-center justify-center space-x-2">

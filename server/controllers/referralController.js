@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const Income = require('../models/Income');
 
-// Helper to recursively construct level map skipping inactive users
+// Helper to recursively construct level map based on network hierarchy
 const buildLevelMap = async (currentUser, currentLevel, levelMap, maxLevel = 10) => {
     if (currentLevel > maxLevel) return;
 
@@ -12,17 +12,11 @@ const buildLevelMap = async (currentUser, currentLevel, levelMap, maxLevel = 10)
             { referredBy: currentUser._id }
         ]
     };
-    const referrals = await User.find(query).select('referralCode _id isActive');
+    const referrals = await User.find(query).select('referralCode _id');
 
     for (const ref of referrals) {
-        if (ref.isActive) {
-            levelMap[ref.referralCode] = currentLevel;
-            await buildLevelMap(ref, currentLevel + 1, levelMap, maxLevel);
-        } else {
-            // Do not count/increment level for inactive user (No Package), but still display them at currentLevel
-            levelMap[ref.referralCode] = currentLevel;
-            await buildLevelMap(ref, currentLevel, levelMap, maxLevel);
-        }
+        levelMap[ref.referralCode] = currentLevel;
+        await buildLevelMap(ref, currentLevel + 1, levelMap, maxLevel);
     }
 };
 

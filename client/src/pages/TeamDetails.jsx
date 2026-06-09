@@ -58,28 +58,20 @@ const TeamDetails = () => {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <div className="flex flex-wrap bg-white/5 p-1 rounded-xl border border-white/10 w-full md:w-auto overflow-x-auto justify-center md:justify-start">
-                            <button
-                                onClick={() => setActiveLevel('all')}
-                                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all m-0.5 whitespace-nowrap ${activeLevel === 'all'
-                                        ? 'bg-primary-gradient text-white shadow-lg'
-                                        : 'text-gray-400 hover:text-white'
-                                    }`}
+                        <div className="flex items-center space-x-2 w-full md:w-auto bg-white/5 p-1.5 rounded-xl border border-white/10">
+                            <Filter className="text-gray-500 ml-2" size={16} />
+                            <select
+                                value={activeLevel}
+                                onChange={(e) => setActiveLevel(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
+                                className="bg-transparent text-gray-300 text-xs font-bold outline-none cursor-pointer pr-4 py-1.5 focus:text-white transition-all [&>option]:bg-[#0F172A] [&>option]:text-white border-0"
                             >
-                                All Levels
-                            </button>
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => (
-                                <button
-                                    key={level}
-                                    onClick={() => setActiveLevel(level)}
-                                    className={`px-3 py-2 rounded-lg text-xs font-bold transition-all m-0.5 ${activeLevel === level
-                                            ? 'bg-primary-gradient text-white shadow-lg'
-                                            : 'text-gray-400 hover:text-white'
-                                        }`}
-                                >
-                                    L{level}
-                                </button>
-                            ))}
+                                <option value="all">All Levels</option>
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((level) => (
+                                    <option key={level} value={level}>
+                                        Level {level}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -107,7 +99,7 @@ const TeamDetails = () => {
                                         </div>
                                         <div className="min-w-0">
                                             <p className="font-bold text-white truncate">{member.name}</p>
-                                            <p className="text-[10px] md:text-xs text-gray-500 truncate">{member.email}</p>
+                                            <p className="text-[10px] md:text-xs text-gray-500 truncate">{member.referralCode}</p>
                                         </div>
                                     </td>
                                     <td className="px-4 md:px-8 py-4 text-gray-400 text-xs md:text-sm">
