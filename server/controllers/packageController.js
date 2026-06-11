@@ -126,7 +126,7 @@ const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level) => {
 
     let nextLevel = level;
 
-    if (sponsor.isActive) {
+    if (sponsor.isActive || sponsor.role === 'distributer') {
         // Referral Income (Fixed Amount) only
         const refAmount = pkg.referralAmounts[level - 1] || 0;
         if (refAmount > 0) {
@@ -143,18 +143,16 @@ const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level) => {
 
             await sponsor.save();
         }
-        // Increment MLM level count only for active sponsors
+        // Increment MLM level count only for active sponsors or distributors
         nextLevel = level + 1;
     } else {
         console.log(`Skipping inactive sponsor ${sponsor.userId || sponsor.name} at level ${level}`);
     }
 
-    // Move to next level sponsor, unless current sponsor is an inactive distributer
-    const shouldContinue = sponsor.referredBy && (sponsor.role !== 'distributer' || sponsor.isActive);
+    // Move to next level sponsor (always continue to upline if referredBy exists)
+    const shouldContinue = sponsor.referredBy;
     if (shouldContinue) {
         await distributeIncomes(sponsor.referredBy, fromUserId, pkg, nextLevel);
-    } else if (sponsor.role === 'distributer' && !sponsor.isActive) {
-        console.log(`Stopping income distribution: sponsor ${sponsor.userId} is an inactive distributer.`);
     }
 };
 

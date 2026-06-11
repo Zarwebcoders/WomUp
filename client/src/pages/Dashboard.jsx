@@ -153,8 +153,8 @@ const Dashboard = () => {
             </div>
 
             {/* Chart and Package Section */}
-            <div className={`grid grid-cols-1 ${isAdmin ? 'lg:grid-cols-1' : 'lg:grid-cols-3'} gap-8`}>
-                <div className={`${isAdmin ? 'lg:col-span-1' : 'lg:col-span-2'} glass-card p-4 md:p-8`}>
+            <div className={`grid grid-cols-1 ${(isAdmin || user?.role === 'distributer') ? 'lg:grid-cols-1' : 'lg:grid-cols-3'} gap-8`}>
+                <div className={`${(isAdmin || user?.role === 'distributer') ? 'lg:col-span-1' : 'lg:col-span-2'} glass-card p-4 md:p-8`}>
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                         <h3 className="text-lg md:text-xl font-bold">{isAdmin ? 'Platform Performance' : 'Income Analytics'}</h3>
                         <select 
@@ -182,7 +182,7 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {!isAdmin && (
+                {!isAdmin && user?.role !== 'distributer' && (
                     <div className="glass-card p-8 bg-gradient-to-br from-card to-primary-dark/20 relative overflow-hidden flex flex-col justify-center">
                         <div className="relative z-10 text-center space-y-4">
                             <ShieldCheck className="text-primary-light mx-auto" size={40} />

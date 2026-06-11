@@ -42,7 +42,7 @@ const run = async () => {
 
             let nextLevel = level;
 
-            if (sponsor.isActive) {
+            if (sponsor.isActive || sponsor.role === 'distributer') {
                 const refAmount = pkg.referralAmounts[level - 1] || 0;
                 if (refAmount > 0) {
                     sponsor.referralIncome += refAmount;

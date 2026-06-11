@@ -225,45 +225,47 @@ const Profile = () => {
                     </div>
 
                     {/* Active Investment Package */}
-                    <div className="glass-card p-6 md:p-8 space-y-6">
-                        <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                            <h3 className="text-xl font-bold">Active Package Details</h3>
-                            <ShieldCheck size={24} className="text-primary-light" />
+                    {profileData.role !== 'distributer' && (
+                        <div className="glass-card p-6 md:p-8 space-y-6">
+                            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                                <h3 className="text-xl font-bold">Active Package Details</h3>
+                                <ShieldCheck size={24} className="text-primary-light" />
+                            </div>
+                            {profileData.packageId ? (
+                                <div className="flex flex-col sm:flex-row justify-between gap-6 sm:items-center">
+                                    <div className="space-y-1">
+                                        <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Plan Name</span>
+                                        <h4 className="text-2xl font-bold text-white font-space">{profileData.packageId.packageName}</h4>
+                                        <p className="text-sm text-primary-light font-bold">Price: ₹{profileData.packageId.price?.toLocaleString() || 0}</p>
+                                    </div>
+                                    <div className="flex flex-col sm:items-end gap-3 text-sm">
+                                        <div className="flex justify-between sm:justify-start gap-4">
+                                            <span className="text-gray-400">Activated At:</span>
+                                            <span className="text-white font-semibold">
+                                                {profileData.activatedAt ? new Date(profileData.activatedAt).toLocaleDateString() : 'N/A'}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between sm:justify-start gap-4">
+                                            <span className="text-gray-400">Expires At:</span>
+                                            <span className="text-white font-semibold">
+                                                {profileData.expiresAt ? new Date(profileData.expiresAt).toLocaleDateString() : 'N/A'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="text-center py-6">
+                                    <p className="text-gray-400 text-sm mb-4">You do not have any active packages currently.</p>
+                                    <button
+                                        onClick={() => window.location.href = '/packages'}
+                                        className="px-6 py-2.5 bg-primary hover:bg-primary-dark rounded-xl text-white font-bold transition-all text-xs uppercase tracking-wider"
+                                    >
+                                        Purchase a Package
+                                    </button>
+                                </div>
+                            )}
                         </div>
-                        {profileData.packageId ? (
-                            <div className="flex flex-col sm:flex-row justify-between gap-6 sm:items-center">
-                                <div className="space-y-1">
-                                    <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Plan Name</span>
-                                    <h4 className="text-2xl font-bold text-white font-space">{profileData.packageId.packageName}</h4>
-                                    <p className="text-sm text-primary-light font-bold">Price: ₹{profileData.packageId.price?.toLocaleString() || 0}</p>
-                                </div>
-                                <div className="flex flex-col sm:items-end gap-3 text-sm">
-                                    <div className="flex justify-between sm:justify-start gap-4">
-                                        <span className="text-gray-400">Activated At:</span>
-                                        <span className="text-white font-semibold">
-                                            {profileData.activatedAt ? new Date(profileData.activatedAt).toLocaleDateString() : 'N/A'}
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between sm:justify-start gap-4">
-                                        <span className="text-gray-400">Expires At:</span>
-                                        <span className="text-white font-semibold">
-                                            {profileData.expiresAt ? new Date(profileData.expiresAt).toLocaleDateString() : 'N/A'}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="text-center py-6">
-                                <p className="text-gray-400 text-sm mb-4">You do not have any active packages currently.</p>
-                                <button
-                                    onClick={() => window.location.href = '/packages'}
-                                    className="px-6 py-2.5 bg-primary hover:bg-primary-dark rounded-xl text-white font-bold transition-all text-xs uppercase tracking-wider"
-                                >
-                                    Purchase a Package
-                                </button>
-                            </div>
-                        )}
-                    </div>
+                    )}
                 </div>
 
             </div>

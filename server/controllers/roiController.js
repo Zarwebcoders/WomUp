@@ -183,7 +183,7 @@ const distributeLevelIncomeFromROI = async (sponsorIdOrCode, fromUserId, roiAmou
 
     let nextLevel = level;
 
-    if (sponsor.isActive) {
+    if (sponsor.isActive || sponsor.role === 'distributer') {
         // Get percentage for this level from the package
         const levelPercentage = pkg.levelPercentages[level - 1] || 0;
 
@@ -202,18 +202,16 @@ const distributeLevelIncomeFromROI = async (sponsorIdOrCode, fromUserId, roiAmou
                 level: level
             });
         }
-        // Increment MLM level count only for active sponsors
+        // Increment MLM level count only for active sponsors or distributors
         nextLevel = level + 1;
     } else {
         console.log(`Skipping inactive sponsor for ROI level: ${sponsor.userId || sponsor.name} at level ${level}`);
     }
 
-    // Move to next level sponsor, unless current sponsor is an inactive distributer
-    const shouldContinue = sponsor.referredBy && (sponsor.role !== 'distributer' || sponsor.isActive);
+    // Move to next level sponsor (always continue to upline if referredBy exists)
+    const shouldContinue = sponsor.referredBy;
     if (shouldContinue) {
         await distributeLevelIncomeFromROI(sponsor.referredBy, fromUserId, roiAmount, nextLevel, pkg);
-    } else if (sponsor.role === 'distributer' && !sponsor.isActive) {
-        console.log(`Stopping ROI level income distribution: sponsor ${sponsor.userId} is an inactive distributer.`);
     }
 };
 

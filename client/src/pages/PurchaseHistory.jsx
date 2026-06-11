@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_URL from '../config/api';
 import { motion } from 'framer-motion';
@@ -7,6 +8,14 @@ import { useAuth } from '../context/AuthContext';
 
 const PurchaseHistory = () => {
     const { user } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (user && user.role === 'distributer') {
+            navigate('/dashboard', { replace: true });
+        }
+    }, [user, navigate]);
+
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');

@@ -62,7 +62,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         { name: 'Package History', icon: History, path: '/admin/package-history' },
     ];
 
-    const menuItems = user?.role === 'admin' ? adminMenuItems : userMenuItems;
+    const filteredUserMenuItems = user?.role === 'distributer'
+        ? userMenuItems.filter(item => item.path !== '/packages' && item.path !== '/purchase-history')
+        : userMenuItems;
+
+    const menuItems = user?.role === 'admin' ? adminMenuItems : filteredUserMenuItems;
 
     const sidebarVariants = {
         open: { x: 0, width: 280 },
