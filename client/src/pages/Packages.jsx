@@ -173,14 +173,10 @@ const Packages = () => {
 
                             <button 
                                 onClick={() => handleBuyClick(pkg)}
-                                disabled={buying || user.packageId}
-                                className={`w-full py-4 rounded-xl font-bold transition-all ${
-                                    user.packageId 
-                                    ? 'bg-white/5 text-gray-500 cursor-not-allowed'
-                                    : 'bg-primary-gradient hover:shadow-lg hover:shadow-primary/20 text-white'
-                                }`}
+                                disabled={buying}
+                                className="w-full py-4 rounded-xl font-bold transition-all bg-primary-gradient hover:shadow-lg hover:shadow-primary/20 text-white"
                             >
-                                {user.packageId?._id === pkg._id ? 'Active' : user.packageId ? 'Purchased' : 'Purchase Package'}
+                                {user.packageId?._id === pkg._id ? 'Active (Buy Again)' : 'Purchase Package'}
                             </button>
                         </motion.div>
                     ))}
