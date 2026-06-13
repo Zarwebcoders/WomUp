@@ -55,11 +55,16 @@ const registerUser = async (req, res) => {
             const sponsor = await User.findOne({ referralCode: cleanCode });
             
             if (sponsor) {
+                if (sponsor.role === 'user') {
+                    console.log('Registration failed: Sponsor is an investor:', sponsor.name);
+                    return res.status(400).json({ message: 'Investors cannot refer users. Please use a distributor referral code.' });
+                }
                 // Store the sponsor's referralCode (userId) as a string
                 referredBy = sponsor.referralCode;
                 console.log('SUCCESS: Sponsor found:', sponsor.name, 'Referral ID:', sponsor.referralCode);
             } else {
                 console.log('FAILURE: Sponsor lookup failed for code:', `"${cleanCode}"`);
+                return res.status(400).json({ message: 'Invalid referral code.' });
             }
         } else {
             console.log('SKIPPING: No referral code provided or code was empty.');
@@ -132,7 +137,7 @@ const registerUser = async (req, res) => {
         if (error.code === 11000) {
             return res.status(400).json({ 
                 message: `Duplicate field value entered: ${Object.keys(error.keyValue)[0]}. Please use another value.` 
-            });
+                });
         }
 
         res.status(500).json({ message: error.message || 'Server Error' });
@@ -188,6 +193,9 @@ const loginUser = async (req, res) => {
         }
 
         if (user && (await user.matchPassword(password))) {
+            if (user.role === 'distributer' && !user.isActive) {
+                return res.status(403).json({ message: 'Distributor account is not active. Please wait for admin approval.' });
+            }
             res.json({
                 _id: user._id,
                 name: user.name,
@@ -228,11 +236,14 @@ const getUserProfile = async (req, res) => {
 const verifyReferral = async (req, res) => {
     try {
         const { code } = req.params;
-        const user = await User.findOne({ referralCode: code.toUpperCase() }).select('name');
+        const user = await User.findOne({ referralCode: code.toUpperCase() }).select('name role');
         if (user) {
+            if (user.role === 'user') {
+                return res.json({ valid: false, message: 'Investors cannot refer users. Must be a distributor.' });
+            }
             res.json({ valid: true, name: user.name });
         } else {
-            res.json({ valid: false });
+            res.json({ valid: false, message: 'Invalid referral code.' });
         }
     } catch (error) {
         console.error('Error verifying referral code:', error);

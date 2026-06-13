@@ -62,9 +62,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         { name: 'Package History', icon: History, path: '/admin/package-history' },
     ];
 
-    const filteredUserMenuItems = user?.role === 'distributer'
-        ? userMenuItems.filter(item => item.path !== '/packages' && item.path !== '/purchase-history')
-        : userMenuItems;
+    let filteredUserMenuItems = userMenuItems;
+    if (user?.role === 'distributer') {
+        filteredUserMenuItems = userMenuItems.filter(item => item.path !== '/packages' && item.path !== '/purchase-history');
+    } else if (user?.role === 'user') {
+        filteredUserMenuItems = userMenuItems.filter(item => item.path !== '/referral-link');
+    }
 
     const menuItems = user?.role === 'admin' ? adminMenuItems : filteredUserMenuItems;
 
@@ -167,18 +170,24 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                         {!isCollapsed && (
                             <div className="overflow-hidden">
                                 <p className="text-white font-medium truncate">{user?.name}</p>
-                                <button 
-                                    onClick={handleCopyId}
-                                    className="flex items-center text-primary-light text-[10px] font-bold tracking-wider hover:text-white transition-colors group"
-                                    title="Copy Referral Link"
-                                >
-                                    <span className="truncate">ID: {user?.referralCode}</span>
-                                    {copied ? (
-                                        <Check size={10} className="ml-1 text-success" />
-                                    ) : (
-                                        <Copy size={10} className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    )}
-                                </button>
+                                {user?.role === 'user' ? (
+                                    <span className="text-primary-light text-[10px] font-bold tracking-wider truncate">
+                                        ID: {user?.referralCode}
+                                    </span>
+                                ) : (
+                                    <button 
+                                        onClick={handleCopyId}
+                                        className="flex items-center text-primary-light text-[10px] font-bold tracking-wider hover:text-white transition-colors group"
+                                        title="Copy Referral Link"
+                                    >
+                                        <span className="truncate">ID: {user?.referralCode}</span>
+                                        {copied ? (
+                                            <Check size={10} className="ml-1 text-success" />
+                                        ) : (
+                                            <Copy size={10} className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        )}
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>

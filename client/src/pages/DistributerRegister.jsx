@@ -20,6 +20,7 @@ const DistributerRegister = () => {
         referralCode: refCode
     });
     const [sponsorName, setSponsorName] = useState('');
+    const [referralError, setReferralError] = useState('');
     const [verifyingCode, setVerifyingCode] = useState(false);
     const [error, setError] = useState('');
     const { register } = useAuth();
@@ -34,8 +35,10 @@ const DistributerRegister = () => {
                     const { data } = await axios.get(`${API_URL}/api/auth/verify-referral/${formData.referralCode}`);
                     if (data.valid) {
                         setSponsorName(data.name);
+                        setReferralError('');
                     } else {
                         setSponsorName('invalid');
+                        setReferralError(data.message || 'Invalid referral code');
                     }
                 } catch (err) {
                     console.error('Error verifying code:', err);
@@ -43,6 +46,7 @@ const DistributerRegister = () => {
                 setVerifyingCode(false);
             } else {
                 setSponsorName('');
+                setReferralError('');
             }
         };
 
@@ -225,7 +229,7 @@ const DistributerRegister = () => {
                             )}
                             {sponsorName === 'invalid' && (
                                 <p className="text-xs text-red-500 px-2 flex items-center">
-                                    <XCircle size={12} className="mr-1" /> Invalid referral code
+                                    <XCircle size={12} className="mr-1" /> {referralError}
                                 </p>
                             )}
                         </div>
