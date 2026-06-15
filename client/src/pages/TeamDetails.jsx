@@ -124,9 +124,9 @@ const TeamDetails = () => {
                                         <p className="font-bold text-success font-space text-xs md:text-base">₹{member.incomeFromMember || 0}</p>
                                     </td>
                                     <td className="px-4 md:px-8 py-4 text-center">
-                                        <span className={`px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-wider ${member.packageId ? 'bg-success/10 text-success' : 'bg-red-500/10 text-red-400'
+                                        <span className={`px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-wider ${member.isActive ? 'bg-success/10 text-success' : 'bg-red-500/10 text-red-400'
                                             }`}>
-                                            {member.packageId ? 'Active' : 'Inactive'}
+                                            {member.isActive ? 'Active' : 'Inactive'}
                                         </span>
                                     </td>
                                 </tr>
