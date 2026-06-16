@@ -18,8 +18,9 @@ import Profile from './pages/Profile';
 import AdminPackageRequests from './pages/admin/AdminPackageRequests';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminUserDetails from './pages/admin/AdminUserDetails';
-import AdminPackageHistory from './pages/admin/AdminPackageHistory';
 import AdminRoiManagement from './pages/admin/AdminRoiManagement';
+import KycVerification from './pages/KycVerification';
+import AdminKycManagement from './pages/admin/AdminKycManagement';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
           <Route element={<Layout />}>
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="kyc" element={<KycVerification />} />
             <Route path="referral-link" element={<ReferralLink />} />
             <Route path="team" element={<TeamDetails />} />
             <Route path="packages" element={<Packages />} />
@@ -51,7 +53,7 @@ function App() {
             <Route path="admin/roi-management" element={<AdminRoiManagement />} />
             <Route path="admin/users" element={<AdminUsers />} />
             <Route path="admin/users/:id" element={<AdminUserDetails />} />
-            <Route path="admin/package-history" element={<AdminPackageHistory />} />
+            <Route path="admin/kyc" element={<AdminKycManagement />} />
           </Route>
 
           {/* Catch all */}

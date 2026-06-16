@@ -51,6 +51,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/packages', require('./routes/packageRoutes'));
+app.use('/api/kyc', require('./routes/kycRoutes'));
 
 // Define other routes
 const dashboardRoutes = express.Router();

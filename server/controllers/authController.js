@@ -352,6 +352,29 @@ const updateUserStatus = async (req, res) => {
     }
 };
 
+// @desc    Impersonate user (Admin only)
+// @route   POST /api/auth/users/:id/impersonate
+// @access  Private/Admin
+const impersonateUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            userId: user.userId,
+            referralCode: user.referralCode,
+            role: user.role,
+            token: generateToken(user._id)
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = { 
     registerUser, 
     loginUser, 
@@ -359,5 +382,7 @@ module.exports = {
     verifyReferral,
     getAllUsers,
     getUserDetails,
-    updateUserStatus
+    updateUserStatus,
+    impersonateUser
 };
+

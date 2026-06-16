@@ -7,7 +7,9 @@ import {
     DollarSign, 
     Search, 
     Info,
-    RefreshCcw
+    RefreshCcw,
+    Download,
+    Calendar
 } from 'lucide-react';
 import SetRoiModal from '../../components/SetRoiModal';
 
@@ -19,6 +21,12 @@ const AdminRoiManagement = () => {
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [selectedUser, setSelectedUser] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Filter states
+    const [packages, setPackages] = useState([]);
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [selectedPackage, setSelectedPackage] = useState('all');
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
@@ -32,6 +40,19 @@ const AdminRoiManagement = () => {
         }, 1000);
         return () => clearTimeout(timer);
     }, [searchTerm]);
+
+    // Fetch Packages for filtering
+    useEffect(() => {
+        const fetchPackages = async () => {
+            try {
+                const { data } = await axios.get(`${API_URL}/api/packages`);
+                setPackages(data);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchPackages();
+    }, []);
 
     const fetchUsers = async () => {
         setLoading(true);
@@ -49,6 +70,55 @@ const AdminRoiManagement = () => {
         }
     };
 
+    const exportToCSV = (data) => {
+        const headers = ['User Name', 'Email', 'User ID', 'Package Name', 'Price', 'Months Elapsed', 'Monthly ROI Payout', 'Registration Date'];
+        const rows = data.map(u => [
+            u.name || '',
+            u.email || '',
+            u.userId || u.referralCode || '',
+            u.packageId?.packageName || '',
+            u.packageId?.price || 0,
+            getMonthsPassed(u.packagePurchaseDate),
+            u.monthlyRoiAmount || 0,
+            new Date(u.createdAt).toLocaleDateString()
+        ]);
+        
+        const csvContent = "data:text/csv;charset=utf-8," 
+            + [headers.join(','), ...rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))].join('\n');
+        
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `roi_investors_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const exportToExcel = (data) => {
+        const headers = ['User Name', 'Email', 'User ID', 'Package Name', 'Price', 'Months Elapsed', 'Monthly ROI Payout', 'Registration Date'];
+        const rows = data.map(u => [
+            u.name || '',
+            u.email || '',
+            u.userId || u.referralCode || '',
+            u.packageId?.packageName || '',
+            u.packageId?.price || 0,
+            getMonthsPassed(u.packagePurchaseDate),
+            u.monthlyRoiAmount || 0,
+            new Date(u.createdAt).toLocaleDateString()
+        ]);
+        
+        const tsvContent = [headers.join('\t'), ...rows.map(e => e.join('\t'))].join('\n');
+        const blob = new Blob([tsvContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `roi_investors_${new Date().toISOString().slice(0, 10)}.xls`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     useEffect(() => {
         fetchUsers();
     }, [debouncedSearch, user.token]);
@@ -62,26 +132,100 @@ const AdminRoiManagement = () => {
         return months;
     };
 
+    // Filter investors based on search, package, and date range
+    const filteredUsers = users.filter(u => {
+        // Package filter
+        if (selectedPackage !== 'all') {
+            if (!u.packageId || u.packageId._id !== selectedPackage) return false;
+        }
+
+        // Date filter (using packagePurchaseDate)
+        if (startDate) {
+            const start = new Date(startDate);
+            start.setHours(0,0,0,0);
+            if (new Date(u.packagePurchaseDate || u.createdAt) < start) return false;
+        }
+        if (endDate) {
+            const end = new Date(endDate);
+            end.setHours(23,59,59,999);
+            if (new Date(u.packagePurchaseDate || u.createdAt) > end) return false;
+        }
+
+        return true;
+    });
+
     // Pagination Logic
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = users.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(users.length / itemsPerPage);
+    const currentItems = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
     return (
         <div className="space-y-8 pb-10">
-            <div className="flex flex-col md:flex-row md:items-center justify-end gap-6">
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                        <input 
-                            type="text"
-                            placeholder="Search investors..."
-                            className="bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white outline-none focus:border-primary min-w-[280px] transition-all"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                {/* Search */}
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <input 
+                        type="text"
+                        placeholder="Search investors..."
+                        className="bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white outline-none focus:border-primary min-w-[300px] transition-all"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+            </div>
+
+            {/* Date Filters, Package Filter, and Export Buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 bg-white/5 p-4 rounded-2xl border border-white/10 items-end">
+                <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Purchase Start Date</label>
+                    <input 
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => { setStartDate(e.target.value); setCurrentPage(1); }}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs text-white outline-none focus:border-primary transition-all"
+                    />
+                </div>
+                <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Purchase End Date</label>
+                    <input 
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => { setEndDate(e.target.value); setCurrentPage(1); }}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs text-white outline-none focus:border-primary transition-all"
+                    />
+                </div>
+                <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Package Filter</label>
+                    <select
+                        value={selectedPackage}
+                        onChange={(e) => { setSelectedPackage(e.target.value); setCurrentPage(1); }}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs text-white outline-none focus:border-primary transition-all appearance-none cursor-pointer"
+                    >
+                        <option value="all" className="bg-neutral-900">All Packages</option>
+                        {packages.map(pkg => (
+                            <option key={pkg._id} value={pkg._id} className="bg-neutral-900">
+                                {pkg.packageName} (₹{pkg.price.toLocaleString()})
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => exportToCSV(filteredUsers)}
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-500/30 text-emerald-400 text-xs font-bold rounded-xl transition-all"
+                        title="Download CSV"
+                    >
+                        <Download size={14} /> CSV
+                    </button>
+                    <button
+                        onClick={() => exportToExcel(filteredUsers)}
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/30 text-blue-400 text-xs font-bold rounded-xl transition-all"
+                        title="Download Excel"
+                    >
+                        <Download size={14} /> Excel
+                    </button>
                 </div>
             </div>
 
@@ -187,10 +331,10 @@ const AdminRoiManagement = () => {
                     </div>
 
                     {/* Pagination Controls */}
-                    {users.length > itemsPerPage && (
+                    {filteredUsers.length > itemsPerPage && (
                         <div className="p-4 border-t border-white/10 flex items-center justify-between">
                             <p className="text-[10px] text-gray-500">
-                                Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, users.length)} of {users.length} investors
+                                Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredUsers.length)} of {filteredUsers.length} investors
                             </p>
                             <div className="flex items-center space-x-2">
                                 <button

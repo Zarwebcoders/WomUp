@@ -22,6 +22,22 @@ const userSchema = new mongoose.Schema({
     isActive: { type: Boolean, default: false },
     activatedAt: { type: Date },
     expiresAt: { type: Date },
+    kyc: {
+        status: { type: String, enum: ['unsubmitted', 'pending', 'approved', 'rejected'], default: 'unsubmitted' },
+        rejectReason: { type: String, default: '' },
+        submittedAt: { type: Date },
+        profilePhoto: { type: String },
+        aadharNumber: { type: String },
+        aadharFront: { type: String },
+        aadharBack: { type: String },
+        panNumber: { type: String },
+        panCardPhoto: { type: String },
+        bankHolderName: { type: String },
+        bankName: { type: String },
+        bankAccountNumber: { type: String },
+        bankIfscCode: { type: String },
+        bankPassbookPhoto: { type: String }
+    },
     createdAt: { type: Date, default: Date.now }
 });
 

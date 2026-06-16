@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_URL from '../../config/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, Eye, Clock, Search, ExternalLink, AlertCircle } from 'lucide-react';
+import { Check, X, Eye, Clock, Search, ExternalLink, AlertCircle, Calendar, Download } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const AdminPackageRequests = () => {
@@ -13,6 +13,13 @@ const AdminPackageRequests = () => {
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [message, setMessage] = useState('');
     const [processingId, setProcessingId] = useState(null);
+
+    // Filter states
+    const [packages, setPackages] = useState([]);
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [selectedPackage, setSelectedPackage] = useState('all');
+    const [statusFilter, setStatusFilter] = useState('pending');
     
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
@@ -36,6 +43,19 @@ const AdminPackageRequests = () => {
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
+    // Fetch Packages for filtering dropdown
+    useEffect(() => {
+        const fetchPackages = async () => {
+            try {
+                const { data } = await axios.get(`${API_URL}/api/packages`);
+                setPackages(data);
+            } catch (err) {
+                console.error('Error fetching packages', err);
+            }
+        };
+        fetchPackages();
+    }, []);
+
     useEffect(() => {
         fetchRequests();
     }, [debouncedSearch, user.token]);
@@ -53,6 +73,55 @@ const AdminPackageRequests = () => {
             console.error(err);
             setLoading(false);
         }
+    };
+
+    const exportToCSV = (data) => {
+        const headers = ['User Name', 'Email', 'User ID', 'Package Name', 'Price', 'Transaction ID', 'Status', 'Request Date'];
+        const rows = data.map(req => [
+            req.userId?.name || '',
+            req.userId?.email || '',
+            req.userId?.userId || '',
+            req.packageId?.packageName || '',
+            req.packageId?.price || 0,
+            req.transactionId || '',
+            req.status || '',
+            new Date(req.createdAt).toLocaleString()
+        ]);
+        
+        const csvContent = "data:text/csv;charset=utf-8," 
+            + [headers.join(','), ...rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))].join('\n');
+        
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `package_requests_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const exportToExcel = (data) => {
+        const headers = ['User Name', 'Email', 'User ID', 'Package Name', 'Price', 'Transaction ID', 'Status', 'Request Date'];
+        const rows = data.map(req => [
+            req.userId?.name || '',
+            req.userId?.email || '',
+            req.userId?.userId || '',
+            req.packageId?.packageName || '',
+            req.packageId?.price || 0,
+            req.transactionId || '',
+            req.status || '',
+            new Date(req.createdAt).toLocaleString()
+        ]);
+        
+        const tsvContent = [headers.join('\t'), ...rows.map(e => e.join('\t'))].join('\n');
+        const blob = new Blob([tsvContent], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `package_requests_${new Date().toISOString().slice(0, 10)}.xls`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     const triggerConfirm = (req, status) => {
@@ -97,18 +166,61 @@ const AdminPackageRequests = () => {
         `);
     };
 
-    // Filter pending requests for this specific page view
-    const pendingRequests = requests.filter(req => req.status === 'pending');
+    // Filter requests based on status, package, and date range
+    const filteredRequests = requests.filter(req => {
+        // Status filter
+        if (statusFilter !== 'all' && req.status !== statusFilter) return false;
+
+        // Package filter
+        if (selectedPackage !== 'all') {
+            if (!req.packageId || req.packageId._id !== selectedPackage) return false;
+        }
+
+        // Date filter
+        if (startDate) {
+            const start = new Date(startDate);
+            start.setHours(0,0,0,0);
+            if (new Date(req.createdAt) < start) return false;
+        }
+        if (endDate) {
+            const end = new Date(endDate);
+            end.setHours(23,59,59,999);
+            if (new Date(req.createdAt) > end) return false;
+        }
+
+        return true;
+    });
 
     // Pagination Logic
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = pendingRequests.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(pendingRequests.length / itemsPerPage);
+    const currentItems = filteredRequests.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
 
     return (
         <div className="space-y-8 pb-10">
-            <div className="flex flex-col md:flex-row md:items-center justify-end gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                {/* Status Tabs */}
+                <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-1">
+                    {['pending', 'approved', 'rejected', 'all'].map((s) => (
+                        <button
+                            key={s}
+                            onClick={() => {
+                                setStatusFilter(s);
+                                setCurrentPage(1);
+                            }}
+                            className={`px-4 py-2 rounded-lg text-xs font-semibold uppercase transition-all duration-200 ${
+                                statusFilter === s 
+                                    ? 'bg-primary text-white shadow-lg shadow-primary/30' 
+                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                            }`}
+                        >
+                            {s}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Search */}
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                     <input 
@@ -118,6 +230,59 @@ const AdminPackageRequests = () => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
+                </div>
+            </div>
+
+            {/* Date Filters & Package Filter */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 bg-white/5 p-4 rounded-2xl border border-white/10 items-end">
+                <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Start Date</label>
+                    <input 
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => { setStartDate(e.target.value); setCurrentPage(1); }}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs text-white outline-none focus:border-primary transition-all"
+                    />
+                </div>
+                <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">End Date</label>
+                    <input 
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => { setEndDate(e.target.value); setCurrentPage(1); }}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs text-white outline-none focus:border-primary transition-all"
+                    />
+                </div>
+                <div>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Package Filter</label>
+                    <select
+                        value={selectedPackage}
+                        onChange={(e) => { setSelectedPackage(e.target.value); setCurrentPage(1); }}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-xs text-white outline-none focus:border-primary transition-all appearance-none cursor-pointer"
+                    >
+                        <option value="all" className="bg-neutral-900">All Packages</option>
+                        {packages.map(pkg => (
+                            <option key={pkg._id} value={pkg._id} className="bg-neutral-900">
+                                {pkg.packageName} (₹{pkg.price.toLocaleString()})
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => exportToCSV(filteredRequests)}
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-500/30 text-emerald-400 text-xs font-bold rounded-xl transition-all"
+                        title="Download CSV"
+                    >
+                        <Download size={14} /> CSV
+                    </button>
+                    <button
+                        onClick={() => exportToExcel(filteredRequests)}
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/30 text-blue-400 text-xs font-bold rounded-xl transition-all"
+                        title="Download Excel"
+                    >
+                        <Download size={14} /> Excel
+                    </button>
                 </div>
             </div>
 
@@ -136,6 +301,7 @@ const AdminPackageRequests = () => {
                             <tr className="bg-white/5 border-b border-white/10">
                                 <th className="px-6 py-4 text-xs font-bold uppercase text-gray-400">User Details</th>
                                 <th className="px-6 py-4 text-xs font-bold uppercase text-gray-400">Package</th>
+                                <th className="px-6 py-4 text-xs font-bold uppercase text-gray-400">Request Date</th>
                                 <th className="px-6 py-4 text-xs font-bold uppercase text-gray-400">Transaction Info</th>
                                 <th className="px-6 py-4 text-xs font-bold uppercase text-gray-400">Status</th>
                                 <th className="px-6 py-4 text-xs font-bold uppercase text-gray-400 text-center">Actions</th>
@@ -143,7 +309,7 @@ const AdminPackageRequests = () => {
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {loading ? (
-                                <tr><td colSpan="5" className="px-8 py-20 text-center text-gray-500">Loading requests...</td></tr>
+                                <tr><td colSpan="6" className="px-8 py-20 text-center text-gray-500">Loading requests...</td></tr>
                             ) : currentItems.length > 0 ? currentItems.map((req) => (
                                 <tr key={req._id} className="hover:bg-white/[0.02] transition-colors">
                                     <td className="px-6 py-4">
@@ -159,6 +325,15 @@ const AdminPackageRequests = () => {
                                         <div className="flex flex-col">
                                             <span className="text-primary font-bold">{req.packageId?.packageName}</span>
                                             <span className="text-gray-400 text-xs">₹{req.packageId?.price.toLocaleString()}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center space-x-2 text-white">
+                                            <Calendar size={14} className="text-primary-light" />
+                                            <div className="flex flex-col">
+                                                <span className="text-xs font-bold font-space text-white">{new Date(req.createdAt).toLocaleDateString()}</span>
+                                                <span className="text-gray-500 text-[10px]">{new Date(req.createdAt).toLocaleTimeString()}</span>
+                                            </div>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
@@ -209,17 +384,17 @@ const AdminPackageRequests = () => {
                                     </td>
                                 </tr>
                             )) : (
-                                <tr><td colSpan="5" className="px-8 py-20 text-center text-gray-500">No pending purchase requests.</td></tr>
+                                <tr><td colSpan="6" className="px-8 py-20 text-center text-gray-500">No purchase requests found.</td></tr>
                             )}
                         </tbody>
                     </table>
                 </div>
 
                 {/* Pagination Controls */}
-                {pendingRequests.length > itemsPerPage && (
+                {filteredRequests.length > itemsPerPage && (
                     <div className="p-4 border-t border-white/10 flex items-center justify-between">
                         <p className="text-[10px] text-gray-500">
-                            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, pendingRequests.length)} of {pendingRequests.length} requests
+                            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredRequests.length)} of {filteredRequests.length} requests
                         </p>
                         <div className="flex items-center space-x-2">
                             <button

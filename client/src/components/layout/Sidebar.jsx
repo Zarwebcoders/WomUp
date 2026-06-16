@@ -44,6 +44,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     const userMenuItems = [
         { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
         { name: 'My Profile', icon: User, path: '/profile' },
+        { name: 'KYC Verification', icon: ShieldCheck, path: '/kyc' },
         { name: 'Referral Link', icon: LinkIcon, path: '/referral-link' },
         { name: 'Team Details', icon: Users, path: '/team' },
         { name: 'Level Income', icon: Layers, path: '/level-income' },
@@ -59,7 +60,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         { name: 'ROI Management', icon: CircleDollarSign, path: '/admin/roi-management' },
         { name: 'User Management', icon: Users, path: '/admin/users' },
         { name: 'Package Requests', icon: ShieldCheck, path: '/admin/package-requests' },
-        { name: 'Package History', icon: History, path: '/admin/package-history' },
+        { name: 'KYC Management', icon: ShieldCheck, path: '/admin/kyc' },
     ];
 
     let filteredUserMenuItems = userMenuItems;
