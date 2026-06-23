@@ -89,6 +89,13 @@ const KycVerification = () => {
     const handleFileChange = (e, field) => {
         const file = e.target.files[0];
         if (file) {
+            // Client-side size validation (2MB limit)
+            if (file.size > 2 * 1024 * 1024) {
+                setMessage({ type: 'error', text: `Image too large. Please upload an image under 2MB.` });
+                e.target.value = '';
+                return;
+            }
+            setMessage(''); // clear any previous error
             if (field === 'profilePhoto') setProfilePhoto(file);
             if (field === 'aadharFront') setAadharFront(file);
             if (field === 'aadharBack') setAadharBack(file);

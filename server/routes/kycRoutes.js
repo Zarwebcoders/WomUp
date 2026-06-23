@@ -12,7 +12,7 @@ const {
 const storage = multer.memoryStorage();
 const upload = multer({
     storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit per file
     fileFilter(req, file, cb) {
         if (!file.mimetype.startsWith('image/')) {
             return cb(new Error('Only image files are allowed'));
@@ -20,6 +20,20 @@ const upload = multer({
         cb(null, true);
     }
 });
+
+// Multer error handler middleware
+const handleMulterError = (err, req, res, next) => {
+    if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(400).json({ message: 'File too large. Each image must be under 2MB.' });
+        }
+        return res.status(400).json({ message: `Upload error: ${err.message}` });
+    }
+    if (err) {
+        return res.status(400).json({ message: err.message || 'File upload failed.' });
+    }
+    next();
+};
 
 const kycUploadFields = upload.fields([
     { name: 'profilePhoto', maxCount: 1 },
@@ -29,7 +43,12 @@ const kycUploadFields = upload.fields([
     { name: 'bankPassbookPhoto', maxCount: 1 }
 ]);
 
-router.post('/submit', protect, kycUploadFields, submitKyc);
+router.post('/submit', protect, (req, res, next) => {
+    kycUploadFields(req, res, (err) => {
+        if (err) return handleMulterError(err, req, res, next);
+        next();
+    });
+}, submitKyc);
 router.get('/status', protect, getKycStatus);
 
 // Admin Routes

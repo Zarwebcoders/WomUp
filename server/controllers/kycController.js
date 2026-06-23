@@ -35,6 +35,15 @@ const submitKyc = async (req, res) => {
         const panCardPhoto = fileToBase64('panCardPhoto') || user.kyc?.panCardPhoto;
         const bankPassbookPhoto = fileToBase64('bankPassbookPhoto') || user.kyc?.bankPassbookPhoto;
 
+        // Guard: check combined base64 size won't exceed MongoDB document limit (~16MB BSON)
+        const totalSize = [profilePhoto, aadharFront, aadharBack, panCardPhoto, bankPassbookPhoto]
+            .filter(Boolean)
+            .reduce((sum, s) => sum + Buffer.byteLength(s, 'utf8'), 0);
+        const MAX_DOC_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB safe limit
+        if (totalSize > MAX_DOC_IMAGE_SIZE) {
+            return res.status(400).json({ message: 'Total image size too large. Please upload smaller images (max ~2MB each).' });
+        }
+
         user.kyc = {
             status: 'pending',
             submittedAt: new Date(),
