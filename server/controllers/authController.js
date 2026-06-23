@@ -185,11 +185,7 @@ const loginUser = async (req, res) => {
         });
 
         if (user) {
-            // Expiry check: if active and expiresAt has passed, auto-deactivate
-            if (user.isActive && user.expiresAt && new Date() > new Date(user.expiresAt)) {
-                user.isActive = false;
-                await user.save();
-            }
+            // (No expiry auto-deactivation — unactivated users are cleaned up by scheduled job)
         }
 
         if (user && (await user.matchPassword(password))) {
@@ -339,10 +335,6 @@ const updateUserStatus = async (req, res) => {
         user.isActive = isActive;
         if (isActive) {
             user.activatedAt = new Date();
-            user.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
-        } else {
-            // If manual deactivate, we set expiresAt to now or past, and isActive to false
-            user.expiresAt = new Date();
         }
 
         await user.save();

@@ -14,18 +14,19 @@ const distributeMonthlyROI = async (req, res) => {
             return res.status(401).json({ message: 'Unauthorized access' });
         }
 
-        // Auto-expire users whose expiresAt has passed
-        const now = new Date();
-        /* ===================================================
-           TESTING CODE: Disable auto-expiration during tests
-           ===================================================
-        await User.updateMany(
-            { isActive: true, expiresAt: { $lt: now } },
-            { $set: { isActive: false } }
-        );
-        =================================================== */
+        // Auto-delete users who registered but never activated within 30 days
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        const deletedUnactivated = await User.deleteMany({
+            isActive: false,
+            role: 'user',
+            createdAt: { $lt: thirtyDaysAgo }
+        });
+        if (deletedUnactivated.deletedCount > 0) {
+            console.log(`🗑️  Auto-deleted ${deletedUnactivated.deletedCount} unactivated user(s) older than 30 days`);
+        }
 
         const users = await User.find({ packageId: { $exists: true }, isActive: true }).populate('packageId');
+        const now = new Date();
         let processedCount = 0;
         let totalDistributed = 0;
 

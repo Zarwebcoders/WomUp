@@ -90,7 +90,6 @@ const updateRequestStatus = async (req, res) => {
         user.packagePurchaseDate = new Date();
         user.isActive = true;
         user.activatedAt = new Date();
-        user.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
         await user.save();
 
         // Distribute Incomes up to 10 levels

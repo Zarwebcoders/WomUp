@@ -362,11 +362,6 @@ const AdminUsers = () => {
                                                     {u.isActive ? 'Active' : 'Inactive'}
                                                 </span>
                                             </div>
-                                            {u.expiresAt && u.isActive && (
-                                                <span className="text-[9px] text-gray-500">
-                                                    Exp: {new Date(u.expiresAt).toLocaleDateString()}
-                                                </span>
-                                            )}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">

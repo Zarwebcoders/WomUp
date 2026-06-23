@@ -14,12 +14,6 @@ const protect = async (req, res, next) => {
                 return res.status(401).json({ message: 'Not authorized, user not found' });
             }
 
-            // Expiry check: if active and expiresAt has passed, auto-deactivate
-            if (req.user.isActive && req.user.expiresAt && new Date() > new Date(req.user.expiresAt)) {
-                req.user.isActive = false;
-                await req.user.save();
-            }
-
             next();
         } catch (error) {
             console.error(error);
