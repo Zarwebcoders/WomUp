@@ -21,6 +21,7 @@ import AdminUserDetails from './pages/admin/AdminUserDetails';
 import AdminRoiManagement from './pages/admin/AdminRoiManagement';
 import KycVerification from './pages/KycVerification';
 import AdminKycManagement from './pages/admin/AdminKycManagement';
+import AdminIncomeHistory from './pages/admin/AdminIncomeHistory';
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
             <Route path="admin/users" element={<AdminUsers />} />
             <Route path="admin/users/:id" element={<AdminUserDetails />} />
             <Route path="admin/kyc" element={<AdminKycManagement />} />
+            <Route path="admin/income-history" element={<AdminIncomeHistory />} />
           </Route>
 
           {/* Catch all */}

@@ -61,6 +61,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         { name: 'User Management', icon: Users, path: '/admin/users' },
         { name: 'Package Requests', icon: ShieldCheck, path: '/admin/package-requests' },
         { name: 'KYC Management', icon: ShieldCheck, path: '/admin/kyc' },
+        { name: 'Income History', icon: HandCoins, path: '/admin/income-history' },
     ];
 
     let filteredUserMenuItems = userMenuItems;

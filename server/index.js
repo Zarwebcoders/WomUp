@@ -63,6 +63,7 @@ referralRoutes.get('/team/:level', require('./middleware/authMiddleware').protec
 app.use('/api/referral', referralRoutes);
 
 const incomeRoutes = express.Router();
+incomeRoutes.get('/admin/all', require('./middleware/authMiddleware').protect, require('./middleware/authMiddleware').admin, require('./controllers/incomeController').getAllIncomeLogs);
 incomeRoutes.get('/:type', require('./middleware/authMiddleware').protect, require('./controllers/incomeController').getIncomeLogs);
 app.use('/api/income', incomeRoutes);
 

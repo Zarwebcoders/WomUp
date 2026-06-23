@@ -111,4 +111,59 @@ const getIncomeLogs = async (req, res) => {
     }
 };
 
-module.exports = { getIncomeLogs };
+// @desc    Get ALL income logs (admin only) with filters
+// @route   GET /api/income/admin/all
+// @access  Private/Admin
+const getAllIncomeLogs = async (req, res) => {
+    try {
+        const { type, search, startDate, endDate } = req.query;
+
+        let query = {};
+
+        // Filter by income type
+        if (type && type !== 'all') {
+            query.incomeType = type;
+        }
+
+        // Filter by date range
+        if (startDate || endDate) {
+            query.createdAt = {};
+            if (startDate) query.createdAt.$gte = new Date(startDate);
+            if (endDate) {
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                query.createdAt.$lte = end;
+            }
+        }
+
+        // If search provided, find matching users first
+        if (search) {
+            const matchingUsers = await User.find({
+                $or: [
+                    { name: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } },
+                    { userId: { $regex: search, $options: 'i' } },
+                    { referralCode: { $regex: search, $options: 'i' } },
+                ]
+            }).select('_id');
+            const userIds = matchingUsers.map(u => u._id);
+            query.$or = [
+                { userId: { $in: userIds } },
+                { fromUser: { $in: userIds } }
+            ];
+        }
+
+        const logs = await Income.find(query)
+            .sort({ createdAt: -1 })
+            .limit(2000)
+            .populate({ path: 'userId', select: 'name userId referralCode email' })
+            .populate({ path: 'fromUser', select: 'name userId referralCode' });
+
+        res.json(logs);
+    } catch (error) {
+        console.error('Admin Income API Error:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+module.exports = { getIncomeLogs, getAllIncomeLogs };
