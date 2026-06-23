@@ -159,7 +159,10 @@ const getAllIncomeLogs = async (req, res) => {
             .populate({ path: 'userId', select: 'name userId referralCode email' })
             .populate({ path: 'fromUser', select: 'name userId referralCode' });
 
-        res.json(logs);
+        // Only return records where the recipient user still exists
+        const filteredLogs = logs.filter(log => log.userId !== null);
+
+        res.json(filteredLogs);
     } catch (error) {
         console.error('Admin Income API Error:', error);
         res.status(500).json({ message: 'Server Error' });
