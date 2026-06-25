@@ -205,4 +205,42 @@ const toggleIncomeVisibility = async (req, res) => {
     }
 };
 
-module.exports = { getIncomeLogs, getAllIncomeLogs, toggleIncomeVisibility };
+// @desc    Reveal hidden incomes (Called via Vercel Cron)
+// @route   GET /api/income/cron/reveal
+// @access  Public (Vercel Cron)
+const revealHiddenIncomes = async (req, res) => {
+    try {
+        // Security check: Only allow Vercel Cron or Admin
+        const isVercelCron = req.headers['x-vercel-cron'] === '1';
+        const isAdmin = req.user && req.user.role === 'admin';
+
+        if (!isVercelCron && !isAdmin && process.env.NODE_ENV === 'production') {
+            return res.status(401).json({ message: 'Unauthorized access' });
+        }
+
+        const hiddenIncomes = await Income.find({ showToUser: false });
+        if (hiddenIncomes.length === 0) {
+            return res.json({ message: 'No hidden incomes to reveal', count: 0 });
+        }
+
+        for (const income of hiddenIncomes) {
+            const user = await User.findById(income.userId);
+            if (user) {
+                income.showToUser = true;
+                user.totalIncome += income.amount;
+                if (income.incomeType === 'referral') user.referralIncome += income.amount;
+                if (income.incomeType === 'level') user.levelIncome += income.amount;
+                if (income.incomeType === 'roi') user.roiIncome += income.amount;
+                
+                await income.save();
+                await user.save();
+            }
+        }
+        res.json({ message: 'Incomes revealed successfully', count: hiddenIncomes.length });
+    } catch (error) {
+        console.error('Reveal Incomes Error:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+module.exports = { getIncomeLogs, getAllIncomeLogs, toggleIncomeVisibility, revealHiddenIncomes };

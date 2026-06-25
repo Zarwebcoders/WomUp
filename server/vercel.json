@@ -16,6 +16,10 @@
     {
       "path": "/api/roi/distribute",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/income/cron/reveal",
+      "schedule": "30 2 * * *"
     }
   ]
 }
