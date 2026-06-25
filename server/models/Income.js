@@ -6,6 +6,7 @@ const incomeSchema = new mongoose.Schema({
     amount: { type: Number, required: true },
     fromUser: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     level: { type: Number },
+    showToUser: { type: Boolean, default: true },
     createdAt: { type: Date, default: Date.now }
 });
 

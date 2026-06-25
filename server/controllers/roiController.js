@@ -96,15 +96,19 @@ const distributeMonthlyROI = async (req, res) => {
                 /* =================================================== */
 
                 if (!alreadyPaid) {
-                    user.roiIncome += roiAmount;
-                    user.totalIncome += roiAmount;
-                    await user.save();
+                    const isVisible = require('../utils/visibilityUtils').isIncomeVisibleNow();
+                    if (isVisible) {
+                        user.roiIncome += roiAmount;
+                        user.totalIncome += roiAmount;
+                        await user.save();
+                    }
 
                     await Income.create({
                         userId: user._id,
                         incomeType: 'roi',
                         amount: roiAmount,
-                        level: 0
+                        level: 0,
+                        showToUser: isVisible
                     });
 
                     // Distribute Level Income to upline
@@ -191,16 +195,20 @@ const distributeLevelIncomeFromROI = async (sponsorIdOrCode, fromUserId, roiAmou
         if (levelPercentage > 0) {
             const levelIncomeAmount = (roiAmount * levelPercentage) / 100;
 
-            sponsor.levelIncome += levelIncomeAmount;
-            sponsor.totalIncome += levelIncomeAmount;
-            await sponsor.save();
+            const isVisible = require('../utils/visibilityUtils').isIncomeVisibleNow();
+            if (isVisible) {
+                sponsor.levelIncome += levelIncomeAmount;
+                sponsor.totalIncome += levelIncomeAmount;
+                await sponsor.save();
+            }
 
             await Income.create({
                 userId: sponsor._id,
                 incomeType: 'level',
                 amount: levelIncomeAmount,
                 fromUser: fromUserId,
-                level: level
+                level: level,
+                showToUser: isVisible
             });
         }
         // Increment MLM level count only for active sponsors or distributors

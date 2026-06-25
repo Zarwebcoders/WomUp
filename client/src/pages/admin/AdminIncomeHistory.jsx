@@ -63,6 +63,18 @@ const AdminIncomeHistory = () => {
 
     useEffect(() => { fetchLogs(); }, [fetchLogs]);
 
+    const toggleVisibility = async (id) => {
+        try {
+            const res = await axios.patch(`${API_URL}/api/income/admin/toggle-visibility/${id}`, {}, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            setLogs(prev => prev.map(l => l._id === id ? { ...l, showToUser: res.data.income.showToUser } : l));
+        } catch (err) {
+            console.error(err);
+            alert(err.response?.data?.message || 'Error toggling visibility');
+        }
+    };
+
     // Reset page when filters change
     useEffect(() => { setCurrentPage(1); }, [typeFilter, startDate, endDate]);
 
@@ -214,6 +226,7 @@ const AdminIncomeHistory = () => {
                                 <th className="px-5 py-4 text-xs font-bold uppercase text-gray-400">Amount</th>
                                 <th className="px-5 py-4 text-xs font-bold uppercase text-gray-400">From User</th>
                                 <th className="px-5 py-4 text-xs font-bold uppercase text-gray-400 text-center">Level</th>
+                                <th className="px-5 py-4 text-xs font-bold uppercase text-gray-400 text-center">Show to User</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
@@ -273,6 +286,17 @@ const AdminIncomeHistory = () => {
                                         ) : (
                                             <span className="text-gray-600 text-xs">—</span>
                                         )}
+                                    </td>
+                                    <td className="px-5 py-3.5 text-center">
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input 
+                                                type="checkbox" 
+                                                className="sr-only peer" 
+                                                checked={log.showToUser !== false}
+                                                onChange={() => toggleVisibility(log._id)} 
+                                            />
+                                            <div className="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                                        </label>
                                     </td>
                                 </tr>
                             )) : (

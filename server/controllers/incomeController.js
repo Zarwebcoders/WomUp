@@ -12,7 +12,8 @@ const getIncomeLogs = async (req, res) => {
 
         let query = { 
             userId: req.user._id,
-            incomeType: type 
+            incomeType: type,
+            showToUser: { $ne: false }
         };
 
         if (search) {
@@ -169,4 +170,39 @@ const getAllIncomeLogs = async (req, res) => {
     }
 };
 
-module.exports = { getIncomeLogs, getAllIncomeLogs };
+// @desc    Toggle income visibility and adjust user balances
+// @route   PATCH /api/income/admin/toggle-visibility/:id
+// @access  Private/Admin
+const toggleIncomeVisibility = async (req, res) => {
+    try {
+        const income = await Income.findById(req.params.id);
+        if (!income) return res.status(404).json({ message: 'Income not found' });
+
+        const user = await User.findById(income.userId);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        if (!income.showToUser) {
+            income.showToUser = true;
+            user.totalIncome += income.amount;
+            if (income.incomeType === 'referral') user.referralIncome += income.amount;
+            if (income.incomeType === 'level') user.levelIncome += income.amount;
+            if (income.incomeType === 'roi') user.roiIncome += income.amount;
+        } else {
+            income.showToUser = false;
+            user.totalIncome -= income.amount;
+            if (income.incomeType === 'referral') user.referralIncome -= income.amount;
+            if (income.incomeType === 'level') user.levelIncome -= income.amount;
+            if (income.incomeType === 'roi') user.roiIncome -= income.amount;
+        }
+
+        await income.save();
+        await user.save();
+
+        res.json({ message: 'Visibility toggled successfully', income });
+    } catch (error) {
+        console.error('Toggle Visibility Error:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+module.exports = { getIncomeLogs, getAllIncomeLogs, toggleIncomeVisibility };

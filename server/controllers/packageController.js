@@ -129,18 +129,24 @@ const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level) => {
         // Referral Income (Fixed Amount) only
         const refAmount = pkg.referralAmounts[level - 1] || 0;
         if (refAmount > 0) {
-            sponsor.referralIncome += refAmount;
-            sponsor.totalIncome += refAmount;
+            const isVisible = require('../utils/visibilityUtils').isIncomeVisibleNow();
+            if (isVisible) {
+                sponsor.referralIncome += refAmount;
+                sponsor.totalIncome += refAmount;
+            }
             
             await Income.create({
                 userId: sponsor._id, // Must be the sponsor's ObjectId!
                 incomeType: 'referral',
                 amount: refAmount,
                 fromUser: fromUserId,
-                level: level
+                level: level,
+                showToUser: isVisible
             });
 
-            await sponsor.save();
+            if (isVisible) {
+                await sponsor.save();
+            }
         }
         // Increment MLM level count only for active sponsors or distributors
         nextLevel = level + 1;
