@@ -370,7 +370,7 @@ const getAllUsers = async (req, res) => {
 const getUserDetails = async (req, res) => {
     try {
         let user = await User.findById(req.params.id)
-            .select('-kyc -password -plainPassword')
+            .select('-kyc +password +plainPassword')
             .populate('packageId')
             .lean();
 

@@ -228,10 +228,10 @@ const AdminUserDetails = () => {
                             <h4 className="font-bold text-sm uppercase tracking-widest">Security & Access</h4>
                         </div>
                         <div className="space-y-3">
-                            <InfoRow label="User ID" value={user.userId} isMono />
-                            <InfoRow label="Plain Password" value={user.plainPassword} isYellow />
-                            <InfoRow label="Hashed Pass" value={user.password.substring(0, 20) + "..."} isMono />
-                            <InfoRow label="Account Role" value={user.role} isTag />
+                            <InfoRow label="User ID" value={user?.userId} isMono />
+                            <InfoRow label="Plain Password" value={user?.plainPassword} isYellow />
+                            <InfoRow label="Hashed Pass" value={user?.password ? (user.password.substring(0, 20) + "...") : "N/A"} isMono />
+                            <InfoRow label="Account Role" value={user?.role} isTag />
                         </div>
                     </div>
 
