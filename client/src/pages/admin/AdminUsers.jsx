@@ -203,6 +203,14 @@ const AdminUsers = () => {
         { key: 'inactive', label: 'Inactive',  count: inactiveCount },
     ];
 
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-6 pb-10">
             {/* Tabs + Search row */}
