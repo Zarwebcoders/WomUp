@@ -1,5 +1,11 @@
-const dns = require('dns');
-dns.setServers(['8.8.8.8', '1.1.1.1']);
+if (process.env.VERCEL !== '1') {
+    try {
+        const dns = require('dns');
+        dns.setServers(['8.8.8.8', '1.1.1.1']);
+    } catch (err) {
+        console.warn('dns.setServers skipped:', err.message);
+    }
+}
 
 const express = require('express');
 const compression = require('compression');
