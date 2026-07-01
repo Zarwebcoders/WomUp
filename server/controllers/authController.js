@@ -275,46 +275,94 @@ const verifyReferral = async (req, res) => {
 // @desc    Get all users (Admin only)
 // @route   GET /api/auth/users
 // @access  Private/Admin
+// PERF: Replaced N+1 sponsor-lookup loop with a single aggregation pipeline.
+// Old approach: 1 User.find() + N User.findOne() calls = 1+N round-trips to Atlas.
+// New approach: 1 aggregate() with $lookup for both packageId and referredBy sponsor.
 const getAllUsers = async (req, res) => {
     try {
         const { search } = req.query;
-        let query = {};
-        
-        if (search) {
-            query.$or = [
-                { name: { $regex: search, $options: 'i' } },
-                { email: { $regex: search, $options: 'i' } },
-                { userId: { $regex: search, $options: 'i' } },
-                { mobile: { $regex: search, $options: 'i' } },
-                { referralCode: { $regex: search, $options: 'i' } }
+
+        // Build the initial $match stage
+        const matchStage = {};
+        if (search && search.trim()) {
+            const s = search.trim();
+            matchStage.$or = [
+                { name:         { $regex: s, $options: 'i' } },
+                { email:        { $regex: s, $options: 'i' } },
+                { userId:       { $regex: s, $options: 'i' } },
+                { mobile:       { $regex: s, $options: 'i' } },
+                { referralCode: { $regex: s, $options: 'i' } }
             ];
         }
 
-        let users = await User.find(query)
-            .select('-kyc -password -plainPassword')
-            .populate('packageId')
-            .sort('-createdAt')
-            .lean();
+        const users = await User.aggregate([
+            { $match: matchStage },
+            { $sort: { createdAt: -1 } },
 
-        // Manually "populate" referredBy since it's a string now
-        for (let user of users) {
-            if (user.referredBy) {
-                const sponsorQuery = { $or: [{ referralCode: user.referredBy }] };
-                if (require('mongoose').isValidObjectId(user.referredBy)) {
-                    sponsorQuery.$or.push({ _id: user.referredBy });
+            // Join package info in one DB-side operation (replaces .populate('packageId'))
+            {
+                $lookup: {
+                    from: 'packages',
+                    localField: 'packageId',
+                    foreignField: '_id',
+                    as: 'packageId',
+                    pipeline: [{ $project: { packageName: 1, price: 1 } }]
                 }
-                const sponsor = await User.findOne(sponsorQuery).select('name referralCode');
-                user.referredBy = sponsor || { name: 'Root/System', referralCode: user.referredBy };
-            } else {
-                user.referredBy = { name: 'Root', referralCode: 'SYSTEM' };
+            },
+            {
+                $addFields: {
+                    packageId: { $arrayElemAt: ['$packageId', 0] }
+                }
+            },
+
+            // Join sponsor info by referralCode string in one DB-side operation.
+            // This replaces the N+1 User.findOne() loop that ran once per user.
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'referredBy',
+                    foreignField: 'referralCode',
+                    as: '_sponsorInfo',
+                    pipeline: [{ $project: { name: 1, referralCode: 1 } }]
+                }
+            },
+            {
+                $addFields: {
+                    referredBy: {
+                        $cond: {
+                            if: { $gt: [{ $size: '$_sponsorInfo' }, 0] },
+                            then: { $arrayElemAt: ['$_sponsorInfo', 0] },
+                            else: {
+                                $cond: {
+                                    if: { $ifNull: ['$referredBy', false] },
+                                    then: { name: 'Root/System', referralCode: '$referredBy' },
+                                    else: { name: 'Root', referralCode: 'SYSTEM' }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+
+            // Project only the fields used by AdminUsers.jsx table + CSV/Excel export
+            {
+                $project: {
+                    name: 1, email: 1, mobile: 1,
+                    userId: 1, referralCode: 1, role: 1,
+                    isActive: 1, teamCount: 1, totalIncome: 1,
+                    createdAt: 1, activatedAt: 1, expiresAt: 1,
+                    packageId: 1, referredBy: 1
+                    // kyc, password, plainPassword are intentionally excluded
+                }
             }
-        }
+        ]);
 
         res.json(users);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 // @desc    Get single user details (Admin only)
 // @route   GET /api/auth/users/:id

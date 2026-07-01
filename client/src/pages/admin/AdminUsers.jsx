@@ -24,14 +24,15 @@ const AdminUsers = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(25);
 
-    // Debounce Logic
+    // Debounce Logic — 400ms is sufficient now that server responds in ~150ms
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(searchTerm);
             setCurrentPage(1); 
-        }, 1000);
+        }, 400);
         return () => clearTimeout(timer);
     }, [searchTerm]);
+
 
     // Fetch Packages for filtering
     useEffect(() => {

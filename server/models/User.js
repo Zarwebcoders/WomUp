@@ -6,17 +6,17 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     userId: { type: String, unique: true },
     mobile: { type: String, required: true },
-    password: { type: String, required: true },
-    plainPassword: { type: String },
+    password: { type: String, required: true, select: false },
+    plainPassword: { type: String, select: false },
     referralCode: { type: String, unique: true },
-    referredBy: { type: String }, // Stores sponsor's userId string (e.g., WOM0000)
+    referredBy: { type: String, index: true }, // Stores sponsor's userId string (e.g., WOM0000)
     packageId: { type: mongoose.Schema.Types.ObjectId, ref: 'Package' },
     totalIncome: { type: Number, default: 0 },
     referralIncome: { type: Number, default: 0 },
     levelIncome: { type: Number, default: 0 },
     roiIncome: { type: Number, default: 0 },
     teamCount: { type: Number, default: 0 },
-    role: { type: String, enum: ['user', 'admin', 'distributer'], default: 'user' },
+    role: { type: String, enum: ['user', 'admin', 'distributer'], default: 'user', index: true },
     packagePurchaseDate: { type: Date },
     monthlyRoiAmount: { type: Number, default: 0 },
     isActive: { type: Boolean, default: false },
@@ -38,8 +38,14 @@ const userSchema = new mongoose.Schema({
         bankIfscCode: { type: String },
         bankPassbookPhoto: { type: String }
     },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now, index: true }
 });
+
+// Compound index for admin user search (name, email, userId, mobile, referralCode)
+// Enables fast case-insensitive regex queries without full collection scan
+userSchema.index({ name: 1, email: 1, userId: 1, mobile: 1, referralCode: 1 });
+// Sort index for admin users list (default sort: newest first)
+userSchema.index({ createdAt: -1 });
 
 userSchema.pre('save', async function() {
     if (!this.isModified('password')) return;
