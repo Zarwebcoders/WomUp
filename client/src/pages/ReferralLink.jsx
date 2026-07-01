@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import API_URL from '../config/api';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Copy, MessageCircle, Send, Check, Search } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -8,23 +6,12 @@ import { QRCodeSVG } from 'qrcode.react';
 
 const ReferralLink = () => {
     const { user: authUser } = useAuth();
+    // Use authUser directly from context — referralCode is set at login and doesn't change.
+    // No API call needed here; the previous /api/auth/profile fetch was redundant
+    // and caused a 13s / 766kB request just to read a single field.
     const [user, setUser] = useState(authUser);
     const [copied, setCopied] = useState(false);
     
-    useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const config = {
-                    headers: { Authorization: `Bearer ${authUser.token}` }
-                };
-                const { data } = await axios.get(`${API_URL}/api/auth/profile`, config);
-                setUser(data);
-            } catch (err) {
-                console.error('Error fetching profile:', err);
-            }
-        };
-        fetchProfile();
-    }, [authUser.token]);
 
     const [activeTab, setActiveTab] = useState('user'); // 'user' or 'distributer'
 

@@ -1,6 +1,10 @@
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 const sendEmail = require('../utils/sendEmail');
+const cache = require('../utils/dashboardCache');
+
+// Cache TTL for profile responses — profile data changes rarely
+const PROFILE_CACHE_TTL = 5 * 60; // 5 minutes
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -182,7 +186,7 @@ const loginUser = async (req, res) => {
                 { referralCode: referralId.toString().toUpperCase() },
                 { email: referralId }
             ]
-        });
+        }).select('+password');
 
         if (user) {
             // (No expiry auto-deactivation — unactivated users are cleaned up by scheduled job)
@@ -216,10 +220,31 @@ const loginUser = async (req, res) => {
 // @desc    Get user profile
 // @route   GET /api/auth/profile
 // @access  Private
+// PERF: Uses a whitelist select (positive projection) to guarantee the kyc sub-document
+// (including Base64 image strings up to 10MB) is NEVER returned.
+// Negative projections like .select('-kyc.profilePhoto') are unreliable with Mongoose
+// populate and can still return the parent kyc object.
+// Cached for 5 minutes per user — profile data changes infrequently.
 const getUserProfile = async (req, res) => {
-    const user = await User.findById(req.user._id).populate('packageId');
+    const cacheKey = `profile:${req.user._id}`;
+    const cached = cache.get(cacheKey);
+    if (cached) {
+        console.log(`[profile] Cache HIT for ${cacheKey}`);
+        return res.json(cached);
+    }
+
+    const user = await User.findById(req.user._id)
+        .select(
+            '_id name email mobile userId referralCode referredBy role isActive ' +
+            'activatedAt expiresAt createdAt packageId ' +
+            'totalIncome roiIncome referralIncome levelIncome teamCount monthlyRoiAmount '
+            // kyc.* is intentionally NOT selected — images are served via /api/kyc/images
+        )
+        .populate('packageId', 'packageName price')
+        .lean();
 
     if (user) {
+        cache.set(cacheKey, user, PROFILE_CACHE_TTL);
         res.json(user);
     } else {
         res.status(404).json({ message: 'User not found' });
@@ -266,6 +291,7 @@ const getAllUsers = async (req, res) => {
         }
 
         let users = await User.find(query)
+            .select('-kyc -password -plainPassword')
             .populate('packageId')
             .sort('-createdAt')
             .lean();
@@ -296,6 +322,7 @@ const getAllUsers = async (req, res) => {
 const getUserDetails = async (req, res) => {
     try {
         let user = await User.findById(req.params.id)
+            .select('-kyc -password -plainPassword')
             .populate('packageId')
             .lean();
 
@@ -338,7 +365,14 @@ const updateUserStatus = async (req, res) => {
         }
 
         await user.save();
-        res.json({ message: `User status updated to ${isActive ? 'Active' : 'Inactive'}`, user });
+        
+        // Exclude KYC details and credentials from response payload
+        const userResponse = user.toObject();
+        delete userResponse.kyc;
+        delete userResponse.password;
+        delete userResponse.plainPassword;
+        
+        res.json({ message: `User status updated to ${isActive ? 'Active' : 'Inactive'}`, user: userResponse });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
