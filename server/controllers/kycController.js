@@ -118,9 +118,11 @@ const getKycImages = async (req, res) => {
 // @access  Private/Admin
 const adminGetKycList = async (req, res) => {
     try {
-        // Exclude the heavy document scan base64 strings from the list view query
+        // Exclude all heavy Base64 image fields (profilePhoto, aadharFront, aadharBack, etc.)
+        // Only fetch metadata and existence markers (numbers/status)
         const users = await User.find({ 'kyc.status': 'pending' })
-            .select('name email userId mobile role kyc.status kyc.submittedAt kyc.profilePhoto kyc.aadharNumber kyc.panNumber');
+            .select('name email userId mobile role kyc.status kyc.submittedAt kyc.aadharNumber kyc.panNumber kyc.bankAccountNumber')
+            .lean();
         res.json(users);
     } catch (error) {
         res.status(500).json({ message: 'Server Error' });

@@ -18,6 +18,23 @@ const AdminKycManagement = () => {
 
     // Inspector Modal
     const [inspectingUser, setInspectingUser] = useState(null);
+    const [loadingInspectId, setLoadingInspectId] = useState(null);
+
+    const handleInspect = async (reqUser) => {
+        setLoadingInspectId(reqUser._id);
+        try {
+            const config = {
+                headers: { Authorization: `Bearer ${user.token}` }
+            };
+            const { data } = await axios.get(`${API_URL}/api/kyc/admin/user/${reqUser._id}`, config);
+            setInspectingUser(data);
+        } catch (err) {
+            console.error('Error fetching KYC documents:', err);
+            setMessage({ type: 'error', text: 'Failed to load user documents.' });
+        } finally {
+            setLoadingInspectId(null);
+        }
+    };
 
     // Rejection Modal / Reason Input
     const [rejectingUser, setRejectingUser] = useState(null);
@@ -221,10 +238,11 @@ const AdminKycManagement = () => {
                                     <td className="px-6 py-4">
                                         <div className="flex items-center justify-center space-x-2">
                                             <button 
-                                                onClick={() => setInspectingUser(req)}
-                                                className="px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary-light text-xs font-bold rounded-lg transition-all"
+                                                onClick={() => handleInspect(req)}
+                                                disabled={loadingInspectId === req._id}
+                                                className="px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary-light text-xs font-bold rounded-lg transition-all disabled:opacity-50"
                                             >
-                                                Inspect Documents
+                                                {loadingInspectId === req._id ? 'Loading...' : 'Inspect Documents'}
                                             </button>
                                         </div>
                                     </td>

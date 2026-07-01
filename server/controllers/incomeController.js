@@ -23,7 +23,7 @@ const getIncomeLogs = async (req, res) => {
                     { name: { $regex: search, $options: 'i' } },
                     { email: { $regex: search, $options: 'i' } }
                 ]
-            }).select('_id');
+            }).select('_id').lean();
             const userIds = matchingUsers.map(u => u._id);
 
             query.$or = [
@@ -45,64 +45,79 @@ const getIncomeLogs = async (req, res) => {
                     path: 'packageId',
                     select: 'packageName price referralAmounts levelPercentages'
                 }
-            });
+            })
+            .lean();
         
-        // Helper to recursively construct level map skipping inactive users
-        const buildLevelMap = async (currentUser, currentLevel, levelMap, maxLevel = 10) => {
-            if (currentLevel > maxLevel) return;
+        // PERF: Avoid recursive DB tree traversal (which did 1 query per node, causing N+1 query problem).
+        // Instead, fetch all users' referral metadata in a single fast query with .lean() and process in-memory.
+        const referrals = await User.find({})
+            .select('referralCode referredBy isActive')
+            .lean();
 
-            const query = {
-                $or: [
-                    { referredBy: currentUser.referralCode },
-                    { referredBy: currentUser._id }
-                ]
-            };
-            const referrals = await User.find(query).select('referralCode _id isActive');
+        // Index referrals by sponsor for fast O(1) traversal
+        const referralsBySponsor = {};
+        for (const ref of referrals) {
+            if (ref.referredBy) {
+                const sponsorKey = ref.referredBy.toString();
+                if (!referralsBySponsor[sponsorKey]) {
+                    referralsBySponsor[sponsorKey] = [];
+                }
+                referralsBySponsor[sponsorKey].push(ref);
+            }
+        }
 
-            for (const ref of referrals) {
+        const levelMap = {};
+        const buildLevelMapInMemory = (currentUser, currentLevel) => {
+            if (currentLevel > 10) return;
+
+            // Children can be referred by user's referralCode string or user's _id string
+            const children = [
+                ...(referralsBySponsor[currentUser.referralCode] || []),
+                ...(referralsBySponsor[currentUser._id.toString()] || [])
+            ];
+
+            for (const ref of children) {
                 if (ref.isActive) {
                     levelMap[ref.referralCode] = currentLevel;
-                    await buildLevelMap(ref, currentLevel + 1, levelMap, maxLevel);
+                    buildLevelMapInMemory(ref, currentLevel + 1);
                 } else {
-                    // Do not count/increment level for inactive user (No Package), but still display/map them at currentLevel
+                    // Inactive user: map at current level but do not increment next level
                     levelMap[ref.referralCode] = currentLevel;
-                    await buildLevelMap(ref, currentLevel, levelMap, maxLevel);
+                    buildLevelMapInMemory(ref, currentLevel);
                 }
             }
         };
 
-        const levelMap = {};
-        await buildLevelMap(req.user, 1, levelMap, 10);
+        buildLevelMapInMemory(req.user, 1);
 
         const processedLogs = logs.map(log => {
-            const logObj = log.toObject();
-            if (logObj.fromUser && logObj.fromUser.referralCode) {
-                const dynamicLevel = levelMap[logObj.fromUser.referralCode];
+            if (log.fromUser && log.fromUser.referralCode) {
+                const dynamicLevel = levelMap[log.fromUser.referralCode];
                 if (dynamicLevel !== undefined) {
-                    logObj.level = dynamicLevel;
+                    log.level = dynamicLevel;
 
                     // Dynamically calculate the real amount based on package rates and the new level
-                    if (type === 'referral' && logObj.fromUser.packageId) {
-                        const pkg = logObj.fromUser.packageId;
+                    if (type === 'referral' && log.fromUser.packageId) {
+                        const pkg = log.fromUser.packageId;
                         const realAmount = pkg.referralAmounts[dynamicLevel - 1];
                         if (realAmount !== undefined) {
-                            logObj.amount = realAmount;
+                            log.amount = realAmount;
                         }
-                    } else if (type === 'level' && logObj.fromUser.packageId) {
-                        const pkg = logObj.fromUser.packageId;
+                    } else if (type === 'level' && log.fromUser.packageId) {
+                        const pkg = log.fromUser.packageId;
                         const originalLevel = log.level; // level originally stored in DB
                         const originalPct = pkg.levelPercentages[originalLevel - 1];
                         if (originalPct > 0) {
                             const roiAmount = (log.amount * 100) / originalPct;
                             const newPct = pkg.levelPercentages[dynamicLevel - 1];
                             if (newPct !== undefined) {
-                                logObj.amount = Math.round((roiAmount * newPct) / 100 * 100) / 100; // round to 2 decimal places
+                                log.amount = Math.round((roiAmount * newPct) / 100 * 100) / 100; // round to 2 decimal places
                             }
                         }
                     }
                 }
             }
-            return logObj;
+            return log;
         });
 
         res.json(processedLogs);
@@ -146,7 +161,7 @@ const getAllIncomeLogs = async (req, res) => {
                     { userId: { $regex: search, $options: 'i' } },
                     { referralCode: { $regex: search, $options: 'i' } },
                 ]
-            }).select('_id');
+            }).select('_id').lean();
             const userIds = matchingUsers.map(u => u._id);
             query.$or = [
                 { userId: { $in: userIds } },
@@ -158,7 +173,8 @@ const getAllIncomeLogs = async (req, res) => {
             .sort({ createdAt: -1 })
             .limit(2000)
             .populate({ path: 'userId', select: 'name userId referralCode email' })
-            .populate({ path: 'fromUser', select: 'name userId referralCode' });
+            .populate({ path: 'fromUser', select: 'name userId referralCode' })
+            .lean();
 
         // Only return records where the recipient user still exists
         const filteredLogs = logs.filter(log => log.userId !== null);

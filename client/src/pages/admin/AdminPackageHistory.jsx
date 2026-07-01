@@ -59,18 +59,32 @@ const AdminPackageHistory = () => {
         }
     };
 
-    const viewImage = (slip) => {
-        if (!slip) return;
-        const imageUrl = slip.startsWith('data:') ? slip : `${API_URL}/${slip}`;
-        const newWindow = window.open();
-        newWindow.document.write(`
-            <html>
-                <head><title>Transaction Slip</title></head>
-                <body style="margin:0; background: #000; display: flex; align-items: center; justify-content: center;">
-                    <img src="${imageUrl}" style="max-width: 100%; max-height: 100vh;">
-                </body>
-            </html>
-        `);
+    const viewImage = async (requestId) => {
+        if (!requestId) return;
+        try {
+            const config = {
+                headers: { Authorization: `Bearer ${user.token}` }
+            };
+            const { data } = await axios.get(`${API_URL}/api/packages/requests/${requestId}/slip`, config);
+            const slip = data.slip;
+            if (!slip) {
+                alert('No attachment found');
+                return;
+            }
+            const imageUrl = slip.startsWith('data:') ? slip : `${API_URL}/${slip}`;
+            const newWindow = window.open();
+            newWindow.document.write(`
+                <html>
+                    <head><title>Transaction Slip</title></head>
+                    <body style="margin:0; background: #000; display: flex; align-items: center; justify-content: center;">
+                        <img src="${imageUrl}" style="max-width: 100%; max-height: 100vh;">
+                    </body>
+                </html>
+            `);
+        } catch (err) {
+            console.error('Error fetching slip', err);
+            alert('Failed to load transaction slip');
+        }
     };
 
     // Pagination Logic
@@ -162,7 +176,7 @@ const AdminPackageHistory = () => {
                                                 {req.transactionId}
                                             </div>
                                             <button 
-                                                onClick={() => viewImage(req.transactionSlip)}
+                                                onClick={() => viewImage(req._id)}
                                                 className="text-primary-light hover:underline text-[10px] flex items-center"
                                             >
                                                 View Attachment <ExternalLink size={10} className="ml-1" />

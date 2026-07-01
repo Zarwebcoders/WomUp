@@ -44,18 +44,76 @@ const buyPackage = async (req, res) => {
 // @route   GET /api/packages/requests
 // @access  Admin
 const getPackageRequests = async (req, res) => {
-    const requests = await PackageRequest.find({}).populate('userId', 'name email userId').populate('packageId', 'packageName price');
-    res.json(requests);
+    try {
+        const { search } = req.query;
+        let query = {};
+
+        if (search && search.trim()) {
+            const s = search.trim();
+            // Search matching users first
+            const matchedUsers = await User.find({
+                $or: [
+                    { name: { $regex: s, $options: 'i' } },
+                    { email: { $regex: s, $options: 'i' } },
+                    { userId: { $regex: s, $options: 'i' } }
+                ]
+            }).select('_id').lean();
+            const userIds = matchedUsers.map(u => u._id);
+
+            query.$or = [
+                { userId: { $in: userIds } },
+                { transactionId: { $regex: s, $options: 'i' } }
+            ];
+        }
+
+        const requests = await PackageRequest.find(query)
+            .select('-transactionSlip') // Exclude heavy Base64 image
+            .populate('userId', 'name email userId')
+            .populate('packageId', 'packageName price')
+            .sort({ createdAt: -1 })
+            .lean();
+
+        res.json(requests);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
 
 // @desc    Get current user's package requests
 // @route   GET /api/packages/my-requests
 // @access  Private
 const getMyPackageRequests = async (req, res) => {
-    const requests = await PackageRequest.find({ userId: req.user._id })
-        .populate('packageId', 'packageName price')
-        .sort({ createdAt: -1 });
-    res.json(requests);
+    try {
+        const requests = await PackageRequest.find({ userId: req.user._id })
+            .select('-transactionSlip') // Exclude heavy Base64 image
+            .populate('packageId', 'packageName price')
+            .sort({ createdAt: -1 })
+            .lean();
+        res.json(requests);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Get package request transaction slip
+// @route   GET /api/packages/requests/:id/slip
+// @access  Private (Owner or Admin)
+const getPackageRequestSlip = async (req, res) => {
+    try {
+        const request = await PackageRequest.findById(req.params.id).select('transactionSlip userId');
+        if (!request) {
+            return res.status(404).json({ message: 'Request not found' });
+        }
+
+        // Authorization: owner or admin
+        if (req.user.role !== 'admin' && request.userId.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Not authorized to view this slip' });
+        }
+
+        res.json({ slip: request.transactionSlip });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
 
 // @desc    Approve/Reject package request (Admin)
@@ -181,4 +239,4 @@ const getNotifications = async (req, res) => {
     }
 };
 
-module.exports = { getPackages, buyPackage, getPackageRequests, getMyPackageRequests, updateRequestStatus, getNotifications };
+module.exports = { getPackages, buyPackage, getPackageRequests, getMyPackageRequests, updateRequestStatus, getNotifications, getPackageRequestSlip };

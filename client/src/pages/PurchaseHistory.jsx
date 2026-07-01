@@ -58,18 +58,33 @@ const PurchaseHistory = () => {
         }
     };
 
-    const viewImage = (slip) => {
-        if (!slip) return;
-        const imageUrl = slip.startsWith('data:') ? slip : `${API_URL}/${slip}`;
-        const newWindow = window.open();
-        newWindow.document.write(`
-            <html>
-                <head><title>Receipt Preview</title></head>
-                <body style="margin:0; background: #000; display: flex; align-items: center; justify-content: center;">
-                    <img src="${imageUrl}" style="max-width: 100%; max-height: 100vh;">
-                </body>
-            </html>
-        `);
+    const viewImage = async (requestId) => {
+        if (!requestId) return;
+        try {
+            const config = {
+                headers: { Authorization: `Bearer ${user.token}` }
+            };
+            // Uses the same secure owner-or-admin endpoint to fetch the slip on demand
+            const { data } = await axios.get(`${API_URL}/api/packages/my-requests/${requestId}/slip`, config);
+            const slip = data.slip;
+            if (!slip) {
+                alert('No receipt found');
+                return;
+            }
+            const imageUrl = slip.startsWith('data:') ? slip : `${API_URL}/${slip}`;
+            const newWindow = window.open();
+            newWindow.document.write(`
+                <html>
+                    <head><title>Receipt Preview</title></head>
+                    <body style="margin:0; background: #000; display: flex; align-items: center; justify-content: center;">
+                        <img src="${imageUrl}" style="max-width: 100%; max-height: 100vh;">
+                    </body>
+                </html>
+            `);
+        } catch (err) {
+            console.error('Error fetching receipt', err);
+            alert('Failed to load receipt');
+        }
     };
 
     return (
@@ -131,14 +146,12 @@ const PurchaseHistory = () => {
                                                 <CreditCard size={14} className="text-gray-500" />
                                                 <span className="font-mono text-xs">{req.transactionId}</span>
                                             </div>
-                                            {req.transactionSlip && (
-                                                <button 
-                                                    onClick={() => viewImage(req.transactionSlip)}
-                                                    className="text-[10px] text-primary hover:underline flex items-center space-x-1"
-                                                >
-                                                    View Receipt
-                                                </button>
-                                            )}
+                                            <button 
+                                                onClick={() => viewImage(req._id)}
+                                                className="text-[10px] text-primary hover:underline flex items-center space-x-1"
+                                            >
+                                                View Receipt
+                                            </button>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">

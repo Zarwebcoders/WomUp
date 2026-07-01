@@ -152,18 +152,32 @@ const AdminPackageRequests = () => {
         setProcessingId(null);
     };
 
-    const viewImage = (slip) => {
-        if (!slip) return;
-        const imageUrl = slip.startsWith('data:') ? slip : `${API_URL}/${slip}`;
-        const newWindow = window.open();
-        newWindow.document.write(`
-            <html>
-                <head><title>Transaction Slip</title></head>
-                <body style="margin:0; background: #000; display: flex; align-items: center; justify-content: center;">
-                    <img src="${imageUrl}" style="max-width: 100%; max-height: 100vh;">
-                </body>
-            </html>
-        `);
+    const viewImage = async (requestId) => {
+        if (!requestId) return;
+        try {
+            const config = {
+                headers: { Authorization: `Bearer ${adminUser.token}` }
+            };
+            const { data } = await axios.get(`${API_URL}/api/packages/requests/${requestId}/slip`, config);
+            const slip = data.slip;
+            if (!slip) {
+                alert('No slip found');
+                return;
+            }
+            const imageUrl = slip.startsWith('data:') ? slip : `${API_URL}/${slip}`;
+            const newWindow = window.open();
+            newWindow.document.write(`
+                <html>
+                    <head><title>Transaction Slip</title></head>
+                    <body style="margin:0; background: #000; display: flex; align-items: center; justify-content: center;">
+                        <img src="${imageUrl}" style="max-width: 100%; max-height: 100vh;">
+                    </body>
+                </html>
+            `);
+        } catch (err) {
+            console.error('Error fetching slip', err);
+            alert('Failed to load transaction slip');
+        }
     };
 
     // Filter requests based on status, package, and date range
@@ -340,7 +354,7 @@ const AdminPackageRequests = () => {
                                         <div className="flex flex-col space-y-1">
                                             <span className="text-gray-300 text-xs font-mono">{req.transactionId}</span>
                                             <button 
-                                                onClick={() => viewImage(req.transactionSlip)}
+                                                onClick={() => viewImage(req._id)}
                                                 className="text-primary-light hover:underline text-[10px] flex items-center"
                                             >
                                                 View Slip <ExternalLink size={10} className="ml-1" />
