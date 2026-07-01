@@ -54,11 +54,14 @@ const AdminUserDetails = () => {
         }
     };
 
+    if (loading) return <div className="p-20 text-center text-white">Loading detailed profile...</div>;
+    if (!user) return <div className="p-20 text-center text-red-500">User not found!</div>;
+
     const stats = [
-        { label: 'Total Income', value: `₹${user?.totalIncome?.toLocaleString() || 0}`, icon: Wallet, color: 'text-success' },
-        { label: 'ROI Income', value: `₹${user?.roiIncome?.toLocaleString() || 0}`, icon: TrendingUp, color: 'text-primary' },
-        { label: 'Referral Income', value: `₹${user?.referralIncome?.toLocaleString() || 0}`, icon: Users, color: 'text-purple-500' },
-        { label: 'Level Income', value: `₹${user?.levelIncome?.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 }) || 0}`, icon: Zap, color: 'text-yellow-500' },
+        { label: 'Total Income', value: `₹${user.totalIncome.toLocaleString()}`, icon: Wallet, color: 'text-success' },
+        { label: 'ROI Income', value: `₹${user.roiIncome.toLocaleString()}`, icon: TrendingUp, color: 'text-primary' },
+        { label: 'Referral Income', value: `₹${user.referralIncome.toLocaleString()}`, icon: Users, color: 'text-purple-500' },
+        { label: 'Level Income', value: `₹${user.levelIncome.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 })}`, icon: Zap, color: 'text-yellow-500' },
     ];
 
     return (
@@ -75,22 +78,22 @@ const AdminUserDetails = () => {
                 {/* Profile Card */}
                 <div className="glass-card p-8 lg:col-span-1 space-y-6 flex flex-col items-center">
                     <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center font-bold text-4xl text-primary border-4 border-primary/10">
-                        {user?.name?.charAt(0)}
+                        {user.name.charAt(0)}
                     </div>
                     <div className="text-center flex flex-col items-center space-y-2">
-                        <h2 className="text-2xl font-bold text-white">{user?.name}</h2>
-                        <p className="text-gray-500 text-sm">Joined on {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</p>
+                        <h2 className="text-2xl font-bold text-white">{user.name}</h2>
+                        <p className="text-gray-500 text-sm">Joined on {new Date(user.createdAt).toLocaleDateString()}</p>
                         
                         <div className="flex items-center space-x-2">
                             <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider">
                                 <Shield size={12} />
-                                <span>{user?.role}</span>
+                                <span>{user.role}</span>
                             </div>
                             <div className={`inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                user?.isActive ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
+                                user.isActive ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
                             }`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${user?.isActive ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                                <span>{user?.isActive ? 'Active' : 'Inactive'}</span>
+                                <span className={`w-1.5 h-1.5 rounded-full ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                                <span>{user.isActive ? 'Active' : 'Inactive'}</span>
                             </div>
                         </div>
                     </div>
@@ -98,23 +101,23 @@ const AdminUserDetails = () => {
                     <div className="w-full space-y-4 pt-6 border-t border-white/5">
                         <div className="flex items-center justify-between text-sm">
                             <span className="text-gray-500">System ID</span>
-                            <span className="text-white font-mono">{user?._id}</span>
+                            <span className="text-white font-mono">{user._id}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
                             <span className="text-gray-500">Email</span>
-                            <span className="text-white">{user?.email}</span>
+                            <span className="text-white">{user.email}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
                             <span className="text-gray-500">Mobile</span>
-                            <span className="text-white">{user?.mobile}</span>
+                            <span className="text-white">{user.mobile}</span>
                         </div>
-                        {user?.isActive && user?.activatedAt && (
+                        {user.isActive && user.activatedAt && (
                             <div className="flex items-center justify-between text-sm">
                                 <span className="text-gray-500">Activated At</span>
                                 <span className="text-white">{new Date(user.activatedAt).toLocaleDateString()}</span>
                             </div>
                         )}
-                        {user?.isActive && user?.expiresAt && (
+                        {user.isActive && user.expiresAt && (
                             <div className="flex items-center justify-between text-sm">
                                 <span className="text-gray-500">Expires At</span>
                                 <span className="text-white text-red-400 font-bold">{new Date(user.expiresAt).toLocaleDateString()}</span>
@@ -122,16 +125,16 @@ const AdminUserDetails = () => {
                         )}
                     </div>
 
-                    {user?.role !== 'admin' && (
+                    {user.role !== 'admin' && (
                         <button
                             onClick={toggleUserStatus}
                             className={`w-full py-2.5 px-4 rounded-xl text-sm font-bold flex items-center justify-center space-x-2 transition-all ${
-                                user?.isActive
+                                user.isActive
                                 ? 'bg-red-500/15 text-red-500 hover:bg-red-500/25 border border-red-500/10'
                                 : 'bg-green-500/15 text-green-500 hover:bg-green-500/25 border border-green-500/10'
                             }`}
                         >
-                            {user?.isActive ? (
+                            {user.isActive ? (
                                 <>
                                     <UserMinus size={16} />
                                     <span>Deactivate Account</span>
@@ -172,11 +175,11 @@ const AdminUserDetails = () => {
                                 <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
                                     <div className="flex justify-between items-center">
                                         <span className="text-xs text-gray-500">Plain Password</span>
-                                        <span className="text-sm text-yellow-500 font-mono font-bold">{user?.plainPassword || 'N/A'}</span>
+                                        <span className="text-sm text-yellow-500 font-mono font-bold">{user.plainPassword || 'N/A'}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-xs text-gray-500">Referral Code</span>
-                                        <span className="text-sm text-primary font-mono font-bold uppercase">{user?.referralCode}</span>
+                                        <span className="text-sm text-primary font-mono font-bold uppercase">{user.referralCode}</span>
                                     </div>
                                 </div>
                             </div>
@@ -190,18 +193,18 @@ const AdminUserDetails = () => {
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
                                     <span className="text-xs text-gray-500">Current Package</span>
-                                    <span className="text-sm text-white font-bold">{user?.packageId?.packageName || 'No Active Package'}</span>
+                                    <span className="text-sm text-white font-bold">{user.packageId?.packageName || 'No Active Package'}</span>
                                 </div>
                                 <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
                                     <span className="text-xs text-gray-500">Sponsor</span>
                                     <div className="text-right">
-                                        <p className="text-sm text-white font-bold">{user?.referredBy?.name || 'Root User'}</p>
-                                        <p className="text-[10px] text-gray-500">{user?.referredBy?.email || '-'}</p>
+                                        <p className="text-sm text-white font-bold">{user.referredBy?.name || 'Root User'}</p>
+                                        <p className="text-[10px] text-gray-500">{user.referredBy?.email || '-'}</p>
                                     </div>
                                 </div>
                                 <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
                                     <span className="text-xs text-gray-500">Team Count</span>
-                                    <span className="text-sm text-white font-bold">{user?.teamCount} Members</span>
+                                    <span className="text-sm text-white font-bold">{user.teamCount} Members</span>
                                 </div>
                             </div>
                         </div>
@@ -225,10 +228,10 @@ const AdminUserDetails = () => {
                             <h4 className="font-bold text-sm uppercase tracking-widest">Security & Access</h4>
                         </div>
                         <div className="space-y-3">
-                            <InfoRow label="User ID" value={user?.userId} isMono />
-                            <InfoRow label="Plain Password" value={user?.plainPassword} isYellow />
-                            <InfoRow label="Hashed Pass" value={user?.password ? (user.password.substring(0, 20) + "...") : "N/A"} isMono />
-                            <InfoRow label="Account Role" value={user?.role} isTag />
+                            <InfoRow label="User ID" value={user.userId} isMono />
+                            <InfoRow label="Plain Password" value={user.plainPassword} isYellow />
+                            <InfoRow label="Hashed Pass" value={user.password.substring(0, 20) + "..."} isMono />
+                            <InfoRow label="Account Role" value={user.role} isTag />
                         </div>
                     </div>
 
@@ -239,10 +242,10 @@ const AdminUserDetails = () => {
                             <h4 className="font-bold text-sm uppercase tracking-widest">Network Context</h4>
                         </div>
                         <div className="space-y-3">
-                            <InfoRow label="Referral Code" value={user?.referralCode} isMono isPrimary />
-                            <InfoRow label="Sponsor ID" value={user?.referredBy?.userId || "None (Root)"} isMono />
-                            <InfoRow label="Sponsor Name" value={user?.referredBy?.name || "System"} />
-                            <InfoRow label="Team Members" value={`${user?.teamCount || 0} Active`} />
+                            <InfoRow label="Referral Code" value={user.referralCode} isMono isPrimary />
+                            <InfoRow label="Sponsor ID" value={user.referredBy?.userId || "None (Root)"} isMono />
+                            <InfoRow label="Sponsor Name" value={user.referredBy?.name || "System"} />
+                            <InfoRow label="Team Members" value={`${user.teamCount} Active`} />
                         </div>
                     </div>
 
@@ -253,7 +256,10 @@ const AdminUserDetails = () => {
                             <h4 className="font-bold text-sm uppercase tracking-widest">System Metadata</h4>
                         </div>
                         <div className="space-y-3">
-                            <InfoRow label="Created At" value={user?.createdAt ? new Date(user.createdAt).toLocaleString() : "N/A"} />
+                            {/* <InfoRow label="Object ID" value={user._id} isMono /> */}
+                            <InfoRow label="Created At" value={new Date(user.createdAt).toLocaleString()} />
+                            {/* <InfoRow label="Version (v)" value={user.__v} /> */}
+                            {/* <InfoRow label="Package ID" value={user.packageId?._id || "Not Purchased"} isMono /> */}
                         </div>
                     </div>
                 </div>

@@ -65,12 +65,14 @@ const Dashboard = () => {
         fetchStats();
     }, [user, period]);
 
-    const isAdmin = user?.role === 'admin';
+    if (loading) return <div className="text-white p-10">Loading dashboard...</div>;
+
+    const isAdmin = stats?.isAdmin === true;
 
     const summaryCards = isAdmin ? [
-        { title: 'Total Users', value: stats?.totalUsers || 0, icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-        { title: 'Pending Requests', value: stats?.pendingRequests || 0, icon: Clock, color: 'text-yellow-400', bg: 'bg-yellow-500/10' },
-        { title: 'Total Revenue', value: `₹${stats?.totalRevenue?.toLocaleString() || 0}`, icon: Wallet, color: 'text-success', bg: 'bg-success/10' },
+        { title: 'Total Users', value: stats.totalUsers || 0, icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/10' },
+        { title: 'Pending Requests', value: stats.pendingRequests || 0, icon: Clock, color: 'text-yellow-400', bg: 'bg-yellow-500/10' },
+        { title: 'Total Revenue', value: `₹${stats.totalRevenue?.toLocaleString() || 0}`, icon: Wallet, color: 'text-success', bg: 'bg-success/10' },
         { title: 'System Status', value: 'Live', icon: ShieldCheck, color: 'text-primary-light', bg: 'bg-primary/10' },
     ] : [
         { title: 'Total Team', value: stats?.user?.teamCount || 0, icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/10' },
