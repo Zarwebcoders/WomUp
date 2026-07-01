@@ -223,12 +223,6 @@ const getDashboardSummary = async (req, res) => {
             userDoc
         ] = await Promise.all([
             (async () => {
-                return await User.findById(req.user._id)
-                    .select('packageId isActive expiresAt')
-                    .populate('packageId', 'packageName')
-                    .lean();
-            })(),
-            (async () => {
                 console.time('Q1: user_direct_referrals_count');
                 const res = await User.countDocuments({
                     $or: [
@@ -303,6 +297,12 @@ const getDashboardSummary = async (req, res) => {
                 ]);
                 console.timeEnd('Q4: user_monthly_investment_agg');
                 return res;
+            })(),
+            (async () => {
+                return await User.findById(req.user._id)
+                    .select('packageId isActive expiresAt')
+                    .populate('packageId', 'packageName')
+                    .lean();
             })()
         ]);
 
