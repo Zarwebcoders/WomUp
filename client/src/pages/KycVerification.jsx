@@ -57,32 +57,51 @@ const KycVerification = () => {
             const config = {
                 headers: { Authorization: `Bearer ${user.token}` }
             };
+            // PERF: /api/kyc/status returns ONLY text metadata (~200 bytes).
+            // Images are fetched separately via fetchKycImages() to avoid
+            // blocking the page load on a potentially 10MB Base64 payload.
             const { data } = await axios.get(`${API_URL}/api/kyc/status`, config);
             if (data) {
-                setKycStatus(data.status);
-                setRejectReason(data.rejectReason);
-                
-                // If already submitted/approved, prepopulate text fields
-                if (data.status !== 'unsubmitted') {
+                setKycStatus(data.status || 'unsubmitted');
+                setRejectReason(data.rejectReason || '');
+
+                // Pre-populate text fields if already submitted
+                if (data.status && data.status !== 'unsubmitted') {
                     setAadharNumber(data.aadharNumber || '');
                     setPanNumber(data.panNumber || '');
                     setBankHolderName(data.bankHolderName || '');
                     setBankName(data.bankName || '');
                     setBankAccountNumber(data.bankAccountNumber || '');
                     setBankIfscCode(data.bankIfscCode || '');
-                    setPreviews({
-                        profilePhoto: data.profilePhoto,
-                        aadharFront: data.aadharFront,
-                        aadharBack: data.aadharBack,
-                        panCardPhoto: data.panCardPhoto,
-                        bankPassbookPhoto: data.bankPassbookPhoto
-                    });
+
+                    // Lazily fetch document image previews after text fields are set
+                    fetchKycImages(config);
                 }
             }
             setLoading(false);
         } catch (err) {
             console.error('Error fetching KYC status:', err);
             setLoading(false);
+        }
+    };
+
+    // Fetches only the 5 Base64 image fields — called lazily after status is known.
+    // Runs in the background; the page is already interactive by this point.
+    const fetchKycImages = async (config) => {
+        try {
+            const { data } = await axios.get(`${API_URL}/api/kyc/images`, config);
+            if (data) {
+                setPreviews({
+                    profilePhoto: data.profilePhoto || null,
+                    aadharFront: data.aadharFront || null,
+                    aadharBack: data.aadharBack || null,
+                    panCardPhoto: data.panCardPhoto || null,
+                    bankPassbookPhoto: data.bankPassbookPhoto || null
+                });
+            }
+        } catch (err) {
+            // Non-fatal: previews just won't show, user can still re-upload
+            console.warn('Could not load KYC image previews:', err);
         }
     };
 

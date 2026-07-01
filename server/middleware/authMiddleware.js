@@ -8,7 +8,11 @@ const protect = async (req, res, next) => {
         try {
             token = req.headers.authorization.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            req.user = await User.findById(decoded.id).select('-password');
+            // Select only the fields needed by middleware and controllers.
+            // Explicitly excluding: password, plainPassword, kyc (large sub-document), __v
+            req.user = await User.findById(decoded.id)
+                .select('_id name email userId role referralCode teamCount totalIncome roiIncome referralIncome levelIncome isActive activatedAt expiresAt packageId monthlyRoiAmount')
+                .lean();
             
             if (!req.user) {
                 return res.status(401).json({ message: 'Not authorized, user not found' });

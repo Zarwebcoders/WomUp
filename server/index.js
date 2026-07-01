@@ -2,6 +2,7 @@ const dns = require('dns');
 dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 const express = require('express');
+const compression = require('compression');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
@@ -36,6 +37,10 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Enable gzip/Brotli compression for all JSON responses
+// Reduces payload size by ~60-80%, cutting network transfer time
+app.use(compression());
 
 // Body parser
 app.use(express.json());
@@ -90,6 +95,11 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
 });
+
+// Enable HTTP Keep-Alive: reuse TCP connections across requests.
+// keepAliveTimeout must be > load balancer idle timeout (typically 60s on most hosts).
+server.keepAliveTimeout = 65000;  // 65 seconds
+server.headersTimeout = 66000;    // must be > keepAliveTimeout

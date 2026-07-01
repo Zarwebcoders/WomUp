@@ -5,7 +5,9 @@ const { protect, admin } = require('../middleware/authMiddleware');
 const { 
     submitKyc, 
     getKycStatus, 
+    getKycImages,
     adminGetKycList, 
+    adminGetKycDetails,
     adminReviewKyc 
 } = require('../controllers/kycController');
 
@@ -50,9 +52,12 @@ router.post('/submit', protect, (req, res, next) => {
     });
 }, submitKyc);
 router.get('/status', protect, getKycStatus);
+// Images fetched lazily — only when user navigates to KYC page and has already submitted
+router.get('/images', protect, getKycImages);
 
 // Admin Routes
 router.get('/admin/list', protect, admin, adminGetKycList);
+router.get('/admin/user/:id', protect, admin, adminGetKycDetails);
 router.put('/admin/review/:id', protect, admin, adminReviewKyc);
 
 module.exports = router;

@@ -69,16 +69,45 @@ const submitKyc = async (req, res) => {
     }
 };
 
-// @desc    Get KYC status
+// @desc    Get KYC status (metadata only — NO images)
 // @route   GET /api/kyc/status
 // @access  Private
+// PERF: Deliberately excludes all Base64 image fields (profilePhoto, aadharFront,
+// aadharBack, panCardPhoto, bankPassbookPhoto). These fields can be up to 10MB
+// combined and are not needed to show the KYC status banner or form state.
+// Images are fetched separately via GET /api/kyc/images only when required.
 const getKycStatus = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id).select('kyc');
+        const user = await User.findById(req.user._id)
+            .select(
+                'kyc.status kyc.rejectReason kyc.submittedAt ' +
+                'kyc.aadharNumber kyc.panNumber ' +
+                'kyc.bankHolderName kyc.bankName kyc.bankAccountNumber kyc.bankIfscCode'
+            )
+            .lean();
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
         res.json(user.kyc || { status: 'unsubmitted' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Get KYC document image previews (Base64) — lazy loaded
+// @route   GET /api/kyc/images
+// @access  Private
+// Called ONLY when the user navigates to the KYC page and needs to see
+// their already-uploaded document previews. Not fetched on every page load.
+const getKycImages = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id)
+            .select('kyc.profilePhoto kyc.aadharFront kyc.aadharBack kyc.panCardPhoto kyc.bankPassbookPhoto')
+            .lean();
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user.kyc || {});
     } catch (error) {
         res.status(500).json({ message: 'Server Error' });
     }
@@ -89,8 +118,25 @@ const getKycStatus = async (req, res) => {
 // @access  Private/Admin
 const adminGetKycList = async (req, res) => {
     try {
-        const users = await User.find({ 'kyc.status': 'pending' }).select('name email userId mobile kyc role');
+        // Exclude the heavy document scan base64 strings from the list view query
+        const users = await User.find({ 'kyc.status': 'pending' })
+            .select('name email userId mobile role kyc.status kyc.submittedAt kyc.profilePhoto kyc.aadharNumber kyc.panNumber');
         res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Get single user KYC details with document scans (Admin only)
+// @route   GET /api/kyc/admin/user/:id
+// @access  Private/Admin
+const adminGetKycDetails = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id).select('name email userId mobile kyc role');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
     } catch (error) {
         res.status(500).json({ message: 'Server Error' });
     }
@@ -128,6 +174,8 @@ const adminReviewKyc = async (req, res) => {
 module.exports = {
     submitKyc,
     getKycStatus,
+    getKycImages,
     adminGetKycList,
+    adminGetKycDetails,
     adminReviewKyc
 };
