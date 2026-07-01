@@ -169,9 +169,6 @@ const KycVerification = () => {
         }
     };
 
-    if (loading) {
-        return <div className="text-white text-center py-20">Loading KYC Verification...</div>;
-    }
 
     const steps = [
         { id: 1, label: 'Profile', icon: User },

@@ -93,7 +93,6 @@ const Packages = () => {
         }
     };
 
-    if (loading) return <div className="text-white">Loading packages...</div>;
 
     const getIcon = (name) => {
         switch(name) {

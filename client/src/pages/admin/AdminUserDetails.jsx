@@ -54,14 +54,11 @@ const AdminUserDetails = () => {
         }
     };
 
-    if (loading) return <div className="p-20 text-center text-white">Loading detailed profile...</div>;
-    if (!user) return <div className="p-20 text-center text-red-500">User not found!</div>;
-
     const stats = [
-        { label: 'Total Income', value: `₹${user.totalIncome.toLocaleString()}`, icon: Wallet, color: 'text-success' },
-        { label: 'ROI Income', value: `₹${user.roiIncome.toLocaleString()}`, icon: TrendingUp, color: 'text-primary' },
-        { label: 'Referral Income', value: `₹${user.referralIncome.toLocaleString()}`, icon: Users, color: 'text-purple-500' },
-        { label: 'Level Income', value: `₹${user.levelIncome.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 })}`, icon: Zap, color: 'text-yellow-500' },
+        { label: 'Total Income', value: `₹${user?.totalIncome?.toLocaleString() || 0}`, icon: Wallet, color: 'text-success' },
+        { label: 'ROI Income', value: `₹${user?.roiIncome?.toLocaleString() || 0}`, icon: TrendingUp, color: 'text-primary' },
+        { label: 'Referral Income', value: `₹${user?.referralIncome?.toLocaleString() || 0}`, icon: Users, color: 'text-purple-500' },
+        { label: 'Level Income', value: `₹${user?.levelIncome?.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 }) || 0}`, icon: Zap, color: 'text-yellow-500' },
     ];
 
     return (
