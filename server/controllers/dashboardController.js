@@ -219,8 +219,15 @@ const getDashboardSummary = async (req, res) => {
             directReferrals,
             recentActivities,
             monthlyIncome,
-            monthlyInvestment
+            monthlyInvestment,
+            userDoc
         ] = await Promise.all([
+            (async () => {
+                return await User.findById(req.user._id)
+                    .select('packageId isActive expiresAt')
+                    .populate('packageId', 'packageName')
+                    .lean();
+            })(),
             (async () => {
                 console.time('Q1: user_direct_referrals_count');
                 const res = await User.countDocuments({
@@ -324,8 +331,13 @@ const getDashboardSummary = async (req, res) => {
         }
 
         const responseData = {
-            // Reuse req.user (already fetched by authMiddleware) — no extra DB query
-            user: req.user,
+            // Reuse req.user but merge populated packageId details from userDoc
+            user: {
+                ...req.user,
+                packageId: userDoc?.packageId,
+                isActive: userDoc?.isActive,
+                expiresAt: userDoc?.expiresAt
+            },
             directReferrals,
             recentActivities,
             chartLabels,
