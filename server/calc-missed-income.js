@@ -18,6 +18,18 @@ async function calc() {
     let totalMissedIncome = 0;
     const missedIncomes = [];
 
+    const REFERRAL_TRANSITION_CUTOFF = new Date('2026-07-02T18:00:00Z');
+
+    const OLD_REFERRAL_AMOUNTS = {
+        'Standard': [3000, 1000, 1000, 700, 700, 700, 700, 500, 500, 500],
+        'Premium': [7000, 2000, 2000, 1500, 1500, 1500, 1500, 1000, 1000, 1000]
+    };
+
+    const NEW_REFERRAL_AMOUNTS = {
+        'Standard': [3000, 1200, 1100, 900, 900, 700, 700, 500, 500, 500],
+        'Premium': [6000, 2500, 2500, 2000, 2000, 1500, 1500, 1000, 1000, 1000]
+    };
+
     // recursive function to find downline up to level 10
     async function traverseDownline(sponsorId, currentLevel) {
         if (currentLevel > 10) return;
@@ -28,7 +40,17 @@ async function calc() {
             // If user has a package, they must have paid
             if (user.packageId && user.isActive) {
                 const pkg = user.packageId;
-                const refAmount = pkg.referralAmounts[currentLevel - 1] || 0;
+                
+                const purchaseDate = user.packagePurchaseDate || user.activatedAt || user.createdAt || new Date();
+                let referralAmounts = pkg.referralAmounts;
+                const isOld = purchaseDate < REFERRAL_TRANSITION_CUTOFF;
+                if (isOld) {
+                    referralAmounts = OLD_REFERRAL_AMOUNTS[pkg.packageName] || pkg.referralAmounts;
+                } else {
+                    referralAmounts = NEW_REFERRAL_AMOUNTS[pkg.packageName] || pkg.referralAmounts;
+                }
+
+                const refAmount = referralAmounts[currentLevel - 1] || 0;
                 
                 if (refAmount > 0) {
                     totalMissedIncome += refAmount;

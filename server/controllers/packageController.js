@@ -159,9 +159,29 @@ const updateRequestStatus = async (req, res) => {
     res.json({ message: `Request ${status} successfully` });
 };
 
+// Cutoff date for new referral rates transition: 2026-07-02T18:00:00Z
+const REFERRAL_TRANSITION_CUTOFF = new Date('2026-07-02T18:00:00Z');
+
+const OLD_REFERRAL_AMOUNTS = {
+    'Standard': [3000, 1000, 1000, 700, 700, 700, 700, 500, 500, 500],
+    'Premium': [7000, 2000, 2000, 1500, 1500, 1500, 1500, 1000, 1000, 1000]
+};
+
+const NEW_REFERRAL_AMOUNTS = {
+    'Standard': [3000, 1200, 1100, 900, 900, 700, 700, 500, 500, 500],
+    'Premium': [6000, 2500, 2500, 2000, 2000, 1500, 1500, 1000, 1000, 1000]
+};
+
 // Helper function to distribute fixed referral income only (Skips Inactive Users)
-const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level) => {
+const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level, purchaseDate = null) => {
     if (level > 10) return;
+
+    // Fetch buyer's purchaseDate if not passed to determine old vs new rates
+    let dateForRates = purchaseDate;
+    if (!dateForRates) {
+        const buyer = await User.findById(fromUserId);
+        dateForRates = buyer ? buyer.packagePurchaseDate || buyer.activatedAt || new Date() : new Date();
+    }
 
     // If level is 1, check if the buyer (fromUserId) is an inactive distributer
     if (level === 1) {
@@ -184,8 +204,17 @@ const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level) => {
     let nextLevel = level;
 
     if (sponsor.isActive || sponsor.role === 'distributer') {
+        // Determine the referral amounts array to use based on transition cutoff date
+        let referralAmounts = pkg.referralAmounts;
+        const isOld = dateForRates < REFERRAL_TRANSITION_CUTOFF;
+        if (isOld) {
+            referralAmounts = OLD_REFERRAL_AMOUNTS[pkg.packageName] || pkg.referralAmounts;
+        } else {
+            referralAmounts = NEW_REFERRAL_AMOUNTS[pkg.packageName] || pkg.referralAmounts;
+        }
+
         // Referral Income (Fixed Amount) only
-        const refAmount = pkg.referralAmounts[level - 1] || 0;
+        const refAmount = referralAmounts[level - 1] || 0;
         if (refAmount > 0) {
             const isVisible = require('../utils/visibilityUtils').isIncomeVisibleNow();
             if (isVisible) {
@@ -215,7 +244,7 @@ const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level) => {
     // Move to next level sponsor (always continue to upline if referredBy exists)
     const shouldContinue = sponsor.referredBy;
     if (shouldContinue) {
-        await distributeIncomes(sponsor.referredBy, fromUserId, pkg, nextLevel);
+        await distributeIncomes(sponsor.referredBy, fromUserId, pkg, nextLevel, dateForRates);
     }
 };
 

@@ -11,7 +11,7 @@ const run = async () => {
     const pkgs = await Package.find({});
     console.log("Packages in DB:");
     pkgs.forEach(p => {
-        console.log(`- Name: ${p.packageName} | Price: ₹${p.price}`);
+        console.log(`- Name: ${p.packageName} | Price: ₹${p.price} | Active: ${p.isActive}`);
         console.log(`  Referral Amounts:`, p.referralAmounts);
         console.log(`  Level Percentages:`, p.levelPercentages);
         console.log(`  ROI Schedule:`, p.roiSchedule);

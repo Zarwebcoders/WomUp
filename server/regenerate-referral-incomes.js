@@ -28,8 +28,21 @@ const run = async () => {
 
         console.log(`Found ${buyers.length} active package-holding users.`);
 
+        // Cutoff date for new referral rates transition: 2026-07-02T18:00:00Z
+        const REFERRAL_TRANSITION_CUTOFF = new Date('2026-07-02T18:00:00Z');
+
+        const OLD_REFERRAL_AMOUNTS = {
+            'Standard': [3000, 1000, 1000, 700, 700, 700, 700, 500, 500, 500],
+            'Premium': [7000, 2000, 2000, 1500, 1500, 1500, 1500, 1000, 1000, 1000]
+        };
+
+        const NEW_REFERRAL_AMOUNTS = {
+            'Standard': [3000, 1200, 1100, 900, 900, 700, 700, 500, 500, 500],
+            'Premium': [6000, 2500, 2500, 2000, 2000, 1500, 1500, 1000, 1000, 1000]
+        };
+
         // Helper function for skip-logic distribution (same as packageController.js distributeIncomes)
-        const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level) => {
+        const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level, purchaseDate = null) => {
             if (level > 10) return;
 
             const query = { $or: [{ referralCode: sponsorIdOrCode }] };
@@ -43,7 +56,16 @@ const run = async () => {
             let nextLevel = level;
 
             if (sponsor.isActive || sponsor.role === 'distributer') {
-                const refAmount = pkg.referralAmounts[level - 1] || 0;
+                // Determine the referral amounts array to use based on transition cutoff date
+                let referralAmounts = pkg.referralAmounts;
+                const isOld = purchaseDate < REFERRAL_TRANSITION_CUTOFF;
+                if (isOld) {
+                    referralAmounts = OLD_REFERRAL_AMOUNTS[pkg.packageName] || pkg.referralAmounts;
+                } else {
+                    referralAmounts = NEW_REFERRAL_AMOUNTS[pkg.packageName] || pkg.referralAmounts;
+                }
+
+                const refAmount = referralAmounts[level - 1] || 0;
                 if (refAmount > 0) {
                     sponsor.referralIncome += refAmount;
                     await sponsor.save();
@@ -64,7 +86,7 @@ const run = async () => {
             }
 
             if (sponsor.referredBy) {
-                await distributeIncomes(sponsor.referredBy, fromUserId, pkg, nextLevel);
+                await distributeIncomes(sponsor.referredBy, fromUserId, pkg, nextLevel, purchaseDate);
             }
         };
 
@@ -72,7 +94,8 @@ const run = async () => {
         for (const buyer of buyers) {
             console.log(`\nDistributing referral incomes for buyer: ${buyer.name} (${buyer.referralCode}) - Package: ${buyer.packageId.packageName}`);
             if (buyer.referredBy) {
-                await distributeIncomes(buyer.referredBy, buyer._id, buyer.packageId, 1);
+                const purchaseDate = buyer.packagePurchaseDate || buyer.activatedAt || buyer.createdAt || new Date();
+                await distributeIncomes(buyer.referredBy, buyer._id, buyer.packageId, 1, purchaseDate);
             } else {
                 console.log(`  No referrer/sponsor. Skipping distribution.`);
             }

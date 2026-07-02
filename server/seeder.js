@@ -8,7 +8,7 @@ const packages = [
     {
         packageName: 'Standard',
         price: 55000,
-        referralAmounts: [3000, 1000, 1000, 700, 700, 700, 700, 500, 500, 500],
+        referralAmounts: [3000, 1200, 1100, 900, 900, 700, 700, 500, 500, 500],
         levelPercentages: [18, 9, 6, 4.8, 3, 3, 1.8, 1.8, 1.8, 0.8],
         roiSchedule: {
             "3": 400,
@@ -22,7 +22,7 @@ const packages = [
     {
         packageName: 'Premium',
         price: 111000,
-        referralAmounts: [7000, 2000, 2000, 1500, 1500, 1500, 1500, 1000, 1000, 1000],
+        referralAmounts: [6000, 2500, 2500, 2000, 2000, 1500, 1500, 1000, 1000, 1000],
         levelPercentages: [18, 9, 6, 4.8, 3, 3, 1.8, 1.8, 1.8, 0.8],
         roiSchedule: {
             "3": 1000,

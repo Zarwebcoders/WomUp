@@ -137,11 +137,11 @@ const ReferralLink = () => {
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
                                     {[
-                                        { level: 'L1', ref: '₹3,000 / ₹7,000', pct: '18%', color: 'text-blue-400' },
-                                        { level: 'L2', ref: '₹1,000 / ₹2,000', pct: '9%', color: 'text-purple-400' },
-                                        { level: 'L3', ref: '₹1,000 / ₹2,000', pct: '6%', color: 'text-pink-400' },
-                                        { level: 'L4', ref: '₹700 / ₹1,500', pct: '4.8%', color: 'text-orange-400' },
-                                        { level: 'L5', ref: '₹700 / ₹1,500', pct: '3%', color: 'text-yellow-400' },
+                                        { level: 'L1', ref: '₹3,000 / ₹6,000', pct: '18%', color: 'text-blue-400' },
+                                        { level: 'L2', ref: '₹1,200 / ₹2,500', pct: '9%', color: 'text-purple-400' },
+                                        { level: 'L3', ref: '₹1,100 / ₹2,500', pct: '6%', color: 'text-pink-400' },
+                                        { level: 'L4', ref: '₹900 / ₹2,000', pct: '4.8%', color: 'text-orange-400' },
+                                        { level: 'L5', ref: '₹900 / ₹2,000', pct: '3%', color: 'text-yellow-400' },
                                         { level: 'L6', ref: '₹700 / ₹1,500', pct: '3%', color: 'text-green-400' },
                                         { level: 'L7', ref: '₹700 / ₹1,500', pct: '1.8%', color: 'text-teal-400' },
                                         { level: 'L8', ref: '₹500 / ₹1,000', pct: '1.8%', color: 'text-blue-500' },
