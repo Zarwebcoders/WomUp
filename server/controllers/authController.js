@@ -449,6 +449,103 @@ const impersonateUser = async (req, res) => {
     }
 };
 
+// @desc    Update user details (Admin only)
+// @route   PUT /api/auth/users/:id
+// @access  Private/Admin
+const updateUserDetails = async (req, res) => {
+    try {
+        const {
+            name,
+            email,
+            mobile,
+            role,
+            isActive,
+            plainPassword,
+            referralCode,
+            referredBy,
+            totalIncome,
+            referralIncome,
+            levelIncome,
+            roiIncome,
+            teamCount
+        } = req.body;
+
+        const user = await User.findById(req.params.id).select('+password +plainPassword');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (name !== undefined) user.name = name;
+        if (email !== undefined) user.email = email;
+        if (mobile !== undefined) user.mobile = mobile;
+        if (role !== undefined) user.role = role;
+        if (isActive !== undefined) {
+            user.isActive = isActive;
+            if (isActive && !user.activatedAt) {
+                user.activatedAt = new Date();
+            }
+        }
+
+        if (totalIncome !== undefined) user.totalIncome = Number(totalIncome);
+        if (referralIncome !== undefined) user.referralIncome = Number(referralIncome);
+        if (levelIncome !== undefined) user.levelIncome = Number(levelIncome);
+        if (roiIncome !== undefined) user.roiIncome = Number(roiIncome);
+        if (teamCount !== undefined) user.teamCount = Number(teamCount);
+
+        if (plainPassword !== undefined && plainPassword.trim() !== '') {
+            user.plainPassword = plainPassword;
+            user.password = plainPassword;
+        }
+
+        if (referralCode !== undefined && referralCode.trim() !== '') {
+            const cleanCode = referralCode.trim().toUpperCase();
+            if (cleanCode !== user.referralCode) {
+                const codeExists = await User.findOne({
+                    $or: [{ referralCode: cleanCode }, { userId: cleanCode }],
+                    _id: { $ne: user._id }
+                });
+                if (codeExists) {
+                    return res.status(400).json({ message: 'Referral Code or User ID already exists' });
+                }
+                user.referralCode = cleanCode;
+                user.userId = cleanCode;
+            }
+        }
+
+        if (referredBy !== undefined) {
+            const cleanSponsor = referredBy.trim().toUpperCase();
+            if (cleanSponsor === '') {
+                user.referredBy = null;
+            } else {
+                const sponsor = await User.findOne({
+                    $or: [{ referralCode: cleanSponsor }, { userId: cleanSponsor }]
+                });
+                if (!sponsor) {
+                    return res.status(400).json({ message: 'Sponsor user not found with that Referral ID' });
+                }
+                user.referredBy = sponsor.referralCode;
+            }
+        }
+
+        await user.save();
+
+        // Clear dashboard & profile cache for this user since their details/stats changed
+        if (cache) {
+            if (typeof cache.invalidateUser === 'function') {
+                cache.invalidateUser(user._id.toString());
+            }
+            if (typeof cache.deleteKey === 'function') {
+                cache.deleteKey(`profile:${user._id}`);
+            }
+        }
+
+        res.json({ message: 'User updated successfully', user });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = { 
     registerUser, 
     loginUser, 
@@ -457,6 +554,7 @@ module.exports = {
     getAllUsers,
     getUserDetails,
     updateUserStatus,
-    impersonateUser
+    impersonateUser,
+    updateUserDetails
 };
 

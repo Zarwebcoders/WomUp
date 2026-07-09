@@ -68,10 +68,18 @@ function invalidateUser(userId) {
 }
 
 /**
+ * Delete a specific key from cache.
+ * @param {string} key
+ */
+function deleteKey(key) {
+    store.delete(key);
+}
+
+/**
  * Clear the entire cache (useful for testing).
  */
 function clear() {
     store.clear();
 }
 
-module.exports = { buildKey, get, set, invalidateUser, clear };
+module.exports = { buildKey, get, set, invalidateUser, deleteKey, clear };
