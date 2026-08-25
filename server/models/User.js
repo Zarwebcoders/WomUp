@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
     referralCode: { type: String, unique: true },
     referredBy: { type: String, index: true }, // Stores sponsor's userId string (e.g., WOM0000)
     packageId: { type: mongoose.Schema.Types.ObjectId, ref: 'Package' },
+    packageQuantity: { type: Number, default: 1 },
     totalIncome: { type: Number, default: 0 },
     referralIncome: { type: Number, default: 0 },
     levelIncome: { type: Number, default: 0 },

@@ -77,7 +77,7 @@ const getDashboardSummary = async (req, res) => {
                         {
                             $group: {
                                 _id: null,
-                                totalRevenue: { $sum: '$pkg.price' }
+                                totalRevenue: { $sum: { $multiply: [ '$pkg.price', { $ifNull: [ '$quantity', 1 ] } ] } }
                             }
                         }
                     ]);
@@ -145,7 +145,7 @@ const getDashboardSummary = async (req, res) => {
                                     month: { $month: "$createdAt" },
                                     year: { $year: "$createdAt" }
                                 },
-                                total: { $sum: "$pkg.price" }
+                                total: { $sum: { $multiply: [ "$pkg.price", { $ifNull: [ "$quantity", 1 ] } ] } }
                             }
                         },
                         { $sort: { "_id.year": 1, "_id.month": 1 } }
@@ -291,7 +291,7 @@ const getDashboardSummary = async (req, res) => {
                                 month: { $month: "$createdAt" },
                                 year: { $year: "$createdAt" }
                             },
-                            total: { $sum: "$pkg.price" }
+                            total: { $sum: { $multiply: [ "$pkg.price", { $ifNull: [ "$quantity", 1 ] } ] } }
                         }
                     }
                 ]);

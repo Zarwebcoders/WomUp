@@ -27,6 +27,7 @@ const Packages = () => {
     const [transactionId, setTransactionId] = useState('');
     const [transactionSlip, setTransactionSlip] = useState(null);
     const [preview, setPreview] = useState(null);
+    const [quantity, setQuantity] = useState(1);
 
     useEffect(() => {
         const fetchPackages = async () => {
@@ -48,6 +49,7 @@ const Packages = () => {
         setMessage('');
         setPreview(null);
         setTransactionSlip(null);
+        setQuantity(1);
     };
 
     const handleFileChange = (e) => {
@@ -73,6 +75,7 @@ const Packages = () => {
         formData.append('packageId', selectedPkg._id);
         formData.append('transactionId', transactionId);
         formData.append('transactionSlip', transactionSlip);
+        formData.append('quantity', quantity);
 
         try {
             const config = {
@@ -213,7 +216,7 @@ const Packages = () => {
 
                             <h2 className="text-2xl font-bold mb-2 font-cormorant">Complete Purchase</h2>
                             <p className="text-gray-400 text-sm mb-8">
-                                Please pay <span className="text-white font-bold">₹{selectedPkg.price.toLocaleString()}</span> to the company account and upload your transaction details for verification.
+                                Please pay <span className="text-white font-bold">₹{(selectedPkg.price * quantity).toLocaleString()}</span> (₹{selectedPkg.price.toLocaleString()} x {quantity}) to the company account and upload your transaction details for verification.
                             </p>
 
                             {message && (
@@ -226,6 +229,19 @@ const Packages = () => {
                             )}
 
                             <form onSubmit={handleSubmitRequest} className="space-y-6">
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
+                                        Quantity <span className="text-red-500">*</span>
+                                    </label>
+                                    <input 
+                                        type="number"
+                                        min="1"
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white outline-none focus:border-primary transition-all font-space"
+                                        value={quantity}
+                                        onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                                    />
+                                </div>
+
                                 <div>
                                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
                                         Transaction ID / UTR <span className="text-red-500">*</span>

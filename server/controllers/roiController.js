@@ -35,26 +35,32 @@ const distributeMonthlyROI = async (req, res) => {
 
             const purchaseDate = new Date(user.packagePurchaseDate);
 
-            /* ===================================================
-               ORIGINAL CODE (Commented Out for Testing)
-               ===================================================
             let monthsPassed = (now.getFullYear() - purchaseDate.getFullYear()) * 12;
             monthsPassed += now.getMonth() - purchaseDate.getMonth();
 
-            // ROI starts from 3rd month
-            if (monthsPassed < 3) continue;
-            =================================================== */
-
-            /* ===================================================
-               TESTING CODE: 20 seconds = 1 Month (with query param override)
-               =================================================== */
-            const secondsPassed = Math.floor((now - purchaseDate) / 1000);
-            let monthsPassed = Math.floor(secondsPassed / 20); // 20s per month
             if (req.query.testMonth) {
                 monthsPassed = Number(req.query.testMonth);
+            } else {
+                // Anniversary matching logic to ensure they are paid on their anniversary day
+                // Or on the last day of the current month if they purchased on the last day of a month
+                const purchaseDay = purchaseDate.getDate();
+                const todayDay = now.getDate();
+                const isLastDayOfCurrentMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate() === todayDay;
+                const isLastDayOfPurchaseMonth = new Date(purchaseDate.getFullYear(), purchaseDate.getMonth() + 1, 0).getDate() === purchaseDay;
+
+                let isAnniversaryDay = false;
+                if (isLastDayOfPurchaseMonth) {
+                    isAnniversaryDay = isLastDayOfCurrentMonth;
+                } else {
+                    const maxDaysInCurrentMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+                    const targetDay = Math.min(purchaseDay, maxDaysInCurrentMonth);
+                    isAnniversaryDay = (todayDay === targetDay);
+                }
+
+                if (!isAnniversaryDay) continue;
             }
+
             if (monthsPassed < 3) continue;
-            /* =================================================== */
 
             const pkg = user.packageId;
             const roiSchedule = pkg.roiSchedule;
@@ -66,34 +72,23 @@ const distributeMonthlyROI = async (req, res) => {
                 roiAmount = user.monthlyRoiAmount || 0;
             } else {
                 // Use fixed schedule
-                roiAmount = roiSchedule.get(monthsPassed.toString()) || 0;
+                roiAmount = (roiSchedule.get(monthsPassed.toString()) || 0) * (user.packageQuantity || 1);
             }
 
             if (roiAmount > 0) {
-                /* ===================================================
-                   ORIGINAL CODE (Commented Out for Testing)
-                   ===================================================
                 const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-                const alreadyPaid = await Income.findOne({
-                    userId: user._id,
-                    incomeType: 'roi',
-                    createdAt: { $gte: startOfMonth }
-                });
-                =================================================== */
+                let alreadyPaid = false;
 
-                /* ===================================================
-                   TESTING CODE: Check if paid in the last 20 seconds (bypassed with testMonth query)
-                   =================================================== */
-                const latestRoi = await Income.findOne({
-                    userId: user._id,
-                    incomeType: 'roi'
-                }).sort({ createdAt: -1 });
-
-                let alreadyPaid = latestRoi && (now - new Date(latestRoi.createdAt)) < 20000;
                 if (req.query.testMonth) {
                     alreadyPaid = false;
+                } else {
+                    const paidThisMonth = await Income.findOne({
+                        userId: user._id,
+                        incomeType: 'roi',
+                        createdAt: { $gte: startOfMonth }
+                    });
+                    alreadyPaid = !!paidThisMonth;
                 }
-                /* =================================================== */
 
                 if (!alreadyPaid) {
                     const isVisible = require('../utils/visibilityUtils').isIncomeVisibleNow();
@@ -149,7 +144,7 @@ const setCustomROI = async (req, res) => {
         }
 
         // Validate minimums
-        const minAmount = user.packageId.price === 111000 ? 10000 : 4000;
+        const minAmount = (user.packageId.price === 111000 ? 10000 : 4000) * (user.packageQuantity || 1);
         if (amount < minAmount) {
             return res.status(400).json({ message: `Minimum ROI for this package is ₹${minAmount}` });
         }

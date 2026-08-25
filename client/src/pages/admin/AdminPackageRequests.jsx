@@ -76,13 +76,15 @@ const AdminPackageRequests = () => {
     };
 
     const exportToCSV = (data) => {
-        const headers = ['User Name', 'Email', 'User ID', 'Package Name', 'Price', 'Transaction ID', 'Status', 'Request Date'];
+        const headers = ['User Name', 'Email', 'User ID', 'Package Name', 'Quantity', 'Price', 'Total Price', 'Transaction ID', 'Status', 'Request Date'];
         const rows = data.map(req => [
             req.userId?.name || '',
             req.userId?.email || '',
             req.userId?.userId || '',
             req.packageId?.packageName || '',
+            req.quantity || 1,
             req.packageId?.price || 0,
+            (req.packageId?.price || 0) * (req.quantity || 1),
             req.transactionId || '',
             req.status || '',
             new Date(req.createdAt).toLocaleString()
@@ -101,13 +103,15 @@ const AdminPackageRequests = () => {
     };
 
     const exportToExcel = (data) => {
-        const headers = ['User Name', 'Email', 'User ID', 'Package Name', 'Price', 'Transaction ID', 'Status', 'Request Date'];
+        const headers = ['User Name', 'Email', 'User ID', 'Package Name', 'Quantity', 'Price', 'Total Price', 'Transaction ID', 'Status', 'Request Date'];
         const rows = data.map(req => [
             req.userId?.name || '',
             req.userId?.email || '',
             req.userId?.userId || '',
             req.packageId?.packageName || '',
+            req.quantity || 1,
             req.packageId?.price || 0,
+            (req.packageId?.price || 0) * (req.quantity || 1),
             req.transactionId || '',
             req.status || '',
             new Date(req.createdAt).toLocaleString()
@@ -345,8 +349,8 @@ const AdminPackageRequests = () => {
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex flex-col">
-                                            <span className="text-primary font-bold">{req.packageId?.packageName}</span>
-                                            <span className="text-gray-400 text-xs">₹{req.packageId?.price.toLocaleString()}</span>
+                                            <span className="text-primary font-bold">{req.packageId?.packageName} (x{req.quantity || 1})</span>
+                                            <span className="text-gray-400 text-xs">₹{((req.packageId?.price || 0) * (req.quantity || 1)).toLocaleString()}</span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">

@@ -16,7 +16,7 @@ const getPackages = async (req, res) => {
 // @access  Private
 const buyPackage = async (req, res) => {
     try {
-        const { packageId, transactionId } = req.body;
+        const { packageId, transactionId, quantity } = req.body;
 
         if (!transactionId || !req.file) {
             return res.status(400).json({ message: 'Transaction ID and Slip are required' });
@@ -26,11 +26,14 @@ const buyPackage = async (req, res) => {
         const mimeType = req.file.mimetype;
         const base64Image = `data:${mimeType};base64,${req.file.buffer.toString('base64')}`;
 
+        const parsedQuantity = Number(quantity) || 1;
+
         const request = await PackageRequest.create({
             userId: req.user._id,
             packageId,
             transactionId,
-            transactionSlip: base64Image
+            transactionSlip: base64Image,
+            quantity: parsedQuantity
         });
 
         res.status(201).json({ message: 'Purchase request submitted successfully', request });
@@ -145,6 +148,7 @@ const updateRequestStatus = async (req, res) => {
         const pkg = await Package.findById(request.packageId);
 
         user.packageId = request.packageId;
+        user.packageQuantity = request.quantity || 1;
         user.packagePurchaseDate = new Date();
         user.isActive = true;
         user.activatedAt = new Date();
@@ -152,7 +156,7 @@ const updateRequestStatus = async (req, res) => {
 
         // Distribute Incomes up to 10 levels
         if (user.referredBy) {
-            await distributeIncomes(user.referredBy, user._id, pkg, 1);
+            await distributeIncomes(user.referredBy, user._id, pkg, 1, null, request.quantity || 1);
         }
     }
 
@@ -173,7 +177,7 @@ const NEW_REFERRAL_AMOUNTS = {
 };
 
 // Helper function to distribute fixed referral income only (Skips Inactive Users)
-const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level, purchaseDate = null) => {
+const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level, purchaseDate = null, quantity = 1) => {
     if (level > 10) return;
 
     // Fetch buyer's purchaseDate if not passed to determine old vs new rates
@@ -214,7 +218,7 @@ const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level, purcha
         }
 
         // Referral Income (Fixed Amount) only
-        const refAmount = referralAmounts[level - 1] || 0;
+        const refAmount = (referralAmounts[level - 1] || 0) * quantity;
         if (refAmount > 0) {
             const isVisible = require('../utils/visibilityUtils').isIncomeVisibleNow();
             if (isVisible) {
@@ -244,7 +248,7 @@ const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level, purcha
     // Move to next level sponsor (always continue to upline if referredBy exists)
     const shouldContinue = sponsor.referredBy;
     if (shouldContinue) {
-        await distributeIncomes(sponsor.referredBy, fromUserId, pkg, nextLevel, dateForRates);
+        await distributeIncomes(sponsor.referredBy, fromUserId, pkg, nextLevel, dateForRates, quantity);
     }
 };
 

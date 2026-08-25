@@ -135,8 +135,8 @@ const PurchaseHistory = () => {
                                                 <Package size={20} className="text-primary" />
                                             </div>
                                             <div>
-                                                <p className="font-bold text-white">{req.packageId?.packageName} Package</p>
-                                                <p className="text-xs text-success font-space">₹{req.packageId?.price?.toLocaleString()}</p>
+                                                <p className="font-bold text-white">{req.packageId?.packageName} Package (x{req.quantity || 1})</p>
+                                                <p className="text-xs text-success font-space">₹{((req.packageId?.price || 0) * (req.quantity || 1)).toLocaleString()}</p>
                                             </div>
                                         </div>
                                     </td>

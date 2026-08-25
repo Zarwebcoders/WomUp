@@ -21,6 +21,11 @@ const packageRequestSchema = new mongoose.Schema({
         type: String, // Path to the image
         required: true
     },
+    quantity: {
+        type: Number,
+        default: 1,
+        min: 1
+    },
     status: {
         type: String,
         enum: ['pending', 'approved', 'rejected'],
