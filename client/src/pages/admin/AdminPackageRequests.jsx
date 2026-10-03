@@ -160,7 +160,7 @@ const AdminPackageRequests = () => {
         if (!requestId) return;
         try {
             const config = {
-                headers: { Authorization: `Bearer ${adminUser.token}` }
+                headers: { Authorization: `Bearer ${user.token}` }
             };
             const { data } = await axios.get(`${API_URL}/api/packages/requests/${requestId}/slip`, config);
             const slip = data.slip;
