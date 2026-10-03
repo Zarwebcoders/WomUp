@@ -300,7 +300,7 @@ const getDashboardSummary = async (req, res) => {
             })(),
             (async () => {
                 return await User.findById(req.user._id)
-                    .select('packageId isActive expiresAt')
+                    .select('packageId packageQuantity isActive expiresAt')
                     .populate('packageId', 'packageName')
                     .lean();
             })()
@@ -335,6 +335,7 @@ const getDashboardSummary = async (req, res) => {
             user: {
                 ...req.user,
                 packageId: userDoc?.packageId,
+                packageQuantity: userDoc?.packageQuantity || 1,
                 isActive: userDoc?.isActive,
                 expiresAt: userDoc?.expiresAt
             },

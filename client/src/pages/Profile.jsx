@@ -235,8 +235,14 @@ const Profile = () => {
                                 <div className="flex flex-col sm:flex-row justify-between gap-6 sm:items-center">
                                     <div className="space-y-1">
                                         <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Plan Name</span>
-                                        <h4 className="text-2xl font-bold text-white font-space">{profileData.packageId.packageName}</h4>
-                                        <p className="text-sm text-primary-light font-bold">Price: ₹{profileData.packageId.price?.toLocaleString() || 0}</p>
+                                        <h4 className="text-2xl font-bold text-white font-space">
+                                            {profileData.packageId.packageName}
+                                            {(profileData.packageQuantity || 1) > 1 && ` (x${profileData.packageQuantity})`}
+                                        </h4>
+                                        <p className="text-sm text-primary-light font-bold">
+                                            Price: ₹{((profileData.packageId.price || 0) * (profileData.packageQuantity || 1)).toLocaleString()}
+                                            {(profileData.packageQuantity || 1) > 1 && ` (₹${profileData.packageId.price.toLocaleString()} x ${profileData.packageQuantity})`}
+                                        </p>
                                     </div>
                                     <div className="flex flex-col sm:items-end gap-3 text-sm">
                                         <div className="flex justify-between sm:justify-start gap-4">

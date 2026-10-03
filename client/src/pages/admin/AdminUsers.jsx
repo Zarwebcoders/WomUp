@@ -62,7 +62,7 @@ const AdminUsers = () => {
     };
 
     const exportToCSV = (data) => {
-        const headers = ['Name', 'User ID', 'Email', 'Mobile', 'Sponsor Name', 'Sponsor Code', 'Team Members', 'Total Income', 'Status', 'Package', 'Price', 'Registration Date'];
+        const headers = ['Name', 'User ID', 'Email', 'Mobile', 'Sponsor Name', 'Sponsor Code', 'Team Members', 'Total Income', 'Status', 'Package', 'Quantity', 'Unit Price', 'Total Price', 'Registration Date'];
         const rows = data.map(u => [
             u.name,
             u.userId || u.referralCode,
@@ -74,7 +74,9 @@ const AdminUsers = () => {
             u.totalIncome,
             u.isActive ? 'Active' : 'Inactive',
             u.packageId?.packageName || 'No Package',
+            u.packageQuantity || (u.packageId ? 1 : 0),
             u.packageId?.price || 0,
+            (u.packageId?.price || 0) * (u.packageQuantity || (u.packageId ? 1 : 0)),
             new Date(u.createdAt).toLocaleDateString()
         ]);
         
@@ -91,7 +93,7 @@ const AdminUsers = () => {
     };
 
     const exportToExcel = (data) => {
-        const headers = ['Name', 'User ID', 'Email', 'Mobile', 'Sponsor Name', 'Sponsor Code', 'Team Members', 'Total Income', 'Status', 'Package', 'Price', 'Registration Date'];
+        const headers = ['Name', 'User ID', 'Email', 'Mobile', 'Sponsor Name', 'Sponsor Code', 'Team Members', 'Total Income', 'Status', 'Package', 'Quantity', 'Unit Price', 'Total Price', 'Registration Date'];
         const rows = data.map(u => [
             u.name,
             u.userId || u.referralCode,
@@ -103,7 +105,9 @@ const AdminUsers = () => {
             u.totalIncome,
             u.isActive ? 'Active' : 'Inactive',
             u.packageId?.packageName || 'No Package',
+            u.packageQuantity || (u.packageId ? 1 : 0),
             u.packageId?.price || 0,
+            (u.packageId?.price || 0) * (u.packageQuantity || (u.packageId ? 1 : 0)),
             new Date(u.createdAt).toLocaleDateString()
         ]);
         
@@ -355,8 +359,13 @@ const AdminUsers = () => {
                                         <div className="flex flex-col">
                                             {u.packageId ? (
                                                 <>
-                                                    <span className="text-white text-xs font-medium">{u.packageId.packageName}</span>
-                                                    <span className="text-primary-light text-[10px] font-bold">₹{u.packageId.price.toLocaleString()}</span>
+                                                    <span className="text-white text-xs font-medium">
+                                                        {u.packageId.packageName}
+                                                        {(u.packageQuantity || 1) > 1 && ` (x${u.packageQuantity})`}
+                                                    </span>
+                                                    <span className="text-primary-light text-[10px] font-bold">
+                                                        ₹{((u.packageId.price || 0) * (u.packageQuantity || 1)).toLocaleString()}
+                                                    </span>
                                                 </>
                                             ) : (
                                                 <span className="text-gray-500 text-xs">No Package</span>

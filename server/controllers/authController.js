@@ -236,7 +236,7 @@ const getUserProfile = async (req, res) => {
     const user = await User.findById(req.user._id)
         .select(
             '_id name email mobile userId referralCode referredBy role isActive ' +
-            'activatedAt expiresAt createdAt packageId ' +
+            'activatedAt expiresAt createdAt packageId packageQuantity ' +
             'totalIncome roiIncome referralIncome levelIncome teamCount monthlyRoiAmount '
             // kyc.* is intentionally NOT selected — images are served via /api/kyc/images
         )
@@ -351,7 +351,7 @@ const getAllUsers = async (req, res) => {
                     userId: 1, referralCode: 1, role: 1,
                     isActive: 1, teamCount: 1, totalIncome: 1,
                     createdAt: 1, activatedAt: 1, expiresAt: 1,
-                    packageId: 1, referredBy: 1
+                    packageId: 1, packageQuantity: { $ifNull: ['$packageQuantity', 1] }, referredBy: 1
                     // kyc, password, plainPassword are intentionally excluded
                 }
             }

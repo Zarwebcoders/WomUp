@@ -188,7 +188,10 @@ const Dashboard = () => {
                             <ShieldCheck className="text-primary-light mx-auto" size={40} />
                             <div>
                                 <h3 className="text-gray-400 text-sm mb-1">Active Package</h3>
-                                <h2 className="text-3xl font-bold font-cormorant">{stats?.user?.packageId?.packageName || 'No Package'}</h2>
+                                <h2 className="text-3xl font-bold font-cormorant">
+                                    {stats?.user?.packageId?.packageName || 'No Package'}
+                                    {stats?.user?.packageId && (stats?.user?.packageQuantity || 1) > 1 && ` (x${stats?.user?.packageQuantity})`}
+                                </h2>
                             </div>
                             
                             <div className="py-2 border-t border-b border-white/5 space-y-2">

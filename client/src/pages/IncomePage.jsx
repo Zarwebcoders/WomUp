@@ -98,6 +98,11 @@ const IncomePage = ({ type, title, description }) => {
                                         <div className="flex items-center space-x-2">
                                             <p className="font-medium text-white">
                                                 {log.fromUser?.name || 'System'}
+                                                {log.fromUser?.packageQuantity > 1 && (
+                                                    <span className="ml-1.5 text-[10px] font-bold text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-1.5 py-0.5 rounded">
+                                                        {log.fromUser.packageQuantity} PV (x{log.fromUser.packageQuantity})
+                                                    </span>
+                                                )}
                                                 {log.level && (
                                                     <span className="ml-2 text-[10px] font-bold text-primary-light bg-primary/10 px-1.5 py-0.5 rounded">
                                                         L{log.level}
@@ -112,7 +117,7 @@ const IncomePage = ({ type, title, description }) => {
                                             <span>
                                                 ₹{type === 'level' 
                                                     ? Number(log.amount).toFixed(4) 
-                                                    : log.amount
+                                                    : (Number(log.amount) || 0).toLocaleString()
                                                 }
                                             </span>
                                         </div>

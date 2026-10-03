@@ -444,7 +444,17 @@ const AdminUserDetails = () => {
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
                                     <span className="text-xs text-gray-500">Current Package</span>
-                                    <span className="text-sm text-white font-bold">{user.packageId?.packageName || 'No Active Package'}</span>
+                                    <div className="text-right">
+                                        <span className="text-sm text-white font-bold">
+                                            {user.packageId?.packageName || 'No Active Package'}
+                                            {user.packageId && (user.packageQuantity || 1) > 1 && ` (x${user.packageQuantity})`}
+                                        </span>
+                                        {user.packageId && (
+                                            <p className="text-[10px] text-primary-light font-bold">
+                                                ₹{((user.packageId.price || 0) * (user.packageQuantity || 1)).toLocaleString()}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
                                     <span className="text-xs text-gray-500">Sponsor</span>

@@ -40,7 +40,7 @@ const getIncomeLogs = async (req, res) => {
             .sort({ createdAt: -1 })
             .populate({
                 path: 'fromUser',
-                select: 'name referralCode packageId',
+                select: 'name referralCode packageId packageQuantity',
                 populate: {
                     path: 'packageId',
                     select: 'packageName price referralAmounts levelPercentages'
@@ -93,28 +93,8 @@ const getIncomeLogs = async (req, res) => {
         const processedLogs = logs.map(log => {
             if (log.fromUser && log.fromUser.referralCode) {
                 const dynamicLevel = levelMap[log.fromUser.referralCode];
-                if (dynamicLevel !== undefined) {
+                if (dynamicLevel !== undefined && !log.level) {
                     log.level = dynamicLevel;
-
-                    // Dynamically calculate the real amount based on package rates and the new level
-                    if (type === 'referral' && log.fromUser.packageId) {
-                        const pkg = log.fromUser.packageId;
-                        const realAmount = pkg.referralAmounts[dynamicLevel - 1];
-                        if (realAmount !== undefined) {
-                            log.amount = realAmount;
-                        }
-                    } else if (type === 'level' && log.fromUser.packageId) {
-                        const pkg = log.fromUser.packageId;
-                        const originalLevel = log.level; // level originally stored in DB
-                        const originalPct = pkg.levelPercentages[originalLevel - 1];
-                        if (originalPct > 0) {
-                            const roiAmount = (log.amount * 100) / originalPct;
-                            const newPct = pkg.levelPercentages[dynamicLevel - 1];
-                            if (newPct !== undefined) {
-                                log.amount = Math.round((roiAmount * newPct) / 100 * 100) / 100; // round to 2 decimal places
-                            }
-                        }
-                    }
                 }
             }
             return log;

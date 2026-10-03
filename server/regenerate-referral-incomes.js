@@ -42,7 +42,7 @@ const run = async () => {
         };
 
         // Helper function for skip-logic distribution (same as packageController.js distributeIncomes)
-        const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level, purchaseDate = null) => {
+        const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level, purchaseDate = null, quantity = 1) => {
             if (level > 10) return;
 
             const query = { $or: [{ referralCode: sponsorIdOrCode }] };
@@ -65,7 +65,7 @@ const run = async () => {
                     referralAmounts = NEW_REFERRAL_AMOUNTS[pkg.packageName] || pkg.referralAmounts;
                 }
 
-                const refAmount = referralAmounts[level - 1] || 0;
+                const refAmount = (referralAmounts[level - 1] || 0) * quantity;
                 if (refAmount > 0) {
                     sponsor.referralIncome += refAmount;
                     await sponsor.save();
@@ -78,7 +78,7 @@ const run = async () => {
                         level: level
                     });
 
-                    console.log(`  Credited Level ${level} referral income (₹${refAmount}) to ${sponsor.name} from buyer.`);
+                    console.log(`  Credited Level ${level} referral income (₹${refAmount}) to ${sponsor.name} from buyer (x${quantity}).`);
                 }
                 nextLevel = level + 1;
             } else {
@@ -86,16 +86,17 @@ const run = async () => {
             }
 
             if (sponsor.referredBy) {
-                await distributeIncomes(sponsor.referredBy, fromUserId, pkg, nextLevel, purchaseDate);
+                await distributeIncomes(sponsor.referredBy, fromUserId, pkg, nextLevel, purchaseDate, quantity);
             }
         };
 
         // 4. Distribute incomes for each buyer
         for (const buyer of buyers) {
-            console.log(`\nDistributing referral incomes for buyer: ${buyer.name} (${buyer.referralCode}) - Package: ${buyer.packageId.packageName}`);
+            const quantity = buyer.packageQuantity || 1;
+            console.log(`\nDistributing referral incomes for buyer: ${buyer.name} (${buyer.referralCode}) - Package: ${buyer.packageId.packageName} (Quantity: ${quantity})`);
             if (buyer.referredBy) {
                 const purchaseDate = buyer.packagePurchaseDate || buyer.activatedAt || buyer.createdAt || new Date();
-                await distributeIncomes(buyer.referredBy, buyer._id, buyer.packageId, 1, purchaseDate);
+                await distributeIncomes(buyer.referredBy, buyer._id, buyer.packageId, 1, purchaseDate, quantity);
             } else {
                 console.log(`  No referrer/sponsor. Skipping distribution.`);
             }

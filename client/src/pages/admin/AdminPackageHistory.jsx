@@ -164,8 +164,13 @@ const AdminPackageHistory = () => {
                                                 <Package size={16} className="text-primary" />
                                             </div>
                                             <div>
-                                                <p className="text-white font-bold text-sm">{req.packageId?.packageName}</p>
-                                                <p className="text-xs text-success font-space">₹{req.packageId?.price.toLocaleString()}</p>
+                                                <p className="text-white font-bold text-sm">
+                                                    {req.packageId?.packageName}
+                                                    {(req.quantity || 1) > 1 && ` (x${req.quantity})`}
+                                                </p>
+                                                <p className="text-xs text-success font-space">
+                                                    ₹{((req.packageId?.price || 0) * (req.quantity || 1)).toLocaleString()}
+                                                </p>
                                             </div>
                                         </div>
                                     </td>

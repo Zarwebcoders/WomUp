@@ -114,7 +114,10 @@ const TeamDetails = () => {
                                         {member.packageId ? (
                                             <div className="flex items-center space-x-2 text-white text-xs md:text-sm">
                                                 <PackageIcon size={14} className="text-primary shrink-0" />
-                                                <span className="font-medium truncate">{member.packageId.packageName}</span>
+                                                <span className="font-medium truncate">
+                                                    {member.packageId.packageName}
+                                                    {(member.packageQuantity || 1) > 1 && ` (x${member.packageQuantity})`}
+                                                </span>
                                             </div>
                                         ) : (
                                             <span className="text-gray-500 italic text-[10px] md:text-xs">No Package</span>

@@ -53,7 +53,7 @@ const getTeamByLevel = async (req, res) => {
         }
 
                 const users = await User.find(query)
-            .select('name email userId mobile isActive referralCode referredBy teamCount createdAt packageId')
+            .select('name email userId mobile isActive referralCode referredBy teamCount createdAt packageId packageQuantity')
             .populate('packageId', 'packageName price')
             .sort({ createdAt: -1 })
             .lean();
