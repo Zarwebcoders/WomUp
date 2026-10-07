@@ -350,7 +350,7 @@ const getAllUsers = async (req, res) => {
                     name: 1, email: 1, mobile: 1,
                     userId: 1, referralCode: 1, role: 1,
                     isActive: 1, teamCount: 1, totalIncome: 1,
-                    createdAt: 1, activatedAt: 1, expiresAt: 1,
+                    createdAt: 1, activatedAt: 1, packagePurchaseDate: 1, expiresAt: 1,
                     packageId: 1, packageQuantity: { $ifNull: ['$packageQuantity', 1] }, referredBy: 1
                     // kyc, password, plainPassword are intentionally excluded
                 }

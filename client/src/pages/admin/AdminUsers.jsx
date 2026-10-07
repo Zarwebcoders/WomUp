@@ -62,7 +62,7 @@ const AdminUsers = () => {
     };
 
     const exportToCSV = (data) => {
-        const headers = ['Name', 'User ID', 'Email', 'Mobile', 'Sponsor Name', 'Sponsor Code', 'Team Members', 'Total Income', 'Status', 'Package', 'Quantity', 'Unit Price', 'Total Price', 'Registration Date'];
+        const headers = ['Name', 'User ID', 'Email', 'Mobile', 'Sponsor Name', 'Sponsor Code', 'Team Members', 'Total Income', 'Status', 'Package', 'Quantity', 'Unit Price', 'Total Price', 'Joining Date', 'Registration Date'];
         const rows = data.map(u => [
             u.name,
             u.userId || u.referralCode,
@@ -77,7 +77,8 @@ const AdminUsers = () => {
             u.packageQuantity || (u.packageId ? 1 : 0),
             u.packageId?.price || 0,
             (u.packageId?.price || 0) * (u.packageQuantity || (u.packageId ? 1 : 0)),
-            new Date(u.createdAt).toLocaleDateString()
+            (u.activatedAt || u.packagePurchaseDate) ? new Date(u.activatedAt || u.packagePurchaseDate).toLocaleDateString('en-IN') : 'Not Activated',
+            new Date(u.createdAt).toLocaleDateString('en-IN')
         ]);
         
         const csvContent = "data:text/csv;charset=utf-8," 
@@ -93,7 +94,7 @@ const AdminUsers = () => {
     };
 
     const exportToExcel = (data) => {
-        const headers = ['Name', 'User ID', 'Email', 'Mobile', 'Sponsor Name', 'Sponsor Code', 'Team Members', 'Total Income', 'Status', 'Package', 'Quantity', 'Unit Price', 'Total Price', 'Registration Date'];
+        const headers = ['Name', 'User ID', 'Email', 'Mobile', 'Sponsor Name', 'Sponsor Code', 'Team Members', 'Total Income', 'Status', 'Package', 'Quantity', 'Unit Price', 'Total Price', 'Joining Date', 'Registration Date'];
         const rows = data.map(u => [
             u.name,
             u.userId || u.referralCode,
@@ -108,7 +109,8 @@ const AdminUsers = () => {
             u.packageQuantity || (u.packageId ? 1 : 0),
             u.packageId?.price || 0,
             (u.packageId?.price || 0) * (u.packageQuantity || (u.packageId ? 1 : 0)),
-            new Date(u.createdAt).toLocaleDateString()
+            (u.activatedAt || u.packagePurchaseDate) ? new Date(u.activatedAt || u.packagePurchaseDate).toLocaleDateString('en-IN') : 'Not Activated',
+            new Date(u.createdAt).toLocaleDateString('en-IN')
         ]);
         
         const tsvContent = [headers.join('\t'), ...rows.map(e => e.join('\t'))].join('\n');
@@ -384,14 +386,20 @@ const AdminUsers = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="flex flex-col">
-                                            <span className="text-white text-xs font-medium">
-                                                {new Date(u.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                        {u.activatedAt || u.packagePurchaseDate ? (
+                                            <div className="flex flex-col">
+                                                <span className="text-white text-xs font-medium">
+                                                    {new Date(u.activatedAt || u.packagePurchaseDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                </span>
+                                                <span className="text-gray-500 text-[10px]">
+                                                    {new Date(u.activatedAt || u.packagePurchaseDate).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <span className="text-gray-500 text-xs font-medium italic">
+                                                Not Activated
                                             </span>
-                                            <span className="text-gray-500 text-[10px]">
-                                                {new Date(u.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
-                                            </span>
-                                        </div>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center justify-center space-x-2">
