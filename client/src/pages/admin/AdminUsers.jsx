@@ -324,12 +324,13 @@ const AdminUsers = () => {
                                 <th className="px-6 py-4 text-xs font-bold uppercase text-gray-400">Team / Income</th>
                                 <th className="px-6 py-4 text-xs font-bold uppercase text-gray-400">Package</th>
                                 <th className="px-6 py-4 text-xs font-bold uppercase text-gray-400">Status</th>
+                                <th className="px-6 py-4 text-xs font-bold uppercase text-gray-400">Joining Date</th>
                                 <th className="px-6 py-4 text-xs font-bold uppercase text-gray-400 text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {loading ? (
-                                <tr><td colSpan="6" className="px-8 py-20 text-center text-gray-500">Loading platform users...</td></tr>
+                                <tr><td colSpan="7" className="px-8 py-20 text-center text-gray-500">Loading platform users...</td></tr>
                             ) : currentItems.length > 0 ? currentItems.map((u) => (
                                 <tr key={u._id} className="hover:bg-white/[0.02] transition-colors">
                                     <td className="px-6 py-4">
@@ -383,6 +384,16 @@ const AdminUsers = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
+                                        <div className="flex flex-col">
+                                            <span className="text-white text-xs font-medium">
+                                                {new Date(u.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                            </span>
+                                            <span className="text-gray-500 text-[10px]">
+                                                {new Date(u.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
                                         <div className="flex items-center justify-center space-x-2">
                                             <Link 
                                                 to={`/admin/users/${u._id}`}
@@ -423,7 +434,7 @@ const AdminUsers = () => {
                                     </td>
                                 </tr>
                             )) : (
-                                <tr><td colSpan="6" className="px-8 py-20 text-center text-gray-500">No users found on the platform.</td></tr>
+                                <tr><td colSpan="7" className="px-8 py-20 text-center text-gray-500">No users found on the platform.</td></tr>
                             )}
                         </tbody>
                     </table>
