@@ -53,14 +53,32 @@ app.use(express.json());
 
 // Serve Static Files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-// Serve static from public root if needed for Vercel
+
+// Serve Promotional Landing Page static assets
+const landingDir = path.join(__dirname, 'public/landing');
+app.use(express.static(landingDir));
+app.use('/landing', express.static(landingDir));
+app.use('/promo', express.static(landingDir));
+
+// Serve static from public root if needed
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Routes
-app.get('/', (req, res) => {
+// Root & Landing Routes: serve the promotional landing page
+app.get(['/', '/landing', '/promo'], (req, res) => {
+    const landingFile = path.join(landingDir, 'index.html');
+    if (fs.existsSync(landingFile)) {
+        return res.sendFile(landingFile);
+    }
     res.send('WOMUP API is running...');
 });
 
+// API health endpoint
+app.get('/api', (req, res) => {
+    res.json({ message: 'WOMUP API is running...', status: 'online' });
+});
+
+// API Routes
+app.use('/api/leads', require('./routes/leadRoutes'));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/packages', require('./routes/packageRoutes'));
 app.use('/api/kyc', require('./routes/kycRoutes'));
@@ -87,6 +105,21 @@ roiRoutes.get('/distribute', require('./controllers/roiController').distributeMo
 roiRoutes.post('/distribute', require('./controllers/roiController').distributeMonthlyROI);
 roiRoutes.post('/set-custom-roi', require('./middleware/authMiddleware').protect, require('./middleware/authMiddleware').admin, require('./controllers/roiController').setCustomROI);
 app.use('/api/roi', roiRoutes);
+
+// SPA fallback for landing page subpages (e.g., /for-customers, /for-vendors, /contact, etc.)
+app.use((req, res, next) => {
+    if (req.method !== 'GET') {
+        return next();
+    }
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+        return next();
+    }
+    const landingFile = path.join(landingDir, 'index.html');
+    if (fs.existsSync(landingFile)) {
+        return res.sendFile(landingFile);
+    }
+    next();
+});
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

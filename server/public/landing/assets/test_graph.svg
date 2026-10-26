@@ -1,0 +1,90 @@
+<svg width="380" height="320" viewBox="0 0 380 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Vibrant Sweeping Arrow Gradient matching WOMUP original -->
+    <linearGradient id="chartArrowGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff2a85" />
+      <stop offset="35%" stop-color="#db2777" />
+      <stop offset="70%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#6d28d9" />
+    </linearGradient>
+
+    <!-- Bar 1: Amber Glow -->
+    <linearGradient id="bar1Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fba81f" />
+      <stop offset="60%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+
+    <!-- Bar 2: Coral Crimson Glow -->
+    <linearGradient id="bar2Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fb7185" />
+      <stop offset="60%" stop-color="#f43f5e" />
+      <stop offset="100%" stop-color="#e11d48" />
+    </linearGradient>
+
+    <!-- Bar 3: Hot Pink Magenta Glow -->
+    <linearGradient id="bar3Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f472b6" />
+      <stop offset="60%" stop-color="#ec4899" />
+      <stop offset="100%" stop-color="#db2777" />
+    </linearGradient>
+
+    <!-- Bar 4: Electric Violet Purple Glow -->
+    <linearGradient id="bar4Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#a78bfa" />
+      <stop offset="60%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+
+    <!-- Bar 5: Deep Royal Blue Glow -->
+    <linearGradient id="bar5Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#60a5fa" />
+      <stop offset="60%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+
+    <!-- Smooth drop shadow for bars -->
+    <filter id="barShadow" x="-20%" y="-10%" width="140%" height="130%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.08" />
+    </filter>
+
+    <!-- Arrow Luminous Glow -->
+    <filter id="arrowGlow" x="-20%" y="-20%" width="140%" height="140%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#7c3aed" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <!-- LAYER 1: SWEEPING CURVED ARROW IN BACKGROUND -->
+  <g filter="url(#arrowGlow)">
+    <!-- Smooth curved shaft -->
+    <path 
+      d="M 16 220 C 70 212, 175 168, 296 66" 
+      stroke="url(#chartArrowGrad)" 
+      stroke-width="16" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"
+      fill="none" 
+      className="chart-arrow-path"
+    />
+    <!-- Bold majestic Arrowhead pointing northeast -->
+    <path 
+      d="M 334 26 L 320 80 L 302 59 L 278 47 Z" 
+      fill="#6d28d9" 
+      className="chart-arrow-head"
+    />
+  </g>
+
+  <!-- LAYER 2: 5 ASCENDING PILL BARS IN FOREGROUND -->
+  <g filter="url(#barShadow)">
+    <!-- Bar 1: Amber -->
+    <rect x="58" y="222" width="38" height="66" rx="9" fill="url(#bar1Grad)" className="chart-bar bar-1" />
+    <!-- Bar 2: Coral -->
+    <rect x="110" y="184" width="38" height="104" rx="9" fill="url(#bar2Grad)" className="chart-bar bar-2" />
+    <!-- Bar 3: Pink -->
+    <rect x="162" y="144" width="38" height="144" rx="9" fill="url(#bar3Grad)" className="chart-bar bar-3" />
+    <!-- Bar 4: Violet -->
+    <rect x="214" y="104" width="38" height="184" rx="9" fill="url(#bar4Grad)" className="chart-bar bar-4" />
+    <!-- Bar 5: Royal Blue -->
+    <rect x="266" y="64" width="38" height="224" rx="9" fill="url(#bar5Grad)" className="chart-bar bar-5" />
+  </g>
+</svg>

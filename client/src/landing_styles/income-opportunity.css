@@ -1,0 +1,430 @@
+/* ========================================================
+   WOMUP - Income Opportunity Page Stylesheet
+   Pixel-Perfect Implementation
+   ======================================================== */
+
+.income-opportunity-page {
+  position: relative;
+  flex: 1;
+  padding: 20px 24px 32px 24px;
+  background: radial-gradient(120% 120% at 50% 0%, #ffffff 0%, #fff5f8 50%, #fbf4fc 100%);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 72px);
+}
+
+/* Background Ambient Lighting */
+.io-bg-glow {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: 1;
+}
+
+.glow-pink-left {
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(254, 205, 211, 0.45) 0%, transparent 70%);
+  top: 10%;
+  left: -120px;
+}
+
+.glow-blue-right {
+  width: 580px;
+  height: 580px;
+  background: radial-gradient(circle, rgba(219, 234, 254, 0.5) 0%, transparent 70%);
+  top: 5%;
+  right: -120px;
+}
+
+/* Content Container */
+.io-container {
+  max-width: 1020px;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ========================================================
+   HEADER SECTION
+   ======================================================== */
+.io-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.io-main-title {
+  font-size: clamp(2.3rem, 4vw, 3.5rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 6px;
+}
+
+.title-dark {
+  color: #111827;
+  margin-right: 6px;
+}
+
+.title-pink {
+  background: linear-gradient(135deg, #e60067 0%, #f43f5e 60%, #e11d48 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.io-subtitle {
+  font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.io-subtitle span {
+  color: #1e293b;
+}
+
+/* ========================================================
+   HERO GRID: EARNINGS CARD & GROWTH CHART
+   ======================================================== */
+.io-hero-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  align-items: center;
+  gap: 36px;
+  width: 100%;
+  max-width: 940px;
+  margin-bottom: 24px;
+}
+
+/* Left: Earnings Highlight Card */
+.io-earnings-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 245, 248, 0.85) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(254, 205, 211, 0.55);
+  border-radius: 28px;
+  padding: 30px 34px;
+  box-shadow: 0 16px 36px -8px rgba(225, 29, 72, 0.08), 0 4px 16px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.io-earnings-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 42px -6px rgba(225, 29, 72, 0.12), 0 6px 20px rgba(0, 0, 0, 0.04);
+}
+
+.card-intro {
+  font-size: clamp(1.15rem, 1.6vw, 1.38rem);
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.32;
+  margin-bottom: 10px;
+}
+
+.card-earn-title {
+  font-size: clamp(1.8rem, 2.6vw, 2.2rem);
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin-bottom: 0px;
+}
+
+.card-amount-block {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  line-height: 1.05;
+  margin-bottom: 2px;
+}
+
+.amount-val-1 {
+  font-size: clamp(2.4rem, 3.8vw, 3.2rem);
+  font-weight: 900;
+  color: #e60067;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.amount-to {
+  font-size: clamp(1.3rem, 1.8vw, 1.65rem);
+  font-weight: 700;
+  color: #e60067;
+}
+
+.card-amount-big {
+  line-height: 1.02;
+  margin-bottom: 8px;
+}
+
+.amount-val-2 {
+  font-size: clamp(2.8rem, 4.4vw, 3.8rem);
+  font-weight: 900;
+  color: #e60067;
+  letter-spacing: -0.03em;
+}
+
+.card-period {
+  font-size: clamp(1.4rem, 2vw, 1.85rem);
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+/* Right: 5 Ascending Bars & Sweeping Growth Arrow */
+.io-chart-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 8px 12px;
+  position: relative;
+}
+
+.io-chart-svg {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(0 16px 32px rgba(124, 58, 237, 0.15));
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.io-chart-svg:hover {
+  transform: translateY(-3px) scale(1.02);
+}
+
+.io-chart-svg .chart-bar {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+  transform-origin: bottom center;
+}
+
+.io-chart-svg .chart-bar:hover {
+  filter: brightness(1.14) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.16));
+}
+
+/* ========================================================
+   BOTTOM FLOATING FEATURES CARD (4 COLUMNS)
+   ======================================================== */
+.io-features-card-wrapper {
+  width: 100%;
+  max-width: 940px;
+  margin-bottom: 24px;
+}
+
+.io-features-card {
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 18px 24px;
+  box-shadow: 0 14px 38px -8px rgba(15, 23, 42, 0.08), 0 4px 14px -2px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+}
+
+.io-feature-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 6px 10px;
+  transition: transform 0.25s ease;
+}
+
+.io-feature-col:hover {
+  transform: translateY(-2px);
+}
+
+.io-divider {
+  width: 1px;
+  height: 60px;
+  background-color: #f1f5f9;
+}
+
+/* Feature Icons */
+.io-icon-box {
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.io-icon-box svg {
+  width: 48px;
+  height: 48px;
+}
+
+.icon-purple {
+  color: #7c3aed;
+}
+
+.icon-red {
+  color: #ef4444;
+}
+
+.icon-orange {
+  color: #f97316;
+}
+
+.icon-green {
+  color: #16a34a;
+}
+
+/* Feature Text */
+.io-feature-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.io-feature-text .line-1 {
+  font-size: clamp(0.92rem, 1.15vw, 1.05rem);
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.io-feature-text .line-2 {
+  font-size: clamp(0.85rem, 1.05vw, 0.96rem);
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* ========================================================
+   CENTERED ACTION BUTTON ("Know More →")
+   ======================================================== */
+.io-cta-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.btn-know-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 42px;
+  background: linear-gradient(135deg, #ff0066 0%, #e60067 50%, #d91b5c 100%);
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 800;
+  font-family: inherit;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 22px -3px rgba(230, 0, 103, 0.45);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  letter-spacing: -0.01em;
+}
+
+.btn-know-more:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 14px 28px -3px rgba(230, 0, 103, 0.55);
+}
+
+.btn-know-more:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.cta-arrow {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.25s ease;
+}
+
+.btn-know-more:hover .cta-arrow {
+  transform: translateX(4px);
+}
+
+/* ========================================================
+   RESPONSIVE DESIGN
+   ======================================================== */
+@media (max-width: 900px) {
+  .io-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    text-align: center;
+  }
+
+  .io-earnings-card {
+    align-items: center;
+    text-align: center;
+  }
+
+  .card-amount-block {
+    justify-content: center;
+  }
+
+  .io-features-card {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 16px;
+    padding: 22px 18px;
+  }
+
+  .io-divider {
+    display: none;
+  }
+}
+
+@media (max-width: 580px) {
+  .income-opportunity-page {
+    padding: 20px 16px 36px 16px;
+  }
+
+  .io-earnings-card {
+    padding: 22px 18px;
+    border-radius: 20px;
+  }
+
+  .io-features-card {
+    grid-template-columns: 1fr 1fr;
+    padding: 18px 12px;
+    gap: 16px 10px;
+    border-radius: 18px;
+  }
+
+  .io-feature-col {
+    padding: 4px 4px;
+  }
+
+  .io-icon-box {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 8px;
+  }
+
+  .io-icon-box svg {
+    width: 38px;
+    height: 38px;
+  }
+
+  .btn-know-more {
+    width: 100%;
+    max-width: 300px;
+    padding: 13px 26px;
+  }
+}

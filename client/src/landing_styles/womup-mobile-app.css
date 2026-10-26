@@ -1,0 +1,780 @@
+/* ========================================================
+   WOMUP - Mobile App Showcase Stylesheet
+   Pixel-Perfect Implementation
+   ======================================================== */
+
+.mobile-app-page {
+  position: relative;
+  flex: 1;
+  padding: 28px 24px 44px 24px;
+  background: radial-gradient(120% 120% at 50% 0%, #ffffff 0%, #f6faff 50%, #fdf5f9 100%);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 72px);
+}
+
+/* Background Ambient Lighting */
+.ma-bg-glow {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: 1;
+}
+
+.glow-pink-top {
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(254, 205, 211, 0.45) 0%, transparent 70%);
+  top: -60px;
+  left: 20%;
+}
+
+.glow-blue-right {
+  width: 560px;
+  height: 560px;
+  background: radial-gradient(circle, rgba(219, 234, 254, 0.5) 0%, transparent 70%);
+  top: 10%;
+  right: -100px;
+}
+
+.glow-cyan-left {
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(207, 250, 254, 0.4) 0%, transparent 70%);
+  bottom: -60px;
+  left: -80px;
+}
+
+/* Content Container */
+.ma-container {
+  max-width: 1060px;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ========================================================
+   HEADER SECTION
+   ======================================================== */
+.ma-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.ma-main-title {
+  font-size: clamp(2.3rem, 4vw, 3.5rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 6px;
+}
+
+.title-pink {
+  color: #e60067;
+  margin-right: 6px;
+}
+
+.title-dark {
+  color: #0b152b;
+}
+
+.ma-subtitle {
+  font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: 0.01em;
+}
+
+/* ========================================================
+   HERO GRID: DUAL PHONES & FEATURES
+   ======================================================== */
+.ma-hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  align-items: center;
+  gap: 36px;
+  width: 100%;
+  max-width: 980px;
+}
+
+/* ========================================================
+   DUAL IPHONE MOCKUP (LEFT COLUMN)
+   ======================================================== */
+.ma-mockup-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 540px;
+}
+
+/* Decorative Green Leaves Accent */
+.leaf-accent {
+  position: absolute;
+  bottom: -15px;
+  left: -15px;
+  width: 120px;
+  height: 120px;
+  z-index: 25;
+  pointer-events: none;
+  filter: drop-shadow(0 10px 18px rgba(22, 101, 52, 0.25));
+}
+
+.leaf-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Base Phone Device */
+.phone-device {
+  position: relative;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.phone-outer-frame {
+  background: #0f172a;
+  border-radius: 38px;
+  padding: 8px;
+  border: 3.5px solid #334155;
+  position: relative;
+}
+
+.phone-speaker-notch {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 58px;
+  height: 5px;
+  background: #1e293b;
+  border-radius: 9999px;
+  z-index: 40;
+}
+
+.phone-screen-content {
+  border-radius: 30px;
+  overflow: hidden;
+  position: relative;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Phone Status Bar */
+.phone-status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px 4px 14px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #1e293b;
+  z-index: 30;
+}
+
+.bar-icons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.battery-pill {
+  width: 16px;
+  height: 9px;
+  border: 1.5px solid #1e293b;
+  border-radius: 2.5px;
+  padding: 1px;
+  display: flex;
+  align-items: center;
+}
+
+.battery-fill {
+  width: 70%;
+  height: 100%;
+  background: #1e293b;
+  border-radius: 1px;
+}
+
+/* Home Indicator Bar */
+.home-indicator {
+  width: 68px;
+  height: 3.5px;
+  background: #0f172a;
+  border-radius: 9999px;
+  margin: 6px auto 4px auto;
+  opacity: 0.4;
+}
+
+/* ========================================================
+   PHONE 1: SPLASH & LOGIN SCREEN (LEFT / BACK)
+   ======================================================== */
+.phone-splash {
+  width: 236px;
+  height: 480px;
+  z-index: 10;
+  transform: rotate(-3deg) translateY(12px) translateX(15px);
+  filter: drop-shadow(0 20px 40px rgba(15, 23, 42, 0.2));
+}
+
+.phone-splash:hover {
+  transform: rotate(-1deg) translateY(4px) translateX(10px);
+}
+
+.splash-screen {
+  height: 100%;
+  background: linear-gradient(180deg, #f8faff 0%, #ffffff 40%, #fff0f6 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+/* Wave Background Decoration */
+.splash-waves {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.wave-top {
+  position: absolute;
+  width: 260px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, rgba(139, 92, 246, 0.12) 100%);
+  border-radius: 40%;
+  top: -70px;
+  right: -50px;
+  filter: blur(20px);
+}
+
+.wave-bottom {
+  position: absolute;
+  width: 280px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(244, 63, 94, 0.18) 100%);
+  border-radius: 45%;
+  bottom: -60px;
+  left: -40px;
+  filter: blur(25px);
+}
+
+/* Center Branding */
+.splash-center {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 16px;
+  margin-top: 40px;
+}
+
+.splash-logo-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.splash-logo-svg {
+  width: 66px;
+  height: auto;
+  filter: drop-shadow(0 4px 10px rgba(225, 29, 72, 0.25));
+}
+
+.splash-logo-img {
+  width: 84px;
+  height: auto;
+  max-height: 56px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 4px 10px rgba(128, 59, 236, 0.25));
+}
+
+.splash-logo-text {
+  font-size: 1.55rem;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin-top: 2px;
+}
+
+.splash-tagline {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #334155;
+  letter-spacing: 0.02em;
+  margin-top: 4px;
+}
+
+/* Bottom Auth Buttons */
+.splash-auth-buttons {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 20px 10px 20px;
+}
+
+.btn-splash-login {
+  background: linear-gradient(135deg, #ff0066 0%, #e60067 100%);
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 800;
+  padding: 9px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(230, 0, 103, 0.4);
+}
+
+.btn-splash-create {
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 8px;
+  border-radius: 9999px;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
+}
+
+/* ========================================================
+   PHONE 2: USER DASHBOARD SCREEN (RIGHT / FRONT)
+   ======================================================== */
+.phone-dashboard {
+  width: 252px;
+  height: 510px;
+  z-index: 20;
+  transform: translateX(-15px) translateY(-8px);
+  filter: drop-shadow(0 26px 50px rgba(15, 23, 42, 0.28));
+}
+
+.phone-dashboard:hover {
+  transform: translateX(-15px) translateY(-14px);
+}
+
+.dash-screen {
+  height: 100%;
+  background: #ffffff;
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* User Header */
+.app-user-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 4px 6px 4px;
+}
+
+.user-avatar-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.user-avatar-img {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #e11d48;
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-greeting {
+  font-size: 0.62rem;
+  color: #64748b;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.user-name {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.15;
+}
+
+.user-id {
+  font-size: 0.58rem;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.app-bell-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+}
+
+/* My Shopping Coin Card Banner */
+.coin-card-banner {
+  background: linear-gradient(135deg, #fffbeb 0%, #fff1f2 100%);
+  border: 1.2px solid rgba(253, 230, 138, 0.9);
+  border-radius: 12px;
+  padding: 6px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(225, 29, 72, 0.06);
+  margin-bottom: 6px;
+}
+
+.coin-card-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.coin-gold-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.4);
+}
+
+.coin-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.coin-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #475569;
+  line-height: 1;
+}
+
+.coin-value {
+  font-size: 0.92rem;
+  font-weight: 900;
+  color: #e11d48;
+  line-height: 1.1;
+}
+
+/* Quick Action Grid (4 icons) */
+.app-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.action-icon-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-green { background: #dcfce7; }
+.action-purple { background: #f3e8ff; }
+.action-blue { background: #dbeafe; }
+.action-red { background: #fee2e2; }
+
+.action-title {
+  font-size: 0.54rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* Nearby Shops Section */
+.app-shops-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.shops-section-header h6 {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.shops-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shop-card-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+}
+
+.shop-thumb-box {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.thumb-mini-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.shop-details {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin-left: 6px;
+}
+
+.shop-name {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.shop-category {
+  font-size: 0.52rem;
+  color: #64748b;
+  line-height: 1;
+}
+
+.shop-distance-badge {
+  font-size: 0.52rem;
+  font-weight: 800;
+  color: #1d4ed8;
+  background: #eff6ff;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+/* ========================================================
+   RIGHT COLUMN: 6 FEATURES & DOWNLOAD SECTION
+   ======================================================== */
+.ma-features-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.ma-features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.ma-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: transform 0.25s ease;
+}
+
+.ma-feature-item:hover {
+  transform: translateX(4px);
+}
+
+.ma-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ma-feature-item:hover .ma-icon-circle {
+  transform: scale(1.08);
+}
+
+.ma-icon-circle svg {
+  width: 24px;
+  height: 24px;
+}
+
+.icon-royal-blue { background: #2563eb; }
+.icon-pink-badge { background: #e60067; }
+.icon-orange-bag { background: #f97316; }
+.icon-sky-truck { background: #2563eb; }
+.icon-rose-people { background: #ec4899; }
+.icon-blue-track { background: #0284c7; }
+
+.ma-feature-label {
+  font-size: clamp(1.05rem, 1.35vw, 1.25rem);
+  font-weight: 700;
+  color: #1e3a8a;
+  letter-spacing: -0.01em;
+}
+
+/* ========================================================
+   DOWNLOAD NOW SECTION
+   ======================================================== */
+.ma-download-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.download-heading {
+  font-size: clamp(1.4rem, 2vw, 1.7rem);
+  font-weight: 900;
+  color: #0b152b;
+  letter-spacing: -0.02em;
+}
+
+.store-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.store-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #000000;
+  color: #ffffff;
+  padding: 8px 18px;
+  border-radius: 12px;
+  text-decoration: none;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.store-badge-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.3);
+}
+
+.badge-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.badge-sub {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+}
+
+.badge-title {
+  font-size: 0.96rem;
+  font-weight: 800;
+}
+
+/* ========================================================
+   RESPONSIVE DESIGN
+   ======================================================== */
+@media (max-width: 900px) {
+  .ma-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    text-align: center;
+  }
+
+  .ma-features-col {
+    align-items: center;
+  }
+
+  .ma-features-list {
+    align-items: flex-start;
+  }
+
+  .ma-download-section {
+    align-items: center;
+  }
+
+  .store-badges-row {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 580px) {
+  .mobile-app-page {
+    padding: 20px 16px 36px 16px;
+  }
+
+  .ma-mockup-wrapper {
+    min-height: 440px;
+  }
+
+  .phone-splash {
+    width: 190px;
+    height: 390px;
+    transform: rotate(-3deg) translateY(10px) translateX(20px);
+  }
+
+  .phone-dashboard {
+    width: 205px;
+    height: 420px;
+    transform: translateX(-10px) translateY(-5px);
+  }
+
+  .ma-feature-label {
+    font-size: 1rem;
+  }
+
+  .ma-icon-circle {
+    width: 38px;
+    height: 38px;
+  }
+
+  .ma-icon-circle svg {
+    width: 20px;
+    height: 20px;
+  }
+}

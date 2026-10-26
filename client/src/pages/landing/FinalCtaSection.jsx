@@ -1,13 +1,38 @@
 import React, { useState } from 'react';
+import API_URL from '../../config/api';
 
 export default function FinalCtaSection() {
   const [form, setForm] = useState({ name: '', phone: '', city: '', role: 'Member' });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 4000);
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch(`${API_URL}/api/leads`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          mobile: form.phone.replace(/\D/g, ''),
+          role: form.role,
+          location: form.city,
+          source: 'womup_landing_page',
+          message: `Interested as: ${form.role} — City: ${form.city}`
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Submission failed');
+      setSubmitted(true);
+      setForm({ name: '', phone: '', city: '', role: 'Member' });
+    } catch (err) {
+      setError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -124,10 +149,14 @@ export default function FinalCtaSection() {
                   <button 
                     type="submit" 
                     id="cta-form-submit" 
-                    className="mt-2 bg-gradient-to-br from-[#7A3FF2] to-[#9B6FF5] text-white py-4 rounded-[14px] font-black text-sm shadow-[0_8px_24px_rgba(122,63,242,0.3)] hover:shadow-[0_12px_32px_rgba(122,63,242,0.4)] transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                    disabled={loading}
+                    className="mt-2 bg-gradient-to-br from-[#7A3FF2] to-[#9B6FF5] text-white py-4 rounded-[14px] font-black text-sm shadow-[0_8px_24px_rgba(122,63,242,0.3)] hover:shadow-[0_12px_32px_rgba(122,63,242,0.4)] transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                   >
-                    Submit & Get Business Plan →
+                    {loading ? '⏳ Submitting...' : 'Submit & Get Business Plan →'}
                   </button>
+                  {error && (
+                    <p className="text-[12px] text-red-500 text-center font-bold mt-1">⚠️ {error}</p>
+                  )}
                   <p className="text-[11px] text-[#9CA3AF] text-center font-bold uppercase tracking-wider mt-1">🔒 Your information is 100% private & secure</p>
                 </div>
               </form>

@@ -1,0 +1,580 @@
+/* ========================================================
+   WOMUP - High-Performance Modern Animations & Micro-Interactions
+   ======================================================== */
+
+/* ----------------------------------------------------
+   1. HERO SECTION DYNAMIC ANIMATIONS
+   ---------------------------------------------------- */
+
+/* Hero Woman image gentle floating */
+.hero-woman-img {
+  animation: gentleFloat 5s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes gentleFloat {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-7px) rotate(0.4deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+/* Floating Badges (Save, Shop, Earn) - Staggered Bobbing */
+.floating-badge {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  will-change: transform;
+}
+
+.badge-save {
+  animation: badgeFloat1 3.4s ease-in-out infinite alternate;
+}
+
+.badge-shop {
+  animation: badgeFloat2 3.8s ease-in-out infinite alternate;
+  animation-delay: 0.5s;
+}
+
+.badge-earn {
+  animation: badgeFloat3 4.2s ease-in-out infinite alternate;
+  animation-delay: 1s;
+}
+
+@keyframes badgeFloat1 {
+  0% { transform: translateY(0px) rotate(-1deg); }
+  100% { transform: translateY(-8px) rotate(1deg); }
+}
+
+@keyframes badgeFloat2 {
+  0% { transform: translateY(0px) rotate(1deg); }
+  100% { transform: translateY(-9px) rotate(-1.5deg); }
+}
+
+@keyframes badgeFloat3 {
+  0% { transform: translateY(0px) rotate(-0.5deg); }
+  100% { transform: translateY(-7px) rotate(1.2deg); }
+}
+
+.floating-badge:hover {
+  transform: scale(1.1) !important;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Background Leaves Swaying */
+.leaf-left-1 {
+  animation: leafDrift 6s ease-in-out infinite alternate;
+}
+.leaf-right-1 {
+  animation: leafDrift 7s ease-in-out infinite alternate-reverse;
+  animation-delay: 1.2s;
+}
+.leaf-left-2 {
+  animation: leafDrift 8s ease-in-out infinite alternate;
+  animation-delay: 2s;
+}
+.leaf-right-2 {
+  animation: leafDrift 6.5s ease-in-out infinite alternate-reverse;
+  animation-delay: 0.8s;
+}
+
+@keyframes leafDrift {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(6deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+/* Hero CTA Button Shimmer & Pulsing Glow */
+.btn-join {
+  position: relative;
+  overflow: hidden;
+  animation: pulseCtaGlow 3s ease-in-out infinite;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+
+.btn-join::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -70%;
+  width: 45%;
+  height: 200%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  transform: rotate(25deg);
+  animation: ctaShimmer 4s infinite ease-in-out;
+}
+
+@keyframes ctaShimmer {
+  0% { left: -70%; }
+  30% { left: 150%; }
+  100% { left: 150%; }
+}
+
+@keyframes pulseCtaGlow {
+  0%, 100% { box-shadow: 0 10px 24px -4px rgba(230, 0, 103, 0.38); }
+  50% { box-shadow: 0 14px 32px -2px rgba(230, 0, 103, 0.65); }
+}
+
+/* Play Icon Breathing Pulse */
+.play-icon-box {
+  animation: playPulse 2.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes playPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+/* 4 Feature Items at bottom of Hero - Hover Bounce & Icon Wiggle */
+.feature-item {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.feature-item:hover {
+  transform: translateY(-5px);
+}
+
+.feature-icon-box {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.feature-item:hover .feature-icon-box {
+  transform: scale(1.15) rotate(-4deg);
+}
+
+/* ----------------------------------------------------
+   2. HOW IT WORKS SECTION ANIMATIONS
+   ---------------------------------------------------- */
+
+/* SVG Circulating Ring Arrows Rotation */
+.circulating-arrows-svg {
+  animation: loopRotate 24s linear infinite;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+@keyframes loopRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Center Logo Breathing */
+.center-brand-box {
+  animation: centerPulse 4s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes centerPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+/* Customer & Vendor Circles Subtle Hover & Float */
+.circle-customer {
+  animation: entityFloat1 4.5s ease-in-out infinite alternate;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.circle-vendor {
+  animation: entityFloat2 5s ease-in-out infinite alternate;
+  animation-delay: 0.6s;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes entityFloat1 {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-7px); }
+}
+
+@keyframes entityFloat2 {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-7px); }
+}
+
+.customer-entity:hover .circle-customer,
+.vendor-entity:hover .circle-vendor {
+  transform: scale(1.08) translateY(-4px) !important;
+}
+
+/* Step badges pulse */
+.step-badge {
+  animation: stepBadgePop 3.2s ease-in-out infinite;
+}
+
+@keyframes stepBadgePop {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+/* ----------------------------------------------------
+   3. FOR CUSTOMERS SECTION ANIMATIONS
+   ---------------------------------------------------- */
+
+/* Phone Frame Hover Float */
+.phone-frame {
+  animation: phoneIdleFloat 6s ease-in-out infinite alternate;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+}
+
+@keyframes phoneIdleFloat {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-8px); }
+}
+
+.phone-frame:hover {
+  transform: translateY(-12px) scale(1.015) !important;
+  box-shadow: 0 32px 64px -12px rgba(225, 29, 72, 0.3) !important;
+}
+
+/* Gold Coin Icon Spinning / Shimmer */
+.coin-gold-icon {
+  animation: coinGleam 4s ease-in-out infinite;
+}
+
+@keyframes coinGleam {
+  0%, 75%, 100% { transform: scale(1) rotate(0deg); }
+  10% { transform: scale(1.15) rotate(-12deg); }
+  20% { transform: scale(1.15) rotate(12deg); }
+  30% { transform: scale(1) rotate(0deg); }
+}
+
+/* Benefit Items Hover Pop */
+.fc-benefit-item {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  border-radius: 14px;
+  padding: 8px 12px;
+}
+
+.fc-benefit-item:hover {
+  transform: translateX(8px);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+}
+
+.fc-benefit-item:hover .fc-benefit-icon {
+  transform: scale(1.15) rotate(-3deg);
+}
+
+.fc-benefit-icon {
+  transition: transform 0.25s ease;
+}
+
+/* Vegetables Banner Gentle Wave */
+.fc-veggies-img {
+  animation: veggieWave 5.5s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes veggieWave {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-8px); }
+}
+
+/* ----------------------------------------------------
+   4. FOR VENDORS SECTION ANIMATIONS
+   ---------------------------------------------------- */
+
+/* 5 Benefit Rows Hover Slide */
+.fv-card-item {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s ease;
+  border-radius: 12px;
+  padding: 6px 10px;
+}
+
+.fv-card-item:hover {
+  transform: translateX(8px);
+  background: #fdf2f8;
+}
+
+.fv-card-item:hover .fv-icon-circle,
+.fv-card-item:hover .fv-icon-box {
+  transform: scale(1.18);
+}
+
+.fv-icon-circle, .fv-icon-box {
+  transition: transform 0.25s ease;
+}
+
+/* Vendor Photo Hover Zoom */
+.fv-vendor-img {
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fv-image-container:hover .fv-vendor-img {
+  transform: scale(1.05);
+}
+
+/* Vendor Register Button Shimmer */
+.btn-register-vendor {
+  position: relative;
+  overflow: hidden;
+  animation: pulseVendorGlow 3s ease-in-out infinite;
+}
+
+@keyframes pulseVendorGlow {
+  0%, 100% { box-shadow: 0 10px 24px -4px rgba(37, 99, 235, 0.35); }
+  50% { box-shadow: 0 14px 30px -2px rgba(37, 99, 235, 0.6); }
+}
+
+/* ----------------------------------------------------
+   5. SHOP CATEGORIES ANIMATIONS
+   ---------------------------------------------------- */
+
+.sc-card {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease !important;
+}
+
+.sc-card:hover {
+  transform: translateY(-8px) scale(1.03) !important;
+  box-shadow: 0 20px 40px -10px rgba(124, 58, 237, 0.25), 0 0 0 2px #ff1475 !important;
+}
+
+.sc-card:hover .sc-img {
+  transform: scale(1.1) rotate(-2deg);
+}
+
+.sc-img {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ----------------------------------------------------
+   6. INCOME OPPORTUNITY ANIMATIONS
+   ---------------------------------------------------- */
+
+/* Growth Chart Bars & Arrow Draw */
+.chart-arrow-path {
+  stroke-dasharray: 450;
+  stroke-dashoffset: 450;
+  animation: arrowLineDraw 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+}
+
+@keyframes arrowLineDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+.chart-arrow-head {
+  opacity: 0;
+  transform-origin: 300px 60px;
+  animation: arrowHeadPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s forwards;
+}
+
+@keyframes arrowHeadPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translate(-12px, 12px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translate(0, 0);
+  }
+}
+
+.io-chart-svg .chart-bar {
+  transform-origin: bottom center;
+  animation: barGrowUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+  cursor: pointer;
+}
+
+.io-chart-svg .bar-1 { animation-delay: 0.15s; }
+.io-chart-svg .bar-2 { animation-delay: 0.3s; }
+.io-chart-svg .bar-3 { animation-delay: 0.45s; }
+.io-chart-svg .bar-4 { animation-delay: 0.6s; }
+.io-chart-svg .bar-5 { animation-delay: 0.75s; }
+
+.io-chart-svg .chart-bar:hover {
+  transform: scaleY(1.05) translateY(-6px);
+  filter: brightness(1.15) drop-shadow(0 10px 18px rgba(0, 0, 0, 0.18));
+}
+
+@keyframes barGrowUp {
+  from { transform: scaleY(0.08); opacity: 0.2; }
+  to { transform: scaleY(1); opacity: 1; }
+}
+
+/* Feature column icons */
+.io-feature-col {
+  transition: transform 0.25s ease;
+  cursor: pointer;
+}
+
+.io-feature-col:hover {
+  transform: translateY(-5px);
+}
+
+.io-feature-col:hover .io-icon-box {
+  transform: scale(1.16) rotate(4deg);
+}
+
+.io-icon-box {
+  transition: transform 0.25s ease;
+}
+
+/* ----------------------------------------------------
+   7. MOBILE APP SHOWCASE ANIMATIONS
+   ---------------------------------------------------- */
+
+/* Dual Phone Mockups Floating in Alternate Perspective */
+.phone-splash {
+  animation: phoneFloatSplash 5.5s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.phone-dashboard {
+  animation: phoneFloatDash 5s ease-in-out infinite alternate-reverse;
+  will-change: transform;
+}
+
+@keyframes phoneFloatSplash {
+  0% { transform: translateY(0px) rotate(-6deg); }
+  100% { transform: translateY(-10px) rotate(-5deg); }
+}
+
+@keyframes phoneFloatDash {
+  0% { transform: translateY(0px) rotate(3deg); }
+  100% { transform: translateY(-12px) rotate(4.2deg); }
+}
+
+/* Leaf Accent Swaying */
+.leaf-svg {
+  animation: leafSway 4.5s ease-in-out infinite alternate;
+  transform-origin: bottom left;
+}
+
+@keyframes leafSway {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(5deg); }
+}
+
+/* App Store Badge Buttons */
+.store-badge-btn {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+
+.store-badge-btn:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.35);
+}
+
+/* ----------------------------------------------------
+   8. CONTACT SECTION ANIMATIONS
+   ---------------------------------------------------- */
+
+.pathway-card {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.pathway-card:hover {
+  transform: translateY(-6px) scale(1.02) !important;
+}
+
+.pathway-card:hover .pathway-icon-box {
+  transform: scale(1.18);
+}
+
+.pathway-icon-box {
+  transition: transform 0.25s ease;
+}
+
+/* Support Agent Card Subtle Breathing Glow */
+.support-rep-card {
+  animation: repCardGlow 5s ease-in-out infinite alternate;
+  transition: transform 0.3s ease;
+}
+
+@keyframes repCardGlow {
+  0% { box-shadow: 0 8px 25px rgba(11, 21, 43, 0.03); }
+  100% { box-shadow: 0 14px 30px rgba(230, 0, 103, 0.09); }
+}
+
+.support-rep-card:hover {
+  transform: translateY(-3px);
+}
+
+/* Contact Detail Rows Hover Slide */
+.contact-detail-row:not(.static-row):hover {
+  transform: translateX(8px);
+}
+
+.contact-detail-row:not(.static-row):hover .contact-icon-bubble {
+  transform: scale(1.12);
+}
+
+.contact-icon-bubble {
+  transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* ----------------------------------------------------
+   9. GLOBAL BUTTON CLICK REACTION & GLOWS
+   ---------------------------------------------------- */
+button:active {
+  transform: scale(0.97) !important;
+}
+
+.cta-arrow {
+  transition: transform 0.2s ease;
+}
+
+button:hover .cta-arrow {
+  transform: translateX(4px);
+}
+
+/* Ambient glow subtle breathing */
+.hiw-bg-glow, .fc-bg-glow, .fv-bg-glow, .sc-bg-glow, .io-bg-glow, .ma-bg-glow {
+  animation: ambientGlowBreathe 8s ease-in-out infinite alternate;
+  will-change: opacity, transform;
+}
+
+@keyframes ambientGlowBreathe {
+  0% { opacity: 0.55; transform: scale(1); }
+  100% { opacity: 0.85; transform: scale(1.06); }
+}
+
+/* ----------------------------------------------------
+   10. SCROLL-TRIGGERED ENTRANCE REVEAL ANIMATIONS
+   ---------------------------------------------------- */
+
+/* Base Hidden States */
+.reveal-fade-up {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-fade-left {
+  opacity: 0;
+  transform: translateX(-45px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-fade-right {
+  opacity: 0;
+  transform: translateX(45px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-scale-up {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+/* Active Revealed State (Triggered by Scroll) */
+.reveal-fade-up.revealed,
+.reveal-fade-left.revealed,
+.reveal-fade-right.revealed,
+.reveal-scale-up.revealed {
+  opacity: 1 !important;
+  transform: translate(0, 0) scale(1) !important;
+}
+
+/* Stagger Delay Helpers */
+.stagger-1 { transition-delay: 0.1s !important; }
+.stagger-2 { transition-delay: 0.2s !important; }
+.stagger-3 { transition-delay: 0.3s !important; }
+.stagger-4 { transition-delay: 0.4s !important; }
+.stagger-5 { transition-delay: 0.5s !important; }
+
