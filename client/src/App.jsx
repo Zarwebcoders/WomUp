@@ -6,17 +6,17 @@ import Layout from './components/layout/Layout';
 import LandingLayout from './components/layout/LandingLayout';
 
 // WonUp Landing Pages
-import Home from './pages/wonup/Home';
-import HowItWorks from './pages/wonup/HowItWorks';
-import ForCustomers from './pages/wonup/ForCustomers';
-import ForVendors from './pages/wonup/ForVendors';
-import ShopCategories from './pages/wonup/ShopCategories';
-import IncomeOpportunity from './pages/wonup/IncomeOpportunity';
-import MobileApp from './pages/wonup/MobileApp';
-import Gallery from './pages/wonup/Gallery';
-import Contact from './pages/wonup/Contact';
-import Legal from './pages/wonup/Legal';
-import WebsiteAdmin from './pages/wonup/Admin';
+import Home from './pages/landing_pages/Home';
+import HowItWorks from './pages/landing_pages/HowItWorks';
+import ForCustomers from './pages/landing_pages/ForCustomers';
+import ForVendors from './pages/landing_pages/ForVendors';
+import ShopCategories from './pages/landing_pages/ShopCategories';
+import IncomeOpportunity from './pages/landing_pages/IncomeOpportunity';
+import MobileApp from './pages/landing_pages/MobileApp';
+import Gallery from './pages/landing_pages/Gallery';
+import Contact from './pages/landing_pages/Contact';
+import Legal from './pages/landing_pages/Legal';
+import WebsiteAdmin from './pages/landing_pages/Admin';
 
 // Member & Distributor Portal Pages
 import Login from './pages/Login';
