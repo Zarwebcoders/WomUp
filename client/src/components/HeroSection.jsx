@@ -1,8 +1,9 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useModal } from '../context/ModalContext';
 
 export default function HeroSection() {
-  const { openAppModal, openVideoModal } = useModal();
+  const { openAppModal } = useModal();
 
   return (
     <section className="hero-section" id="home">
@@ -34,16 +35,18 @@ export default function HeroSection() {
 
           <div className="hero-cta-group">
             <button className="btn-join" onClick={openAppModal}>
-              Join Now
+              Join Now &bull; Get App
             </button>
-            <button className="btn-video" onClick={openVideoModal}>
+            <Link to="/how-it-works" className="btn-video" style={{ textDecoration: 'none' }}>
               <span className="video-icon-circle">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9.5 8.2V15.8C9.5 16.58 10.37 17.05 11.02 16.61L16.64 12.81C17.22 12.42 17.22 11.58 16.64 11.19L11.02 7.39C10.37 6.95 9.5 7.42 9.5 8.2Z" fill="#e60067" />
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#e60067" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 16 16 12 12 8" />
+                  <line x1="8" y1="12" x2="16" y2="12" />
                 </svg>
               </span>
-              <span className="video-label">Watch Video</span>
-            </button>
+              <span className="video-label">How It Works</span>
+            </Link>
           </div>
         </div>
 

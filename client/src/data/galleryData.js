@@ -1,20 +1,6 @@
 // Shared Gallery Media Data & Local Storage Handler
 export const INITIAL_MEDIA = [
   {
-    id: 'media-1',
-    type: 'video',
-    title: 'How WOMUP Works: Smart Shopping & Digital Coins Explainer',
-    category: 'videos',
-    categoryLabel: 'Video Walkthrough',
-    duration: '2:15 min',
-    thumbnail: '/assets/vendor_store_owner.jpg',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    tag: 'FEATURED VIDEO',
-    desc: 'Watch how customers save ₹2,000 monthly with digital coins while local merchants gain daily footfall.',
-    location: 'Ahmedabad, Gujarat',
-    createdAt: '2026-10-20',
-  },
-  {
     id: 'media-2',
     type: 'photo',
     title: 'Verified Kirana & Supermarket Partner Store',
@@ -34,20 +20,6 @@ export const INITIAL_MEDIA = [
     image: '/assets/fresh_vegetables.jpg',
     location: 'SG Highway, Ahmedabad',
     desc: 'Farm-fresh vegetable vendors registered on WOMUP providing direct customer discounts.',
-    createdAt: '2026-10-22',
-  },
-  {
-    id: 'media-4',
-    type: 'video',
-    title: 'Pincode Referral Income Explained: ₹20, ₹10, ₹5 Joining Rewards',
-    category: 'videos',
-    categoryLabel: 'Explainer Video',
-    duration: '3:10 min',
-    thumbnail: '/assets/hero_woman.jpg',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    tag: 'PINCODE EARNINGS',
-    desc: 'Complete guide on how community leaders earn referral rewards within their designated pincode.',
-    location: 'SG Highway, Ahmedabad',
     createdAt: '2026-10-22',
   },
   {
@@ -71,20 +43,6 @@ export const INITIAL_MEDIA = [
     location: 'Signature-2, Ahmedabad',
     desc: 'Retail store merchant receiving official WOMUP certification and merchant QR scanner kit.',
     createdAt: '2026-10-23',
-  },
-  {
-    id: 'media-7',
-    type: 'video',
-    title: 'Vendor Testimonial: 40% Increase in Weekly Customer Footfall',
-    category: 'videos',
-    categoryLabel: 'Merchant Stories',
-    duration: '1:45 min',
-    thumbnail: '/assets/vendor_shopkeeper.jpg',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    tag: 'SUCCESS STORY',
-    desc: 'Local retailer shares how WOMUP customers became their primary loyal repeat shoppers.',
-    location: 'Mahesana, Gujarat',
-    createdAt: '2026-10-24',
   },
   {
     id: 'media-8',
@@ -121,7 +79,9 @@ export function getStoredMedia() {
       return INITIAL_MEDIA;
     }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_MEDIA;
+    // Filter out any legacy dummy video items
+    const cleaned = Array.isArray(parsed) ? parsed.filter(item => item.type !== 'video') : [];
+    return cleaned.length > 0 ? cleaned : INITIAL_MEDIA;
   } catch (err) {
     console.error('Error reading gallery media from localStorage:', err);
     return INITIAL_MEDIA;

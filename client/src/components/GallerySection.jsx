@@ -3,11 +3,9 @@ import { useModal } from '../context/ModalContext';
 import { getStoredMedia } from '../data/galleryData';
 
 export default function GallerySection({ isPage = false }) {
-  const { openVideoModal } = useModal();
   const [activeFilter, setActiveFilter] = useState('all');
   const [mediaItems, setMediaItems] = useState(getStoredMedia);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [activeVideo, setActiveVideo] = useState(null);
 
   // Real-time synchronization when admin adds/deletes items
   useEffect(() => {
@@ -35,10 +33,10 @@ export default function GallerySection({ isPage = false }) {
         <div className="gallery-container">
           <span className="gallery-badge">MEDIA &amp; VISUAL STORIES</span>
           <HeadingTag className="gallery-main-title">
-            WOMUP <span className="highlight-magenta">Photos &amp; Videos</span>
+            WOMUP <span className="highlight-magenta">Photo Gallery</span>
           </HeadingTag>
           <p className="gallery-subtitle">
-            Explore authentic moments from verified local stores, happy smart shoppers, and video walkthroughs across Gujarat.
+            Explore authentic moments from verified local partner stores, happy smart shoppers, and team events across Gujarat.
           </p>
         </div>
       </div>
@@ -47,8 +45,7 @@ export default function GallerySection({ isPage = false }) {
         {/* Filter Bar */}
         <div className="gallery-filter-bar">
           {[
-            { id: 'all', label: 'All Media' },
-            { id: 'videos', label: '🎬 Videos & Guides' },
+            { id: 'all', label: 'All Photos' },
             { id: 'merchants', label: '🏪 Partner Stores' },
             { id: 'shoppers', label: '🛍️ Happy Shoppers' },
             { id: 'events', label: '🤝 Team & Events' },
@@ -67,35 +64,23 @@ export default function GallerySection({ isPage = false }) {
         {/* Media Grid */}
         <div className="gallery-grid">
           {filteredMedia.map((item) => (
-            <div key={item.id} className={`gallery-card ${item.type === 'video' ? 'video-card' : 'photo-card'}`}>
+            <div key={item.id} className="gallery-card photo-card">
               <div 
                 className="gallery-media-thumb"
-                onClick={() => {
-                  if (item.type === 'video') {
-                    openVideoModal();
-                  } else {
-                    setSelectedImage(item);
-                  }
-                }}
+                onClick={() => setSelectedImage(item)}
                 role="button"
                 tabIndex={0}
                 aria-label={`View ${item.title}`}
               >
                 <img
-                  src={item.type === 'video' ? item.thumbnail : item.image}
+                  src={item.image}
                   alt={item.title}
                   className="gallery-img"
                   loading="lazy"
                 />
 
-                {item.type === 'video' && (
-                  <div className="video-overlay-btn" title="Watch Video">
-                    <div className="play-triangle"></div>
-                  </div>
-                )}
-
                 <div className="gallery-thumb-badge">
-                  {item.type === 'video' ? `VIDEO • ${item.duration}` : 'PHOTO'}
+                  PHOTO
                 </div>
 
                 {item.tag && (
@@ -115,12 +100,9 @@ export default function GallerySection({ isPage = false }) {
                 <button
                   type="button"
                   className="btn-gallery-action"
-                  onClick={() => {
-                    if (item.type === 'video') openVideoModal();
-                    else setSelectedImage(item);
-                  }}
+                  onClick={() => setSelectedImage(item)}
                 >
-                  {item.type === 'video' ? 'Watch Full Video ▶' : 'View Full Image 🔍'}
+                  View Full Image 🔍
                 </button>
               </div>
             </div>
