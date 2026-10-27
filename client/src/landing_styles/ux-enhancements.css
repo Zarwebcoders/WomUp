@@ -1108,50 +1108,6 @@ html, body, #root, .page-wrapper {
     align-items: center;
   }
 
-  .nav-menu {
-    position: fixed;
-    top: 68px;
-    left: 0;
-    right: 0;
-    background: #ffffff;
-    padding: 24px 20px 32px 20px;
-    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.16);
-    border-bottom: 3px solid #ff1475;
-    transform: translateY(-120%);
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    max-height: calc(100vh - 68px);
-    overflow-y: auto;
-    z-index: 99;
-  }
-
-  .nav-menu.open {
-    transform: translateY(0);
-  }
-
-  .nav-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 100%;
-  }
-
-  .nav-link {
-    font-size: 16px;
-    font-weight: 700;
-    padding: 10px 14px;
-    border-radius: 10px;
-    display: block;
-    width: 100%;
-    color: #1e293b;
-    transition: background 0.2s, color 0.2s;
-  }
-
-  .nav-link:hover,
-  .nav-link.active {
-    background: rgba(255, 20, 117, 0.08);
-    color: #e60067;
-  }
-
   .mobile-toggle {
     width: 44px;
     height: 44px;
