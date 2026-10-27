@@ -34,9 +34,6 @@ export default function HeroSection() {
           </p>
 
           <div className="hero-cta-group">
-            <button className="btn-join" onClick={openAppModal}>
-              Join Now &bull; Get App
-            </button>
             <Link to="/how-it-works" className="btn-video" style={{ textDecoration: 'none' }}>
               <span className="video-icon-circle">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#e60067" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
