@@ -1,10 +1,8 @@
-if (process.env.VERCEL !== '1') {
-    try {
-        const dns = require('dns');
-        dns.setServers(['8.8.8.8', '1.1.1.1']);
-    } catch (err) {
-        console.warn('dns.setServers skipped:', err.message);
-    }
+try {
+    const dns = require('dns');
+    dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
+} catch (err) {
+    console.warn('dns.setServers skipped:', err.message);
 }
 
 const express = require('express');
@@ -75,6 +73,20 @@ app.get(['/', '/landing', '/promo'], (req, res) => {
 // API health endpoint
 app.get('/api', (req, res) => {
     res.json({ message: 'WOMUP API is running...', status: 'online' });
+});
+
+// Middleware to ensure active MongoDB connection on all API requests (critical for serverless)
+app.use('/api', async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (err) {
+        console.error('Database connection failed on request:', err.message);
+        return res.status(500).json({
+            success: false,
+            message: 'Database temporarily unavailable. Please retry in a moment.'
+        });
+    }
 });
 
 // API Routes

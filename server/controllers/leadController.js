@@ -1,10 +1,14 @@
 const Lead = require('../models/Lead');
+const connectDB = require('../config/db');
 
 // @desc    Create a new lead from landing page
 // @route   POST /api/leads
 // @access  Public
 exports.createLead = async (req, res) => {
     try {
+        // Ensure database connection is established before querying
+        await connectDB();
+
         const { name, email, mobile, city, area, role, pincode, location, message, source } = req.body;
 
         // Validation
@@ -60,6 +64,8 @@ exports.createLead = async (req, res) => {
 // @access  Public / Admin
 exports.getAllLeads = async (req, res) => {
     try {
+        await connectDB();
+
         const leads = await Lead.find().sort({ createdAt: -1 });
         return res.status(200).json({
             success: true,
@@ -80,6 +86,8 @@ exports.getAllLeads = async (req, res) => {
 // @access  Admin
 exports.deleteLead = async (req, res) => {
     try {
+        await connectDB();
+
         const lead = await Lead.findByIdAndDelete(req.params.id);
         if (!lead) {
             return res.status(404).json({
