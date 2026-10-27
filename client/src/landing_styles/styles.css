@@ -156,8 +156,17 @@ body {
 /* Navigation Links */
 .mobile-nav-backdrop,
 .mobile-drawer-header,
-.mobile-drawer-footer {
+.mobile-drawer-footer,
+.nav-icon-mobile,
+.nav-chevron-mobile,
+.drawer-perk-card,
+.btn-mobile-meta {
   display: none;
+}
+
+.nav-link-left {
+  display: inline-flex;
+  align-items: center;
 }
 
 .nav-menu-scrollable {
@@ -1178,6 +1187,8 @@ body {
     box-shadow: -10px 0 35px rgba(0, 0, 0, 0.22) !important;
     display: flex !important;
     flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
     padding: 0 !important;
     margin: 0 !important;
     border: none !important;
@@ -1185,6 +1196,7 @@ body {
     transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
     z-index: 999 !important;
     overflow: hidden !important;
+    box-sizing: border-box !important;
   }
 
   .nav-menu.open {
@@ -1196,25 +1208,33 @@ body {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    padding: 16px 20px !important;
+    width: 100% !important;
+    padding: 18px 22px !important;
     border-bottom: 1px solid #f1f5f9 !important;
     background: #ffffff !important;
     flex-shrink: 0 !important;
-    height: 64px !important;
+    height: 68px !important;
     box-sizing: border-box !important;
   }
 
-  .mobile-drawer-logo img {
-    height: 34px !important;
+  .mobile-drawer-brand {
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  .drawer-logo-img {
+    height: 38px !important;
+    max-width: 140px !important;
     width: auto !important;
     object-fit: contain !important;
+    display: block !important;
   }
 
   .mobile-drawer-close {
-    width: 38px !important;
-    height: 38px !important;
-    border-radius: 10px !important;
-    background: #f8fafc !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    background: #f1f5f9 !important;
     border: 1px solid #e2e8f0 !important;
     display: flex !important;
     align-items: center !important;
@@ -1223,6 +1243,7 @@ body {
     cursor: pointer !important;
     transition: all 0.2s ease !important;
     padding: 0 !important;
+    flex-shrink: 0 !important;
   }
 
   .mobile-drawer-close:hover {
@@ -1233,13 +1254,16 @@ body {
 
   /* Scrollable Nav Item Container */
   .nav-menu-scrollable {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
     flex: 1 1 auto !important;
+    width: 100% !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch !important;
     overscroll-behavior: contain !important;
-    padding: 16px 14px 20px 14px !important;
+    padding: 16px 16px 20px 16px !important;
+    box-sizing: border-box !important;
   }
 
   .nav-menu-scrollable::-webkit-scrollbar {
@@ -1254,7 +1278,7 @@ body {
   .nav-list {
     display: flex !important;
     flex-direction: column !important;
-    gap: 6px !important;
+    gap: 4px !important;
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -1270,15 +1294,44 @@ body {
   .nav-link {
     display: flex !important;
     align-items: center !important;
+    justify-content: space-between !important;
     width: 100% !important;
-    padding: 11px 16px !important;
-    font-size: 15px !important;
+    padding: 9px 12px !important;
+    font-size: 14.5px !important;
     font-weight: 600 !important;
     color: #334155 !important;
-    border-radius: 10px !important;
+    border-radius: 12px !important;
     text-decoration: none !important;
     transition: all 0.18s ease !important;
     box-sizing: border-box !important;
+    background: transparent;
+  }
+
+  .nav-link-left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+
+  .nav-icon-mobile {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 9px !important;
+    background: #f8fafc !important;
+    color: #64748b !important;
+    border: 1px solid #f1f5f9 !important;
+    flex-shrink: 0 !important;
+    transition: all 0.18s ease !important;
+  }
+
+  .nav-chevron-mobile {
+    display: flex !important;
+    align-items: center !important;
+    color: #cbd5e1 !important;
+    transition: transform 0.18s ease, color 0.18s ease !important;
   }
 
   .nav-link:hover {
@@ -1286,14 +1339,90 @@ body {
     color: #ff1475 !important;
   }
 
-  .nav-link.active {
+  .nav-link:hover .nav-icon-mobile {
     background: #fff1f6 !important;
+    color: #ff1475 !important;
+    border-color: #ffd6e5 !important;
+  }
+
+  .nav-link:hover .nav-chevron-mobile {
+    color: #ff1475 !important;
+    transform: translateX(2px) !important;
+  }
+
+  .nav-link.active {
+    background: linear-gradient(135deg, rgba(255, 20, 117, 0.08) 0%, rgba(255, 107, 0, 0.05) 100%) !important;
     color: #ff1475 !important;
     font-weight: 700 !important;
   }
 
+  .nav-link.active .nav-icon-mobile {
+    background: linear-gradient(135deg, #ff1475 0%, #e60067 100%) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    box-shadow: 0 3px 8px rgba(255, 20, 117, 0.3) !important;
+  }
+
+  .nav-link.active .nav-chevron-mobile {
+    color: #ff1475 !important;
+  }
+
   .nav-link.active::after {
     display: none !important;
+  }
+
+  /* In-drawer Perk Card */
+  .drawer-perk-card {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    margin-top: 16px !important;
+    padding: 14px 14px !important;
+    background: linear-gradient(135deg, #fff7ed 0%, #fff1f6 100%) !important;
+    border: 1px solid rgba(255, 154, 162, 0.45) !important;
+    border-radius: 14px !important;
+    box-sizing: border-box !important;
+  }
+
+  .perk-card-icon {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 9px !important;
+    background: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 16px !important;
+    flex-shrink: 0 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+  }
+
+  .perk-card-content {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+  }
+
+  .perk-badge {
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.5px !important;
+    color: #ea580c !important;
+    text-transform: uppercase !important;
+  }
+
+  .perk-title {
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    line-height: 1.25 !important;
+  }
+
+  .perk-desc {
+    font-size: 11px !important;
+    color: #64748b !important;
+    line-height: 1.35 !important;
+    margin: 0 !important;
   }
 
   /* Sidebar Footer Actions */
@@ -1301,10 +1430,11 @@ body {
     display: flex !important;
     flex-direction: column !important;
     gap: 10px !important;
-    padding: 16px 20px 24px 20px !important;
+    padding: 16px 20px 22px 20px !important;
     border-top: 1px solid #f1f5f9 !important;
     background: #ffffff !important;
     flex-shrink: 0 !important;
+    width: 100% !important;
     box-sizing: border-box !important;
   }
 
@@ -1312,6 +1442,7 @@ body {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    gap: 8px !important;
     height: 44px !important;
     width: 100% !important;
     border-radius: 12px !important;
@@ -1320,7 +1451,7 @@ body {
     font-weight: 700 !important;
     font-size: 14px !important;
     text-decoration: none !important;
-    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.25) !important;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.28) !important;
     transition: transform 0.2s, box-shadow 0.2s !important;
     box-sizing: border-box !important;
   }
@@ -1330,18 +1461,27 @@ body {
     align-items: center !important;
     justify-content: center !important;
     gap: 8px !important;
-    height: 44px !important;
+    height: 46px !important;
     width: 100% !important;
     border-radius: 12px !important;
-    background: linear-gradient(135deg, #ff1a75 0%, #e60067 100%) !important;
+    background: linear-gradient(135deg, #ff1475 0%, #e60067 100%) !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     font-size: 14px !important;
     border: none !important;
     cursor: pointer !important;
-    box-shadow: 0 4px 14px rgba(255, 26, 117, 0.28) !important;
+    box-shadow: 0 4px 16px rgba(255, 20, 117, 0.32) !important;
     transition: transform 0.2s, box-shadow 0.2s !important;
     box-sizing: border-box !important;
+  }
+
+  .btn-mobile-meta {
+    display: block !important;
+    text-align: center !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    color: #94a3b8 !important;
+    margin-top: 2px !important;
   }
 
   .btn-mobile-login:active,
