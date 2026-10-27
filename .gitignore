@@ -10,3 +10,4 @@ server/node_modules/
 client/dist/
 server/uploads/
 /wonup/
+/app-release.apk
