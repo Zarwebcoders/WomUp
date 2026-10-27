@@ -6,9 +6,25 @@ const leadSchema = new mongoose.Schema({
         required: [true, 'Name is required'],
         trim: true
     },
+    email: {
+        type: String,
+        default: '',
+        trim: true,
+        lowercase: true
+    },
     mobile: {
         type: String,
         required: [true, 'Mobile number is required'],
+        trim: true
+    },
+    city: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    area: {
+        type: String,
+        default: '',
         trim: true
     },
     role: {

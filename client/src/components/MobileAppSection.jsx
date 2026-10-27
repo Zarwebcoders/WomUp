@@ -314,42 +314,38 @@ export default function MobileAppSection({ isPage = false }) {
               </div>
             </div>
 
-            {/* Download Now Section */}
+            {/* Get Started Section */}
             <div className="ma-download-section">
-              <h3 className="download-heading">Download App from Website</h3>
-              <p className="download-subtext">Get the official Android application package (.apk) directly or download via official app stores.</p>
+              <h3 className="download-heading">Get Started with WOMUP</h3>
+              <p className="download-subtext">Register your interest to unlock exclusive shopping coin rewards at your nearby local stores.</p>
 
-              {/* Primary Direct Download Card */}
+              {/* Primary Direct Registration Card */}
               <div className="ma-direct-download-card">
-                <a
-                  href="/downloads/womup.apk"
-                  download="WOMUP.apk"
+                <button
+                  type="button"
                   className="btn-ma-direct-apk"
-                  onClick={() => {
-                    if (showToast) {
-                      showToast('Downloading WOMUP App APK... Tap the downloaded file to install on Android.', 'success', 5000);
-                    }
-                  }}
+                  onClick={() => setIsAppModalOpen(true)}
                   id="pageDirectDownloadBtn"
                 >
                   <div className="ma-direct-icon-box">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="7 10 12 15 17 10" />
-                      <line x1="12" y1="15" x2="12" y2="3" />
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="8.5" cy="7" r="4"></circle>
+                      <line x1="20" y1="8" x2="20" y2="14"></line>
+                      <line x1="23" y1="11" x2="17" y2="11"></line>
                     </svg>
                   </div>
                   <div className="ma-direct-content">
-                    <span className="ma-direct-badge">DIRECT WEBSITE DOWNLOAD</span>
-                    <strong className="ma-direct-title">Download WOMUP Mobile App (.APK)</strong>
-                    <span className="ma-direct-meta">Android 6.0+ &bull; Version 1.0.0 &bull; Safe &amp; Verified</span>
+                    <span className="ma-direct-badge">OFFICIAL REGISTRATION</span>
+                    <strong className="ma-direct-title">Join WOMUP &bull; Register Interest</strong>
+                    <span className="ma-direct-meta">Free &bull; Instant Registration &bull; Save Up to 20%</span>
                   </div>
                   <div className="ma-direct-arrow">
                     <svg viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
                   </div>
-                </a>
+                </button>
               </div>
               
               <div className="store-badges-row">

@@ -279,15 +279,16 @@ export default function Navbar() {
               }}
             >
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="20" y1="8" x2="20" y2="14"></line>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
               </svg>
-              <span>Download WOMUP App (.APK)</span>
+              <span>Join WOMUP &bull; Register</span>
             </button>
 
             <div className="btn-mobile-meta">
-              Official Android Release &bull; Version 1.0.0 &bull; Fast &amp; Safe
+              Quick 1-Minute Registration &bull; Save Up to 20%
             </div>
           </div>
         </nav>
@@ -299,7 +300,7 @@ export default function Navbar() {
           </Link>
 
           <button className="btn-download" id="downloadBtn" onClick={openAppModal}>
-            Download App
+            Join Now
           </button>
 
           <button

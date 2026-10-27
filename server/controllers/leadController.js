@@ -5,7 +5,7 @@ const Lead = require('../models/Lead');
 // @access  Public
 exports.createLead = async (req, res) => {
     try {
-        const { name, mobile, role, pincode, location, message, source } = req.body;
+        const { name, email, mobile, city, area, role, pincode, location, message, source } = req.body;
 
         // Validation
         if (!name || !name.trim()) {
@@ -23,17 +23,23 @@ exports.createLead = async (req, res) => {
             });
         }
 
+        // Computed location fallback if not explicitly provided
+        const locFallback = (area && city) ? `${area.trim()}, ${city.trim()}` : (area || city || '');
+
         const newLead = await Lead.create({
             name: name.trim(),
+            email: email ? String(email).trim().toLowerCase() : '',
             mobile: cleanedMobile,
+            city: city ? String(city).trim() : '',
+            area: area ? String(area).trim() : '',
             role: role || 'Join as Customer',
             pincode: pincode ? String(pincode).trim() : '',
-            location: location ? String(location).trim() : '',
+            location: location ? String(location).trim() : locFallback,
             message: message ? String(message).trim() : '',
             source: source || 'womup_landing_page'
         });
 
-        console.log(`[Lead Captured] New submission from ${newLead.name} (${newLead.mobile}) - Role: ${newLead.role}`);
+        console.log(`[Lead Captured] New submission from ${newLead.name} (${newLead.mobile}, ${newLead.email}) - City: ${newLead.city}, Area: ${newLead.area}`);
 
         return res.status(201).json({
             success: true,
