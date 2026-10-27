@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getStoredMedia, addMediaItem, deleteMediaItem, resetToDefaults } from '../data/galleryData';
 import { useModal } from '../context/ModalContext';
+import API_URL from '../config/api';
 
 export default function AdminPortal() {
   const { showToast } = useModal();
@@ -24,8 +25,15 @@ export default function AdminPortal() {
     }
   });
 
-  // Active Admin View: 'add' | 'manage' | 'settings'
-  const [activeTab, setActiveTab] = useState('add');
+  // Active Admin View: 'leads' | 'add' | 'manage' | 'settings'
+  const [activeTab, setActiveTab] = useState('leads');
+
+  // Leads list state
+  const [leadsList, setLeadsList] = useState([]);
+  const [isLoadingLeads, setIsLoadingLeads] = useState(true);
+  const [leadSearchTerm, setLeadSearchTerm] = useState('');
+  const [deletingLeadId, setDeletingLeadId] = useState(null);
+  const [leadsError, setLeadsError] = useState('');
 
   // Media list state
   const [mediaList, setMediaList] = useState(getStoredMedia);
@@ -199,6 +207,94 @@ export default function AdminPortal() {
     setTimeout(() => setSettingsSuccess(''), 4000);
   };
 
+  // Fetch Form Leads from MongoDB Atlas via API
+  const fetchLeads = async () => {
+    setIsLoadingLeads(true);
+    setLeadsError('');
+    try {
+      const res = await fetch(`${API_URL}/api/leads`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        setLeadsList(data.data);
+      } else {
+        setLeadsList([]);
+      }
+    } catch (err) {
+      console.error('Failed to load leads:', err);
+      setLeadsError('Could not connect to database server. Please check your network.');
+    } finally {
+      setIsLoadingLeads(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchLeads();
+    }
+  }, [isLoggedIn]);
+
+  // Handle Delete Lead
+  const handleDeleteLead = async (id, leadName) => {
+    if (!window.confirm(`Are you sure you want to delete lead: "${leadName}"?`)) return;
+    setDeletingLeadId(id);
+    try {
+      const res = await fetch(`${API_URL}/api/leads/${id}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (data.success) {
+        setLeadsList(prev => prev.filter(item => item._id !== id));
+        if (showToast) showToast(`Lead "${leadName}" removed successfully`, 'success', 2500);
+      } else {
+        alert(data.message || 'Failed to delete lead');
+      }
+    } catch (err) {
+      alert('Error deleting lead: ' + err.message);
+    } finally {
+      setDeletingLeadId(null);
+    }
+  };
+
+  // Export Leads to CSV
+  const handleExportCSV = () => {
+    if (!leadsList.length) {
+      alert('No lead data available to export.');
+      return;
+    }
+    const headers = ['Sr', 'Customer Name', 'Mobile Number', 'Email', 'City', 'Area', 'Location', 'Submitted On'];
+    const rows = leadsList.map((l, idx) => [
+      idx + 1,
+      `"${(l.name || '').replace(/"/g, '""')}"`,
+      `"${l.mobile || ''}"`,
+      `"${(l.email || '').replace(/"/g, '""')}"`,
+      `"${(l.city || '').replace(/"/g, '""')}"`,
+      `"${(l.area || '').replace(/"/g, '""')}"`,
+      `"${(l.location || '').replace(/"/g, '""')}"`,
+      `"${new Date(l.createdAt || Date.now()).toLocaleString('en-IN')}"`
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `womup_leads_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Filtered Leads based on search term
+  const filteredLeads = leadsList.filter((lead) => {
+    const term = leadSearchTerm.toLowerCase().trim();
+    if (!term) return true;
+    return (
+      (lead.name && lead.name.toLowerCase().includes(term)) ||
+      (lead.mobile && lead.mobile.includes(term)) ||
+      (lead.email && lead.email.toLowerCase().includes(term)) ||
+      (lead.city && lead.city.toLowerCase().includes(term)) ||
+      (lead.area && lead.area.toLowerCase().includes(term))
+    );
+  });
+
   // -------------------------------------------------------------
   // VIEW 1: ADMIN LOGIN SCREEN (If not logged in)
   // -------------------------------------------------------------
@@ -315,9 +411,14 @@ export default function AdminPortal() {
       <main className="admin-main-container">
         {/* Metric Cards Row */}
         <div className="admin-metrics-row">
-          <div className="admin-metric-card">
-            <span className="metric-num pink">{mediaList.length}</span>
-            <span className="metric-label">Total Media Items</span>
+          <div 
+            className={`admin-metric-card cursor-pointer ${activeTab === 'leads' ? 'metric-card-active' : ''}`}
+            onClick={() => setActiveTab('leads')}
+            style={{ cursor: 'pointer' }}
+            title="Click to view all Form Submissions"
+          >
+            <span className="metric-num pink">{leadsList.length}</span>
+            <span className="metric-label">📋 Form Submissions</span>
           </div>
           <div className="admin-metric-card">
             <span className="metric-num purple">{photoCount}</span>
@@ -335,6 +436,13 @@ export default function AdminPortal() {
 
         {/* Navigation Tabs */}
         <div className="admin-nav-tabs">
+          <button
+            type="button"
+            className={`admin-tab-btn ${activeTab === 'leads' ? 'active' : ''}`}
+            onClick={() => setActiveTab('leads')}
+          >
+            📋 Form Submissions ({leadsList.length})
+          </button>
           <button
             type="button"
             className={`admin-tab-btn ${activeTab === 'add' ? 'active' : ''}`}
@@ -357,6 +465,206 @@ export default function AdminPortal() {
             ⚙️ Security &amp; Password
           </button>
         </div>
+
+        {/* TAB 0: FORM SUBMISSIONS / LEADS MANAGEMENT */}
+        {activeTab === 'leads' && (
+          <div className="admin-card-section">
+            <div className="admin-card-header flex-between">
+              <div>
+                <h2>📋 Website Form Submissions ({leadsList.length})</h2>
+                <p>Live lead inquiries submitted by visitors from the website form.</p>
+              </div>
+              <div className="admin-leads-toolbar">
+                <div className="admin-leads-search-box">
+                  <svg viewBox="0 0 24 24" className="admin-search-icon" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                  </svg>
+                  <input
+                    type="text"
+                    className="admin-leads-search-input"
+                    placeholder="Search name, phone, email, city, area..."
+                    value={leadSearchTerm}
+                    onChange={(e) => setLeadSearchTerm(e.target.value)}
+                  />
+                  {leadSearchTerm && (
+                    <button 
+                      type="button" 
+                      className="admin-search-clear-btn" 
+                      onClick={() => setLeadSearchTerm('')}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                <div className="admin-leads-actions-group">
+                  <button
+                    type="button"
+                    className="btn-admin-action-outline"
+                    onClick={fetchLeads}
+                    title="Refresh leads list"
+                    disabled={isLoadingLeads}
+                  >
+                    🔄 {isLoadingLeads ? 'Refreshing...' : 'Refresh'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-admin-action-gradient"
+                    onClick={handleExportCSV}
+                    title="Download leads as Excel / CSV"
+                  >
+                    📥 Export CSV
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {leadsError && (
+              <div className="admin-auth-error" style={{ marginBottom: 20 }}>
+                <span>⚠️ {leadsError}</span>
+                <button type="button" onClick={fetchLeads} style={{ marginLeft: 12, background: 'transparent', color: '#fff', border: '1px solid #fff', padding: '2px 8px', borderRadius: 4, cursor: 'pointer' }}>
+                  Retry
+                </button>
+              </div>
+            )}
+
+            {isLoadingLeads ? (
+              <div className="admin-empty-state">
+                <div className="admin-loading-spinner" />
+                <p>Fetching latest form submissions from database...</p>
+              </div>
+            ) : filteredLeads.length === 0 ? (
+              <div className="admin-empty-state">
+                <span style={{ fontSize: 42 }}>📭</span>
+                <h3>{leadSearchTerm ? 'No matching submissions found' : 'No form submissions yet'}</h3>
+                <p>
+                  {leadSearchTerm
+                    ? `No leads matched your search term "${leadSearchTerm}". Try another keyword.`
+                    : 'When users submit the website contact or join form, their data will appear here immediately.'}
+                </p>
+                {leadSearchTerm && (
+                  <button 
+                    type="button" 
+                    className="btn-admin-reset" 
+                    onClick={() => setLeadSearchTerm('')}
+                    style={{ marginTop: 12 }}
+                  >
+                    Clear Search Filter
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="admin-table-responsive">
+                <table className="admin-table admin-leads-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: 45 }}>#</th>
+                      <th>Customer Name</th>
+                      <th>Mobile Number</th>
+                      <th>Email Address</th>
+                      <th>City</th>
+                      <th>Area</th>
+                      <th>Submitted On</th>
+                      <th style={{ textAlign: 'center', width: 90 }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredLeads.map((lead, idx) => {
+                      const cleanPhone = String(lead.mobile || '').replace(/\D/g, '');
+                      const formattedDate = lead.createdAt 
+                        ? new Date(lead.createdAt).toLocaleString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })
+                        : 'Just now';
+
+                      return (
+                        <tr key={lead._id || idx}>
+                          <td style={{ color: '#64748b', fontWeight: 700 }}>
+                            {idx + 1}
+                          </td>
+                          <td>
+                            <strong className="lead-name-text">{lead.name || 'Anonymous'}</strong>
+                            {lead.role && (
+                              <span className="lead-role-badge">{lead.role}</span>
+                            )}
+                          </td>
+                          <td>
+                            <div className="lead-phone-cell">
+                              <a 
+                                href={`tel:${cleanPhone}`} 
+                                className="lead-phone-link"
+                                title="Click to call"
+                              >
+                                📞 +91 {lead.mobile}
+                              </a>
+                              {cleanPhone && (
+                                <a
+                                  href={`https://wa.me/91${cleanPhone}?text=Hello%20${encodeURIComponent(lead.name || '')}%2C%20thank%20you%20for%20contacting%20WOMUP!`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="lead-whatsapp-btn"
+                                  title="Chat on WhatsApp"
+                                >
+                                  💬 WhatsApp
+                                </a>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            {lead.email ? (
+                              <a 
+                                href={`mailto:${lead.email}`} 
+                                className="lead-email-link"
+                                title="Click to send email"
+                              >
+                                ✉️ {lead.email}
+                              </a>
+                            ) : (
+                              <span className="lead-empty-cell">—</span>
+                            )}
+                          </td>
+                          <td>
+                            {lead.city ? (
+                              <span className="lead-city-badge">📍 {lead.city}</span>
+                            ) : (
+                              <span className="lead-empty-cell">—</span>
+                            )}
+                          </td>
+                          <td>
+                            {lead.area ? (
+                              <span className="lead-area-badge">🏘️ {lead.area}</span>
+                            ) : (
+                              <span className="lead-empty-cell">—</span>
+                            )}
+                          </td>
+                          <td>
+                            <span className="lead-date-text">🕒 {formattedDate}</span>
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            <button
+                              type="button"
+                              className="btn-admin-delete"
+                              disabled={deletingLeadId === lead._id}
+                              onClick={() => handleDeleteLead(lead._id, lead.name)}
+                              title="Delete this submission"
+                            >
+                              {deletingLeadId === lead._id ? '⏳' : '🗑️ Delete'}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* TAB 1: ADD NEW PHOTO / VIDEO FORM */}
         {activeTab === 'add' && (
