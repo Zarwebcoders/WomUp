@@ -555,113 +555,199 @@ export default function AdminPortal() {
                 )}
               </div>
             ) : (
-              <div className="admin-table-responsive">
-                <table className="admin-table admin-leads-table">
-                  <thead>
-                    <tr>
-                      <th style={{ width: 45 }}>#</th>
-                      <th>Customer Name</th>
-                      <th>Mobile Number</th>
-                      <th>Email Address</th>
-                      <th>City</th>
-                      <th>Area</th>
-                      <th>Submitted On</th>
-                      <th style={{ textAlign: 'center', width: 90 }}>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredLeads.map((lead, idx) => {
-                      const cleanPhone = String(lead.mobile || '').replace(/\D/g, '');
-                      const formattedDate = lead.createdAt 
-                        ? new Date(lead.createdAt).toLocaleString('en-IN', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })
-                        : 'Just now';
+              <>
+                {/* Desktop Table View (screens >= 768px) */}
+                <div className="admin-table-responsive admin-leads-desktop-table">
+                  <table className="admin-table admin-leads-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: 45 }}>#</th>
+                        <th>Customer Name</th>
+                        <th>Mobile Number</th>
+                        <th>Email Address</th>
+                        <th>City</th>
+                        <th>Area</th>
+                        <th>Submitted On</th>
+                        <th style={{ textAlign: 'center', width: 90 }}>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredLeads.map((lead, idx) => {
+                        const cleanPhone = String(lead.mobile || '').replace(/\D/g, '');
+                        const formattedDate = lead.createdAt 
+                          ? new Date(lead.createdAt).toLocaleString('en-IN', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })
+                          : 'Just now';
 
-                      return (
-                        <tr key={lead._id || idx}>
-                          <td style={{ color: '#64748b', fontWeight: 700 }}>
-                            {idx + 1}
-                          </td>
-                          <td>
-                            <strong className="lead-name-text">{lead.name || 'Anonymous'}</strong>
-                            {lead.role && (
-                              <span className="lead-role-badge">{lead.role}</span>
-                            )}
-                          </td>
-                          <td>
-                            <div className="lead-phone-cell">
-                              <a 
-                                href={`tel:${cleanPhone}`} 
-                                className="lead-phone-link"
-                                title="Click to call"
-                              >
-                                📞 +91 {lead.mobile}
-                              </a>
-                              {cleanPhone && (
-                                <a
-                                  href={`https://wa.me/91${cleanPhone}?text=Hello%20${encodeURIComponent(lead.name || '')}%2C%20thank%20you%20for%20contacting%20WOMUP!`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="lead-whatsapp-btn"
-                                  title="Chat on WhatsApp"
-                                >
-                                  💬 WhatsApp
-                                </a>
+                        return (
+                          <tr key={lead._id || idx}>
+                            <td style={{ color: '#64748b', fontWeight: 700 }}>
+                              {idx + 1}
+                            </td>
+                            <td>
+                              <strong className="lead-name-text">{lead.name || 'Anonymous'}</strong>
+                              {lead.role && (
+                                <span className="lead-role-badge">{lead.role}</span>
                               )}
-                            </div>
-                          </td>
-                          <td>
-                            {lead.email ? (
-                              <a 
-                                href={`mailto:${lead.email}`} 
-                                className="lead-email-link"
-                                title="Click to send email"
+                            </td>
+                            <td>
+                              <div className="lead-phone-cell">
+                                <a 
+                                  href={`tel:${cleanPhone}`} 
+                                  className="lead-phone-link"
+                                  title="Click to call"
+                                >
+                                  📞 +91 {lead.mobile}
+                                </a>
+                                {cleanPhone && (
+                                  <a
+                                    href={`https://wa.me/91${cleanPhone}?text=Hello%20${encodeURIComponent(lead.name || '')}%2C%20thank%20you%20for%20contacting%20WOMUP!`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="lead-whatsapp-btn"
+                                    title="Chat on WhatsApp"
+                                  >
+                                    💬 WhatsApp
+                                  </a>
+                                )}
+                              </div>
+                            </td>
+                            <td>
+                              {lead.email ? (
+                                <a 
+                                  href={`mailto:${lead.email}`} 
+                                  className="lead-email-link"
+                                  title="Click to send email"
+                                >
+                                  ✉️ {lead.email}
+                                </a>
+                              ) : (
+                                <span className="lead-empty-cell">—</span>
+                              )}
+                            </td>
+                            <td>
+                              {lead.city ? (
+                                <span className="lead-city-badge">📍 {lead.city}</span>
+                              ) : (
+                                <span className="lead-empty-cell">—</span>
+                              )}
+                            </td>
+                            <td>
+                              {lead.area ? (
+                                <span className="lead-area-badge">🏘️ {lead.area}</span>
+                              ) : (
+                                <span className="lead-empty-cell">—</span>
+                              )}
+                            </td>
+                            <td>
+                              <span className="lead-date-text">🕒 {formattedDate}</span>
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              <button
+                                type="button"
+                                className="btn-admin-delete"
+                                disabled={deletingLeadId === lead._id}
+                                onClick={() => handleDeleteLead(lead._id, lead.name)}
+                                title="Delete this submission"
                               >
+                                {deletingLeadId === lead._id ? '⏳' : '🗑️ Delete'}
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Cards View (screens < 768px) */}
+                <div className="admin-leads-mobile-list">
+                  {filteredLeads.map((lead, idx) => {
+                    const cleanPhone = String(lead.mobile || '').replace(/\D/g, '');
+                    const formattedDate = lead.createdAt 
+                      ? new Date(lead.createdAt).toLocaleString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })
+                      : 'Just now';
+
+                    return (
+                      <div key={lead._id || idx} className="lead-mobile-card">
+                        <div className="lead-card-top">
+                          <div className="lead-card-user-info">
+                            <span className="lead-card-index">#{idx + 1}</span>
+                            <div>
+                              <h4 className="lead-card-name">{lead.name || 'Anonymous'}</h4>
+                              {lead.role && <span className="lead-role-badge">{lead.role}</span>}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            className="btn-lead-card-delete"
+                            disabled={deletingLeadId === lead._id}
+                            onClick={() => handleDeleteLead(lead._id, lead.name)}
+                            title="Delete submission"
+                          >
+                            {deletingLeadId === lead._id ? '⏳' : '🗑️ Delete'}
+                          </button>
+                        </div>
+
+                        <div className="lead-card-details">
+                          {/* Quick Action Buttons: Call & WhatsApp */}
+                          <div className="lead-card-actions-row">
+                            <a href={`tel:${cleanPhone}`} className="lead-btn-call">
+                              📞 Call +91 {lead.mobile}
+                            </a>
+                            {cleanPhone && (
+                              <a
+                                href={`https://wa.me/91${cleanPhone}?text=Hello%20${encodeURIComponent(lead.name || '')}%2C%20thank%20you%20for%20contacting%20WOMUP!`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="lead-btn-wa"
+                              >
+                                💬 WhatsApp
+                              </a>
+                            )}
+                          </div>
+
+                          {/* Email */}
+                          {lead.email && (
+                            <div className="lead-card-info-row">
+                              <span className="lead-card-info-label">Email:</span>
+                              <a href={`mailto:${lead.email}`} className="lead-card-email-link">
                                 ✉️ {lead.email}
                               </a>
-                            ) : (
-                              <span className="lead-empty-cell">—</span>
-                            )}
-                          </td>
-                          <td>
-                            {lead.city ? (
+                            </div>
+                          )}
+
+                          {/* Location Badges */}
+                          <div className="lead-card-pills-row">
+                            {lead.city && (
                               <span className="lead-city-badge">📍 {lead.city}</span>
-                            ) : (
-                              <span className="lead-empty-cell">—</span>
                             )}
-                          </td>
-                          <td>
-                            {lead.area ? (
+                            {lead.area && (
                               <span className="lead-area-badge">🏘️ {lead.area}</span>
-                            ) : (
-                              <span className="lead-empty-cell">—</span>
                             )}
-                          </td>
-                          <td>
-                            <span className="lead-date-text">🕒 {formattedDate}</span>
-                          </td>
-                          <td style={{ textAlign: 'center' }}>
-                            <button
-                              type="button"
-                              className="btn-admin-delete"
-                              disabled={deletingLeadId === lead._id}
-                              onClick={() => handleDeleteLead(lead._id, lead.name)}
-                              title="Delete this submission"
-                            >
-                              {deletingLeadId === lead._id ? '⏳' : '🗑️ Delete'}
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                          </div>
+
+                          {/* Footer Timestamp */}
+                          <div className="lead-card-footer">
+                            <span className="lead-date-text">🕒 Submitted: {formattedDate}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
             )}
           </div>
         )}
@@ -836,7 +922,7 @@ export default function AdminPortal() {
               </button>
             </div>
 
-            <div className="admin-media-table-wrap">
+            <div className="admin-media-table-wrap admin-media-desktop-table">
               <table className="admin-table">
                 <thead>
                   <tr>
@@ -887,6 +973,41 @@ export default function AdminPortal() {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile Cards for Media Items */}
+            <div className="admin-media-mobile-list">
+              {mediaList.map((item) => (
+                <div key={item.id} className="admin-media-card-mobile">
+                  <div className="admin-media-card-mobile-top">
+                    <img
+                      src={item.type === 'video' ? (item.thumbnail || item.image) : item.image}
+                      alt={item.title}
+                      className="admin-media-card-mobile-thumb"
+                    />
+                    <div className="admin-media-card-mobile-info">
+                      <span className={`admin-type-pill ${item.type}`}>
+                        {item.type === 'video' ? '🎬 VIDEO' : '📸 PHOTO'}
+                      </span>
+                      <strong className="admin-item-title-text">{item.title}</strong>
+                      <p className="admin-item-desc-text">{item.desc}</p>
+                    </div>
+                  </div>
+                  <div className="admin-media-card-mobile-footer">
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                      <span className="admin-cat-pill">{item.categoryLabel || item.category}</span>
+                      <span className="admin-loc-text">📍 {item.location || 'Gujarat'}</span>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn-admin-delete"
+                      onClick={() => handleDelete(item.id, item.title)}
+                    >
+                      🗑️ Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
