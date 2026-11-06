@@ -53,7 +53,7 @@ const SetRoiModal = ({ isOpen, onClose, user, token, onSuccess }) => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
             <div className="glass-card w-full max-w-md overflow-hidden relative animate-in fade-in zoom-in duration-300">
                 <div className="p-6 border-b border-white/10 flex justify-between items-center">
-                    <h3 className="text-xl font-bold font-cormorant flex items-center">
+                    <h3 className="text-xl font-bold font-cormorant text-white flex items-center">
                         <DollarSign className="mr-2 text-primary" size={20} />
                         Set Monthly ROI
                     </h3>

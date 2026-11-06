@@ -122,7 +122,7 @@ const Profile = () => {
                 <div className="lg:col-span-1 space-y-6">
                     {/* Basic Info */}
                     <div className="glass-card p-6 md:p-8 space-y-6">
-                        <h3 className="text-xl font-bold border-b border-white/5 pb-3">Contact Details</h3>
+                        <h3 className="text-xl font-bold text-white border-b border-white/5 pb-3">Contact Details</h3>
                         <div className="space-y-4">
                             <div className="flex items-center space-x-4">
                                 <div className="p-3 bg-white/5 rounded-xl text-gray-400">
@@ -158,7 +158,7 @@ const Profile = () => {
 
                     {/* Network Info */}
                     <div className="glass-card p-6 md:p-8 space-y-6">
-                        <h3 className="text-xl font-bold border-b border-white/5 pb-3">Network Summary</h3>
+                        <h3 className="text-xl font-bold text-white border-b border-white/5 pb-3">Network Summary</h3>
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-3">
@@ -184,7 +184,7 @@ const Profile = () => {
                 <div className="lg:col-span-2 space-y-6">
                     {/* Financial Summary */}
                     <div className="glass-card p-6 md:p-8 space-y-6">
-                        <h3 className="text-xl font-bold border-b border-white/5 pb-3">Financial Overview</h3>
+                        <h3 className="text-xl font-bold text-white border-b border-white/5 pb-3">Financial Overview</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {/* Total Income */}
                             <div className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors flex items-center justify-between">
@@ -228,7 +228,7 @@ const Profile = () => {
                     {profileData.role !== 'distributer' && (
                         <div className="glass-card p-6 md:p-8 space-y-6">
                             <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                                <h3 className="text-xl font-bold">Active Package Details</h3>
+                                <h3 className="text-xl font-bold text-white">Active Package Details</h3>
                                 <ShieldCheck size={24} className="text-primary-light" />
                             </div>
                             {profileData.packageId ? (

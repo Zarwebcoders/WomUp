@@ -156,7 +156,7 @@ const Dashboard = () => {
             <div className={`grid grid-cols-1 ${(isAdmin || user?.role === 'distributer') ? 'lg:grid-cols-1' : 'lg:grid-cols-3'} gap-8`}>
                 <div className={`${(isAdmin || user?.role === 'distributer') ? 'lg:col-span-1' : 'lg:col-span-2'} glass-card p-4 md:p-8`}>
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                        <h3 className="text-lg md:text-xl font-bold">{isAdmin ? 'Platform Performance' : 'Income Analytics'}</h3>
+                        <h3 className="text-lg md:text-xl font-bold text-white">{isAdmin ? 'Platform Performance' : 'Income Analytics'}</h3>
                         <select 
                             className="w-full sm:w-auto bg-white/5 border border-white/10 rounded-lg px-3 py-1 text-sm outline-none text-gray-400 cursor-pointer hover:border-primary/50"
                             value={period}
@@ -188,7 +188,7 @@ const Dashboard = () => {
                             <ShieldCheck className="text-primary-light mx-auto" size={40} />
                             <div>
                                 <h3 className="text-gray-400 text-sm mb-1">Active Package</h3>
-                                <h2 className="text-3xl font-bold font-cormorant">
+                                <h2 className="text-3xl font-bold font-cormorant text-white">
                                     {stats?.user?.packageId?.packageName || 'No Package'}
                                     {stats?.user?.packageId && (stats?.user?.packageQuantity || 1) > 1 && ` (x${stats?.user?.packageQuantity})`}
                                 </h2>
@@ -225,7 +225,7 @@ const Dashboard = () => {
             {/* Activities Table */}
             <div className="glass-card overflow-hidden">
                 <div className="p-8 border-b border-white/5 flex justify-between items-center">
-                    <h3 className="text-xl font-bold">Recent Activities</h3>
+                    <h3 className="text-xl font-bold text-white">Recent Activities</h3>
                     <button className="text-primary text-sm font-semibold flex items-center">
                         View All <ArrowUpRight size={16} className="ml-1" />
                     </button>

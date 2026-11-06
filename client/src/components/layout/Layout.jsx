@@ -49,7 +49,7 @@ const Layout = () => {
     const { title, desc } = getPageInfo();
 
     return (
-        <div className="flex h-screen bg-background overflow-hidden relative">
+        <div className="flex h-screen bg-background overflow-hidden relative text-white">
             {/* Sidebar with state control */}
             <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 

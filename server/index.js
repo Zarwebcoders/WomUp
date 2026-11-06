@@ -101,6 +101,7 @@ dashboardRoutes.get('/', require('./middleware/authMiddleware').protect, require
 app.use('/api/dashboard', dashboardRoutes);
 
 const referralRoutes = express.Router();
+referralRoutes.get('/eligibility', require('./middleware/authMiddleware').protect, require('./controllers/referralController').getLevelEligibility);
 referralRoutes.get('/team/:level', require('./middleware/authMiddleware').protect, require('./controllers/referralController').getTeamByLevel);
 app.use('/api/referral', referralRoutes);
 

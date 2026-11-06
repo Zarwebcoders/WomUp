@@ -146,7 +146,7 @@ const Packages = () => {
                                 {getIcon(pkg.packageName)}
                             </div>
 
-                            <h3 className="text-2xl font-bold mb-2 font-cormorant">{pkg.packageName} Package</h3>
+                            <h3 className="text-2xl font-bold mb-2 font-cormorant text-white">{pkg.packageName} Package</h3>
                             <div className="flex items-baseline mb-8">
                                 <span className="text-5xl font-bold font-space">₹{pkg.price.toLocaleString()}</span>
                             </div>
@@ -186,7 +186,7 @@ const Packages = () => {
                 </div>
 
                 <div className="glass-card p-10 bg-gradient-to-r from-card to-primary/5 text-center border-white/5">
-                    <h3 className="text-2xl font-bold mb-2 font-cormorant">Need a custom plan?</h3>
+                    <h3 className="text-2xl font-bold mb-2 font-cormorant text-white">Need a custom plan?</h3>
                     <p className="text-gray-400 mb-8 max-w-md mx-auto">Contact our sales team for institutional investment options and dedicated account management.</p>
                     <button className="px-8 py-3 bg-white/5 rounded-xl text-primary font-bold hover:bg-white/10 transition-all border border-white/5">Contact Support</button>
                 </div>

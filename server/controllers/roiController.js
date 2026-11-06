@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Package = require('../models/Package');
 const Income = require('../models/Income');
+const { countUserDirects, isLevelUnlocked, getRequiredDirectsForLevel } = require('../utils/levelEligibility');
 
 // @desc    Distribute Monthly ROI
 // @access  Internal/Admin
@@ -184,27 +185,41 @@ const distributeLevelIncomeFromROI = async (sponsorIdOrCode, fromUserId, roiAmou
     let nextLevel = level;
 
     if (sponsor.isActive || sponsor.role === 'distributer') {
-        // Get percentage for this level from the package
-        const levelPercentage = pkg.levelPercentages[level - 1] || 0;
+        // Direct condition check:
+        // L1 & L2: 1 direct compulsory
+        // L3 & L4: 2 direct compulsory
+        // L5 & L6: 3 direct compulsory
+        // L7 & L8: 4 direct compulsory
+        // L9 & L10: 5 direct compulsory
+        const directCount = await countUserDirects(sponsor);
+        const isQualified = isLevelUnlocked(level, directCount, sponsor.role === 'admin');
 
-        if (levelPercentage > 0) {
-            const levelIncomeAmount = (roiAmount * levelPercentage) / 100;
+        if (!isQualified) {
+            const required = getRequiredDirectsForLevel(level);
+            console.log(`[ROI Level Payout] Sponsor ${sponsor.userId || sponsor.name} does not meet direct requirement for Level ${level} (Requires ${required}, has ${directCount}). Skipping level income.`);
+        } else {
+            // Get percentage for this level from the package
+            const levelPercentage = pkg.levelPercentages[level - 1] || 0;
 
-            const isVisible = require('../utils/visibilityUtils').isIncomeVisibleNow();
-            if (isVisible) {
-                sponsor.levelIncome += levelIncomeAmount;
-                sponsor.totalIncome += levelIncomeAmount;
-                await sponsor.save();
+            if (levelPercentage > 0) {
+                const levelIncomeAmount = (roiAmount * levelPercentage) / 100;
+
+                const isVisible = require('../utils/visibilityUtils').isIncomeVisibleNow();
+                if (isVisible) {
+                    sponsor.levelIncome += levelIncomeAmount;
+                    sponsor.totalIncome += levelIncomeAmount;
+                    await sponsor.save();
+                }
+
+                await Income.create({
+                    userId: sponsor._id,
+                    incomeType: 'level',
+                    amount: levelIncomeAmount,
+                    fromUser: fromUserId,
+                    level: level,
+                    showToUser: isVisible
+                });
             }
-
-            await Income.create({
-                userId: sponsor._id,
-                incomeType: 'level',
-                amount: levelIncomeAmount,
-                fromUser: fromUserId,
-                level: level,
-                showToUser: isVisible
-            });
         }
         // Increment MLM level count only for active sponsors or distributors
         nextLevel = level + 1;

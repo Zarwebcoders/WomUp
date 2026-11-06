@@ -1,5 +1,12 @@
 const User = require('../models/User');
 const Income = require('../models/Income');
+const {
+    getRequiredDirectsForLevel,
+    getMaxUnlockedLevel,
+    isLevelUnlocked,
+    countUserDirects,
+    getLevelStatusList
+} = require('../utils/levelEligibility');
 
 // Helper to recursively construct level map based on network hierarchy
 const buildLevelMap = async (currentUser, currentLevel, levelMap, maxLevel = 10) => {
@@ -12,7 +19,10 @@ const buildLevelMap = async (currentUser, currentLevel, levelMap, maxLevel = 10)
             { referredBy: currentUser._id }
         ]
     };
-    const referrals = await User.find(query).select('referralCode _id');
+    if (currentUser.userId && currentUser.userId !== currentUser.referralCode) {
+        query.$or.push({ referredBy: currentUser.userId });
+    }
+    const referrals = await User.find(query).select('referralCode _id userId');
 
     for (const ref of referrals) {
         levelMap[ref.referralCode] = currentLevel;
@@ -20,7 +30,28 @@ const buildLevelMap = async (currentUser, currentLevel, levelMap, maxLevel = 10)
     }
 };
 
-// @desc    Get team details by level
+// @desc    Get level eligibility status for current user
+// @route   GET /api/referral/eligibility
+// @access  Private
+const getLevelEligibility = async (req, res) => {
+    try {
+        const isAdmin = req.user.role === 'admin';
+        const directCount = await countUserDirects(req.user);
+        const maxUnlockedLevel = isAdmin ? 10 : getMaxUnlockedLevel(directCount);
+        const levelStatuses = getLevelStatusList(directCount, isAdmin);
+
+        res.json({
+            directCount,
+            maxUnlockedLevel,
+            levels: levelStatuses
+        });
+    } catch (error) {
+        console.error('Eligibility API Error:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Get team details by level with direct qualification check
 // @route   GET /api/referral/team/:level
 // @access  Private
 const getTeamByLevel = async (req, res) => {
@@ -28,18 +59,52 @@ const getTeamByLevel = async (req, res) => {
         const levelParam = req.params.level;
         const { search } = req.query;
 
+        const isAdmin = req.user.role === 'admin';
+        const directCount = await countUserDirects(req.user);
+        const maxUnlockedLevel = isAdmin ? 10 : getMaxUnlockedLevel(directCount);
+        const levelStatuses = getLevelStatusList(directCount, isAdmin);
+
+        // Check if a specific level was requested and if it is locked
+        if (levelParam !== 'all') {
+            const targetLevel = parseInt(levelParam, 10) || 1;
+            const requiredDirects = getRequiredDirectsForLevel(targetLevel);
+            const isLocked = !isLevelUnlocked(targetLevel, directCount, isAdmin);
+
+            if (isLocked) {
+                return res.json({
+                    team: [],
+                    isLocked: true,
+                    level: targetLevel,
+                    requiredDirects,
+                    directCount,
+                    maxUnlockedLevel,
+                    levelStatuses
+                });
+            }
+        }
+
         let levelMap = {}; // To store referralCode -> level
         
         await buildLevelMap(req.user, 1, levelMap, 10);
 
         let allLevelCodes = Object.keys(levelMap);
         if (levelParam !== 'all') {
-            const targetLevel = parseInt(levelParam) || 1;
+            const targetLevel = parseInt(levelParam, 10) || 1;
             allLevelCodes = allLevelCodes.filter(code => levelMap[code] === targetLevel);
+        } else if (!isAdmin) {
+            // For 'all' levels, only show team members up to user's unlocked level
+            allLevelCodes = allLevelCodes.filter(code => (levelMap[code] || 0) <= maxUnlockedLevel);
         }
 
         if (allLevelCodes.length === 0) {
-            return res.json([]);
+            return res.json({
+                team: [],
+                isLocked: false,
+                level: levelParam,
+                directCount,
+                maxUnlockedLevel,
+                levelStatuses
+            });
         }
 
         let query = { referralCode: { $in: allLevelCodes } };
@@ -52,7 +117,7 @@ const getTeamByLevel = async (req, res) => {
             ];
         }
 
-                const users = await User.find(query)
+        const users = await User.find(query)
             .select('name email userId mobile isActive referralCode referredBy teamCount createdAt packageId packageQuantity')
             .populate('packageId', 'packageName price')
             .sort({ createdAt: -1 })
@@ -73,11 +138,18 @@ const getTeamByLevel = async (req, res) => {
             };
         }));
 
-        res.json(team);
+        res.json({
+            team,
+            isLocked: false,
+            level: levelParam,
+            directCount,
+            maxUnlockedLevel,
+            levelStatuses
+        });
     } catch (error) {
         console.error('Team API Error:', error);
         res.status(500).json({ message: 'Server Error' });
     }
 };
 
-module.exports = { getTeamByLevel };
+module.exports = { getTeamByLevel, getLevelEligibility };

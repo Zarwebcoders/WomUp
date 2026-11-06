@@ -418,7 +418,7 @@ const AdminUserDetails = () => {
                     {/* Technical & Referral Info */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="glass-card p-6 space-y-6">
-                            <h3 className="text-lg font-bold flex items-center space-x-2">
+                            <h3 className="text-lg font-bold text-white flex items-center space-x-2">
                                 <Key size={18} className="text-primary" />
                                 <span>Security & Credentials</span>
                             </h3>
@@ -437,7 +437,7 @@ const AdminUserDetails = () => {
                         </div>
 
                         <div className="glass-card p-6 space-y-6">
-                            <h3 className="text-lg font-bold flex items-center space-x-2">
+                            <h3 className="text-lg font-bold text-white flex items-center space-x-2">
                                 <History size={18} className="text-primary" />
                                 <span>Network & Package</span>
                             </h3>

@@ -2,6 +2,7 @@ const Package = require('../models/Package');
 const User = require('../models/User');
 const Income = require('../models/Income');
 const PackageRequest = require('../models/PackageRequest');
+const { countUserDirects, isLevelUnlocked, getRequiredDirectsForLevel } = require('../utils/levelEligibility');
 
 // @desc    Get all packages
 // @route   GET /api/packages
@@ -208,35 +209,49 @@ const distributeIncomes = async (sponsorIdOrCode, fromUserId, pkg, level, purcha
     let nextLevel = level;
 
     if (sponsor.isActive || sponsor.role === 'distributer') {
-        // Determine the referral amounts array to use based on transition cutoff date
-        let referralAmounts = pkg.referralAmounts;
-        const isOld = dateForRates < REFERRAL_TRANSITION_CUTOFF;
-        if (isOld) {
-            referralAmounts = OLD_REFERRAL_AMOUNTS[pkg.packageName] || pkg.referralAmounts;
+        // Direct condition check:
+        // L1 & L2: 1 direct compulsory
+        // L3 & L4: 2 direct compulsory
+        // L5 & L6: 3 direct compulsory
+        // L7 & L8: 4 direct compulsory
+        // L9 & L10: 5 direct compulsory
+        const directCount = await countUserDirects(sponsor);
+        const isQualified = isLevelUnlocked(level, directCount, sponsor.role === 'admin');
+
+        if (!isQualified) {
+            const required = getRequiredDirectsForLevel(level);
+            console.log(`[Referral Payout] Sponsor ${sponsor.userId || sponsor.name} does not meet direct requirement for Level ${level} (Requires ${required}, has ${directCount}). Skipping referral income.`);
         } else {
-            referralAmounts = NEW_REFERRAL_AMOUNTS[pkg.packageName] || pkg.referralAmounts;
-        }
-
-        // Referral Income (Fixed Amount) only
-        const refAmount = (referralAmounts[level - 1] || 0) * quantity;
-        if (refAmount > 0) {
-            const isVisible = require('../utils/visibilityUtils').isIncomeVisibleNow();
-            if (isVisible) {
-                sponsor.referralIncome += refAmount;
-                sponsor.totalIncome += refAmount;
+            // Determine the referral amounts array to use based on transition cutoff date
+            let referralAmounts = pkg.referralAmounts;
+            const isOld = dateForRates < REFERRAL_TRANSITION_CUTOFF;
+            if (isOld) {
+                referralAmounts = OLD_REFERRAL_AMOUNTS[pkg.packageName] || pkg.referralAmounts;
+            } else {
+                referralAmounts = NEW_REFERRAL_AMOUNTS[pkg.packageName] || pkg.referralAmounts;
             }
-            
-            await Income.create({
-                userId: sponsor._id, // Must be the sponsor's ObjectId!
-                incomeType: 'referral',
-                amount: refAmount,
-                fromUser: fromUserId,
-                level: level,
-                showToUser: isVisible
-            });
 
-            if (isVisible) {
-                await sponsor.save();
+            // Referral Income (Fixed Amount) only
+            const refAmount = (referralAmounts[level - 1] || 0) * quantity;
+            if (refAmount > 0) {
+                const isVisible = require('../utils/visibilityUtils').isIncomeVisibleNow();
+                if (isVisible) {
+                    sponsor.referralIncome += refAmount;
+                    sponsor.totalIncome += refAmount;
+                }
+                
+                await Income.create({
+                    userId: sponsor._id, // Must be the sponsor's ObjectId!
+                    incomeType: 'referral',
+                    amount: refAmount,
+                    fromUser: fromUserId,
+                    level: level,
+                    showToUser: isVisible
+                });
+
+                if (isVisible) {
+                    await sponsor.save();
+                }
             }
         }
         // Increment MLM level count only for active sponsors or distributors
