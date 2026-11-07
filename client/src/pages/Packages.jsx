@@ -106,6 +106,11 @@ const Packages = () => {
         }
     };
 
+    // Filter out 55,000 (Standard) package from purchase
+    const availablePackages = packages.filter(
+        pkg => pkg.price !== 55000 && pkg.packageName?.toLowerCase() !== 'standard'
+    );
+
     return (
         <>
             <motion.div 
@@ -127,8 +132,8 @@ const Packages = () => {
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    {packages.map((pkg, index) => (
+                <div className={`grid grid-cols-1 ${availablePackages.length > 1 ? 'md:grid-cols-2 max-w-4xl' : 'max-w-xl'} gap-8 mx-auto`}>
+                    {availablePackages.map((pkg, index) => (
                         <motion.div 
                             key={pkg._id}
                             initial={{ opacity: 0, y: 20 }}

@@ -23,6 +23,11 @@ const buyPackage = async (req, res) => {
             return res.status(400).json({ message: 'Transaction ID and Slip are required' });
         }
 
+        const selectedPkg = await Package.findById(packageId);
+        if (!selectedPkg || selectedPkg.price === 55000 || selectedPkg.packageName?.toLowerCase() === 'standard') {
+            return res.status(400).json({ message: 'The ₹55,000 package is currently not available for purchase' });
+        }
+
         // Convert image buffer to Base64 string (no filesystem needed)
         const mimeType = req.file.mimetype;
         const base64Image = `data:${mimeType};base64,${req.file.buffer.toString('base64')}`;
