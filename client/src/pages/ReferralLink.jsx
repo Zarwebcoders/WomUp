@@ -7,16 +7,16 @@ import { useAuth } from '../context/AuthContext';
 import { QRCodeSVG } from 'qrcode.react';
 
 const LEVEL_RULES = [
-    { level: 'L1', num: 1, ref: '₹3,000 / ₹6,000', pct: '18%', cond: '1 Direct Compulsory', req: 1, color: 'text-blue-400' },
-    { level: 'L2', num: 2, ref: '₹1,200 / ₹2,500', pct: '9%', cond: '1 Direct Compulsory', req: 1, color: 'text-purple-400' },
-    { level: 'L3', num: 3, ref: '₹1,100 / ₹2,500', pct: '6%', cond: '2 Direct Compulsory', req: 2, color: 'text-pink-400' },
-    { level: 'L4', num: 4, ref: '₹900 / ₹2,000', pct: '4.8%', cond: '2 Direct Compulsory', req: 2, color: 'text-orange-400' },
-    { level: 'L5', num: 5, ref: '₹900 / ₹2,000', pct: '3%', cond: '3 Direct Compulsory', req: 3, color: 'text-yellow-400' },
-    { level: 'L6', num: 6, ref: '₹700 / ₹1,500', pct: '3%', cond: '3 Direct Compulsory', req: 3, color: 'text-green-400' },
-    { level: 'L7', num: 7, ref: '₹700 / ₹1,500', pct: '1.8%', cond: '4 Direct Compulsory', req: 4, color: 'text-teal-400' },
-    { level: 'L8', num: 8, ref: '₹500 / ₹1,000', pct: '1.8%', cond: '4 Direct Compulsory', req: 4, color: 'text-blue-500' },
-    { level: 'L9', num: 9, ref: '₹500 / ₹1,000', pct: '1.8%', cond: '5 Direct Compulsory', req: 5, color: 'text-indigo-400' },
-    { level: 'L10', num: 10, ref: '₹500 / ₹1,000', pct: '0.8%', cond: '5 Direct Compulsory', req: 5, color: 'text-violet-400' },
+    { level: 'L1', num: 1, ref: '₹3,000 / ₹6,000', pct: '18%', cond: '1 Active Direct Compulsory', req: 1, color: 'text-blue-400' },
+    { level: 'L2', num: 2, ref: '₹1,200 / ₹2,500', pct: '9%', cond: '1 Active Direct Compulsory', req: 1, color: 'text-purple-400' },
+    { level: 'L3', num: 3, ref: '₹1,100 / ₹2,500', pct: '6%', cond: '2 Active Directs Compulsory', req: 2, color: 'text-pink-400' },
+    { level: 'L4', num: 4, ref: '₹900 / ₹2,000', pct: '4.8%', cond: '2 Active Directs Compulsory', req: 2, color: 'text-orange-400' },
+    { level: 'L5', num: 5, ref: '₹900 / ₹2,000', pct: '3%', cond: '3 Active Directs Compulsory', req: 3, color: 'text-yellow-400' },
+    { level: 'L6', num: 6, ref: '₹700 / ₹1,500', pct: '3%', cond: '3 Active Directs Compulsory', req: 3, color: 'text-green-400' },
+    { level: 'L7', num: 7, ref: '₹700 / ₹1,500', pct: '1.8%', cond: '4 Active Directs Compulsory', req: 4, color: 'text-teal-400' },
+    { level: 'L8', num: 8, ref: '₹500 / ₹1,000', pct: '1.8%', cond: '4 Active Directs Compulsory', req: 4, color: 'text-blue-500' },
+    { level: 'L9', num: 9, ref: '₹500 / ₹1,000', pct: '1.8%', cond: '5 Active Directs Compulsory', req: 5, color: 'text-indigo-400' },
+    { level: 'L10', num: 10, ref: '₹500 / ₹1,000', pct: '0.8%', cond: '5 Active Directs Compulsory', req: 5, color: 'text-violet-400' },
 ];
 
 const ReferralLink = () => {
@@ -151,12 +151,12 @@ const ReferralLink = () => {
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
                             <div>
                                 <h3 className="text-xl font-bold font-cormorant text-white">Network Reward Structure (10 Levels)</h3>
-                                <p className="text-xs text-gray-400 mt-0.5">Compulsory direct requirements to open each level and earn its income.</p>
+                                <p className="text-xs text-gray-400 mt-0.5">Compulsory active direct requirements to open each level and earn its income.</p>
                             </div>
                             {!isAdmin && (
                                 <div className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20 text-xs">
                                     <Users size={14} className="text-primary-light" />
-                                    <span className="text-gray-300">Your Directs:</span>
+                                    <span className="text-gray-300">Your Active Directs:</span>
                                     <span className="text-white font-bold">{directCount}</span>
                                 </div>
                             )}
