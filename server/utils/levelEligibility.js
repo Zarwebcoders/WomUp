@@ -53,7 +53,8 @@ const countUserDirects = async (user) => {
     }
 
     if (query.$or.length === 0) return 0;
-    return await User.countDocuments(query);
+    const directs = await User.find(query).select('packageQuantity');
+    return directs.reduce((sum, d) => sum + (Math.max(1, Number(d.packageQuantity) || 1)), 0);
 };
 
 const getLevelStatusList = (directCount, isAdmin = false) => {
