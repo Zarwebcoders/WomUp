@@ -84,14 +84,14 @@ const TeamDetails = () => {
                                 <div className="flex items-center space-x-2">
                                     <h2 className="text-lg font-bold text-white">Level Unlock Status</h2>
                                     <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/20 text-primary-light border border-primary/30">
-                                        {directCount} Active Direct{directCount === 1 ? '' : 's'}
+                                        {directCount} Direct Active Pkg{directCount === 1 ? '' : 's'}
                                     </span>
                                 </div>
                                 <p className="text-xs text-gray-400 mt-0.5">
                                     You have unlocked <span className="text-white font-semibold">{maxUnlockedLevel > 0 ? `Level 1 to ${maxUnlockedLevel}` : '0 Levels'}</span>.
                                     {maxUnlockedLevel < 10 && (
                                         <span className="ml-1 text-primary-light">
-                                            Refer more active directs to unlock remaining levels.
+                                            Refer more directs with active package to unlock remaining levels.
                                         </span>
                                     )}
                                 </p>
@@ -118,7 +118,7 @@ const TeamDetails = () => {
                                     <span className="font-bold">{rule.lvls}</span>
                                     <span className="text-[10px] flex items-center">
                                         {rule.open ? <CheckCircle size={12} className="ml-0.5" /> : <Lock size={11} className="ml-0.5 text-yellow-400" />}
-                                        <span className="ml-1">{rule.req} Active Dir</span>
+                                        <span className="ml-1">{rule.req} Direct Pkg</span>
                                     </span>
                                 </div>
                             ))}
@@ -153,7 +153,7 @@ const TeamDetails = () => {
                                     const locked = !isAdmin && directCount < req;
                                     return (
                                         <option key={level} value={level}>
-                                            Level {level} {locked ? `🔒 (${req} Active Direct Compulsory)` : '✓ Open'}
+                                            Level {level} {locked ? `🔒 (${req} Direct Any User's Active Package Compulsory)` : '✓ Open'}
                                         </option>
                                     );
                                 })}
@@ -171,10 +171,10 @@ const TeamDetails = () => {
                         <div className="space-y-2 max-w-md">
                             <h3 className="text-2xl font-bold font-cormorant text-white">Level {activeLevel} is Locked</h3>
                             <p className="text-sm text-gray-400">
-                                This level requires <span className="text-yellow-400 font-bold">{activeReqDirects} active direct referral{activeReqDirects === 1 ? '' : 's'} compulsory</span> to unlock and receive income.
+                                This level requires <span className="text-yellow-400 font-bold">{activeReqDirects} direct any user's active package compulsory</span> to unlock and receive income.
                             </p>
                             <p className="text-xs text-gray-500">
-                                You currently have <span className="text-white font-bold">{directCount}</span> active direct referral{directCount === 1 ? '' : 's'}. 
+                                You currently have <span className="text-white font-bold">{directCount}</span> direct referral{directCount === 1 ? '' : 's'} with active package. 
                                 Refer <span className="text-primary-light font-bold">{Math.max(0, activeReqDirects - directCount)}</span> more to unlock Level {activeLevel} & its income.
                             </p>
                         </div>

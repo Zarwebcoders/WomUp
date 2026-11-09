@@ -2,12 +2,12 @@ const User = require('../models/User');
 const mongoose = require('mongoose');
 
 /**
- * Active Directs condition for opening levels & receiving level income:
- * L1 & L2: 1 direct active compulsory
- * L3 & L4: 2 direct active compulsory
- * L5 & L6: 3 direct active compulsory
- * L7 & L8: 4 direct active compulsory
- * L9 & L10: 5 direct active compulsory
+ * Directs condition for opening levels & receiving level income:
+ * L1 & L2: 1 direct any user's active package compulsory
+ * L3 & L4: 2 direct any user's active package compulsory
+ * L5 & L6: 3 direct any user's active package compulsory
+ * L7 & L8: 4 direct any user's active package compulsory
+ * L9 & L10: 5 direct any user's active package compulsory
  */
 const getRequiredDirectsForLevel = (level) => {
     const lvl = parseInt(level, 10);
@@ -66,7 +66,7 @@ const getLevelStatusList = (directCount, isAdmin = false) => {
             level: lvl,
             requiredDirects: required,
             isUnlocked: unlocked,
-            conditionText: `${required} Active Direct${required > 1 ? 's' : ''} Compulsory`
+            conditionText: `${required} Direct Any User's Active Package Compulsory`
         });
     }
     return list;
